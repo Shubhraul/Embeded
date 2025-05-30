@@ -1,0 +1,51 @@
+The Virtual COM port project is a demo program for the Keil MCB2140
+Board using the Philips LPC214x Microcontroller.
+
+It demonstrates an USB Virtual COM port based on a customized 
+USB host driver.
+
+Once the Virtual COM port device driver is installed on the LPC214x.
+Unplug then replug-in the USB cable, the PC will detect the USB
+device and look for corresponding USB host driver.
+
+The host driver came with the sample software is under
+"PLPU-S2K" directory. The PC will install two virtual COM ports 
+one after another on the PC. Once the installation is done, on the PC
+System/Hardware/Device Manager/Ports(COM&LPT), they will be two
+more virtual COM ports appeared as "Philips USB to Serial Adaptor(COMx)".  
+Number "x" is not fixed as different PC configuration may have different 
+"x" displayed on the device manager. The USB host driver assigns "x" 
+dynamically based on the existing COM port configuration of the system.
+   
+There are two ways to test the USB Virtual COM ports:
+
+  (1) With serial cable: open two Hyperterminal windows,
+One uses the "Philips USB to Serial Adaptor(COMx)", the smaller
+number "COMx" will communicate with COM0 on MCB214x, the larger number
+"COM(x+1)" will communicate with COM1 on MCB214x. If you connect PC COM 
+port COM0 to MCB214x COM0, open "COM0" and "COMx". If you connect PC
+COM port COM0 to MCB214x COM1, open "COM0" and "COM(x+1)"
+  Please note, if use COM0 of MCB214x, be sure to remove two jumbers, 
+"RST" and "ISP" on MCB214x.
+  Type in data from COM0 will echo on "COMx" and type in data
+from COM1 will echo on "COM(x+1)", visa versa. So, this is bi-directional
+communication between the physical COM port 0 and 1 on MCB214x and 
+the virtual COM ports, COMx and COM(x+1) on host PC.    
+
+  (2) Without serial cable: go to vcomuser.h, change line 
+"#define NO_UART_CABLE 0" to "#define NO_UART_CABLE 1", recompile 
+the project and update the flash.
+   Once the flash has been updated. Unplug and replug-in the USB cable 
+to reset the MCB214x board.
+   Open one or both virtual COM ports as mentioned earlier, "COMx"
+and/or "COM(x+1)", type in any data from hyper-terminal windows, the 
+ASCII data will be shown on the LEDs on MCB214x board, e.g. type in "1"
+on the hyper terminal will result in "00110001B" on LEDs from P1.16 to P1.23.
+If the INT1 button is pressed, the message "INT1 has been pressed" 
+will be shown on "COMx" and "COM(x+1)" simultaneously. This indicates
+that the MCB214x has communicated with the host PC hyper terminals via 
+USB virtual COM ports in both directions.
+
+The Virtual COM Port program is available for the following targets:
+  MCB2140 Board: configured for on-chip Flash ROM
+                 (used for production or target debugging)

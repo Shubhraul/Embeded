@@ -1,0 +1,599 @@
+ARM GAS  C:\DOCUME~1\Nex\LOCALS~1\Temp\ccNFAe56.s 			page 1
+
+
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"main.c"
+  12              	@ GNU C (GCC) version 4.5.0 (arm-none-eabi)
+  13              	@	compiled by GNU C version 3.4.5 (mingw-vista special r3), GMP version 4.3.2, MPFR version 2.4.2, 
+  14              	@ GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+  15              	@ options passed:  -I . -I./inc -iprefix
+  16              	@ c:\program files\yagarto\bin\../lib/gcc/arm-none-eabi/4.5.0/ -MD
+  17              	@ src/main.d -MF .dep/main.o.d -MP -MQ src/main.o -D__USES_INITFINI__
+  18              	@ src/main.c -mcpu=arm7tdmi -mthumb-interwork -auxbase-strip src/main.o
+  19              	@ -gdwarf-2 -O0 -Wall -Wstrict-prototypes -fomit-frame-pointer
+  20              	@ -fverbose-asm
+  21              	@ options enabled:  -falign-loops -fargument-alias -fauto-inc-dec
+  22              	@ -fbranch-count-reg -fcommon -fdelete-null-pointer-checks -fdwarf2-cfi-asm
+  23              	@ -fearly-inlining -feliminate-unused-debug-types -ffunction-cse -fgcse-lm
+  24              	@ -fident -finline-functions-called-once -fira-share-save-slots
+  25              	@ -fira-share-spill-slots -fivopts -fkeep-static-consts
+  26              	@ -fleading-underscore -fmath-errno -fmerge-debug-strings
+  27              	@ -fmove-loop-invariants -fomit-frame-pointer -fpeephole
+  28              	@ -freg-struct-return -fsched-critical-path-heuristic
+  29              	@ -fsched-dep-count-heuristic -fsched-group-heuristic -fsched-interblock
+  30              	@ -fsched-last-insn-heuristic -fsched-rank-heuristic -fsched-spec
+  31              	@ -fsched-spec-insn-heuristic -fsched-stalled-insns-dep -fshow-column
+  32              	@ -fsigned-zeros -fsplit-ivs-in-unroller -ftrapping-math -ftree-cselim
+  33              	@ -ftree-forwprop -ftree-loop-im -ftree-loop-ivcanon -ftree-loop-optimize
+  34              	@ -ftree-parallelize-loops= -ftree-phiprop -ftree-pta -ftree-reassoc
+  35              	@ -ftree-scev-cprop -ftree-slp-vectorize -ftree-vect-loop-version
+  36              	@ -funit-at-a-time -fverbose-asm -fzero-initialized-in-bss -mlittle-endian
+  37              	@ -msched-prolog -mthumb-interwork
+  38              	
+  39              		.section	.debug_abbrev,"",%progbits
+  40              	.Ldebug_abbrev0:
+  41              		.section	.debug_info,"",%progbits
+  42              	.Ldebug_info0:
+  43              		.section	.debug_line,"",%progbits
+  44              	.Ldebug_line0:
+  45 0000 6B000000 		.text
+  45      02002100 
+  45      00000201 
+  45      FB0E0D00 
+  45      01010101 
+  46              	.Ltext0:
+  47              	@ Compiler executable checksum: 0a8504ba0596d77ae915b5973c016248
+  48              	
+  49              		.cfi_sections	.debug_frame
+  50              		.align	2
+  51              		.global	main
+  52              		.type	main, %function
+  53              	main:
+ARM GAS  C:\DOCUME~1\Nex\LOCALS~1\Temp\ccNFAe56.s 			page 2
+
+
+  54              	.LFB0:
+  55              		.file 1 "src/main.c"
+   1:src/main.c    **** /****************************************************************************
+   2:src/main.c    **** Copyright (c) 2011, NEX Robotics Pvt. Ltd.                       -*- c -*-
+   3:src/main.c    ****    All rights reserved.
+   4:src/main.c    **** 
+   5:src/main.c    ****    Redistribution and use in source and binary forms, with or without
+   6:src/main.c    ****    modification, are permitted provided that the following conditions are met:
+   7:src/main.c    **** 
+   8:src/main.c    ****    * Redistributions of source code must retain the above copyright
+   9:src/main.c    ****      notice, this list of conditions and the following disclaimer.
+  10:src/main.c    **** 
+  11:src/main.c    ****    * Redistributions in binary form must reproduce the above copyright
+  12:src/main.c    ****      notice, this list of conditions and the following disclaimer in
+  13:src/main.c    ****      the documentation and/or other materials provided with the
+  14:src/main.c    ****      distribution.
+  15:src/main.c    **** 
+  16:src/main.c    ****    * Neither the name of the copyright holders nor the names of
+  17:src/main.c    ****      contributors may be used to endorse or promote products derived
+  18:src/main.c    ****      from this software without specific prior written permission.
+  19:src/main.c    **** 
+  20:src/main.c    ****    * Source code can be used for academic purpose. 
+  21:src/main.c    **** 	 For commercial use permission form the author needs to be taken.
+  22:src/main.c    **** 
+  23:src/main.c    ****   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  24:src/main.c    ****   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  25:src/main.c    ****   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  26:src/main.c    ****   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+  27:src/main.c    ****   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  28:src/main.c    ****   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+  29:src/main.c    ****   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+  30:src/main.c    ****   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  31:src/main.c    ****   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+  32:src/main.c    ****   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  33:src/main.c    ****   POSSIBILITY OF SUCH DAMAGE. 
+  34:src/main.c    **** 
+  35:src/main.c    ****   Software released under Creative Commence cc by-nc-sa licence.
+  36:src/main.c    ****   For legal information refer to: 
+  37:src/main.c    ****   http://creativecommons.org/licenses/by-nc-sa/3.0/legalcode
+  38:src/main.c    **** ****************************************************************************/
+  39:src/main.c    **** #define __MAIN_C__
+  40:src/main.c    **** 
+  41:src/main.c    **** /*
+  42:src/main.c    ****  * I use the include only, to show
+  43:src/main.c    ****  * how to setup a include dir in the makefile
+  44:src/main.c    ****  */
+  45:src/main.c    **** #include <stdio.h>
+  46:src/main.c    **** #include <stdlib.h>
+  47:src/main.c    **** #include "typedefs.h"
+  48:src/main.c    **** #include "lpc210x.h"
+  49:src/main.c    **** 
+  50:src/main.c    **** /*=========================================================================*/
+  51:src/main.c    **** /*  DEFINE: All Structures and Common Constants                            */
+  52:src/main.c    **** /*=========================================================================*/
+  53:src/main.c    **** 
+  54:src/main.c    **** /*=========================================================================*/
+  55:src/main.c    **** /*  DEFINE: Prototypes                                                     */
+ARM GAS  C:\DOCUME~1\Nex\LOCALS~1\Temp\ccNFAe56.s 			page 3
+
+
+  56:src/main.c    **** /*=========================================================================*/
+  57:src/main.c    **** 
+  58:src/main.c    **** /*=========================================================================*/
+  59:src/main.c    **** /*  DEFINE: Definition of all local Data                                   */
+  60:src/main.c    **** /*=========================================================================*/
+  61:src/main.c    **** 
+  62:src/main.c    **** 
+  63:src/main.c    **** /*=========================================================================*/
+  64:src/main.c    **** /*  DEFINE: Definition of all local Procedures                             */
+  65:src/main.c    **** /*=========================================================================*/
+  66:src/main.c    **** 
+  67:src/main.c    **** /*=========================================================================*/
+  68:src/main.c    **** /*  DEFINE: All code exported                                              */
+  69:src/main.c    **** /*=========================================================================*/
+  70:src/main.c    **** 
+  71:src/main.c    **** 
+  72:src/main.c    **** /***************************************************************************/
+  73:src/main.c    **** /*  main                                                                   */
+  74:src/main.c    **** /***************************************************************************/
+  75:src/main.c    **** int main (void)
+  76:src/main.c    **** {
+  56              		.loc 1 76 0
+  57              		.cfi_startproc
+  58              		@ Function supports interworking.
+  59              		@ args = 0, pretend = 0, frame = 8
+  60              		@ frame_needed = 0, uses_anonymous_args = 0
+  61              		@ link register save eliminated.
+  62 0000 08D04DE2 		sub	sp, sp, #8	@,,
+  63              	.LCFI0:
+  64              		.cfi_def_cfa_offset 8
+  77:src/main.c    ****   unsigned int i,j;
+  78:src/main.c    ****   PINSEL0 = 0x00000000;
+  65              		.loc 1 78 0
+  66 0004 0E32A0E3 		mov	r3, #-536870912	@ D.3588,
+  67 0008 0B3983E2 		add	r3, r3, #180224	@ D.3588, D.3588,
+  68 000c 0020A0E3 		mov	r2, #0	@ tmp143,
+  69 0010 002083E5 		str	r2, [r3, #0]	@ tmp143,* D.3588
+  79:src/main.c    ****   PINSEL1 = 0x00000000;
+  70              		.loc 1 79 0
+  71 0014 4E32A0E3 		mov	r3, #-536870908	@ D.3589,
+  72 0018 0B3983E2 		add	r3, r3, #180224	@ D.3589, D.3589,
+  73 001c 0020A0E3 		mov	r2, #0	@ tmp144,
+  74 0020 002083E5 		str	r2, [r3, #0]	@ tmp144,* D.3589
+  80:src/main.c    ****   PINSEL2&= 0xFFFFFFF7;
+  75              		.loc 1 80 0
+  76 0024 0E32A0E3 		mov	r3, #-536870912	@ D.3590,
+  77 0028 0B3983E2 		add	r3, r3, #180224	@ D.3590, D.3590,
+  78 002c 143083E2 		add	r3, r3, #20	@ D.3590, D.3590,
+  79 0030 0E22A0E3 		mov	r2, #-536870912	@ D.3591,
+  80 0034 0B2982E2 		add	r2, r2, #180224	@ D.3591, D.3591,
+  81 0038 142082E2 		add	r2, r2, #20	@ D.3591, D.3591,
+  82 003c 002092E5 		ldr	r2, [r2, #0]	@ D.3592,* D.3591
+  83 0040 0820C2E3 		bic	r2, r2, #8	@ D.3593, D.3592,
+  84 0044 002083E5 		str	r2, [r3, #0]	@ D.3593,* D.3590
+  81:src/main.c    ****   IO1DIR=0x000F0000;
+  85              		.loc 1 81 0
+  86 0048 0E32A0E3 		mov	r3, #-536870912	@ D.3594,
+ARM GAS  C:\DOCUME~1\Nex\LOCALS~1\Temp\ccNFAe56.s 			page 4
+
+
+  87 004c 0A3983E2 		add	r3, r3, #163840	@ D.3594, D.3594,
+  88 0050 183083E2 		add	r3, r3, #24	@ D.3594, D.3594,
+  89 0054 0F28A0E3 		mov	r2, #983040	@ tmp145,
+  90 0058 002083E5 		str	r2, [r3, #0]	@ tmp145,* D.3594
+  91              	.L10:
+  82:src/main.c    ****   while (1)
+  83:src/main.c    ****   {
+  84:src/main.c    **** 	  IO1SET = 0x000F0000;
+  92              		.loc 1 84 0
+  93 005c 0E32A0E3 		mov	r3, #-536870912	@ D.3595,
+  94 0060 0A3983E2 		add	r3, r3, #163840	@ D.3595, D.3595,
+  95 0064 143083E2 		add	r3, r3, #20	@ D.3595, D.3595,
+  96 0068 0F28A0E3 		mov	r2, #983040	@ tmp146,
+  97 006c 002083E5 		str	r2, [r3, #0]	@ tmp146,* D.3595
+  85:src/main.c    **** 	  for(j=2;j>0;j--)
+  98              		.loc 1 85 0
+  99 0070 0230A0E3 		mov	r3, #2	@ tmp147,
+ 100 0074 00308DE5 		str	r3, [sp, #0]	@ tmp147, j
+ 101 0078 0D0000EA 		b	.L2	@
+ 102              	.L5:
+  86:src/main.c    **** 	   {
+  87:src/main.c    **** 	    for(i=0; i<60000; i++);
+ 103              		.loc 1 87 0
+ 104 007c 0030A0E3 		mov	r3, #0	@ tmp148,
+ 105 0080 04308DE5 		str	r3, [sp, #4]	@ tmp148, i
+ 106 0084 020000EA 		b	.L3	@
+ 107              	.L4:
+ 108              		.loc 1 87 0 is_stmt 0 discriminator 2
+ 109 0088 04309DE5 		ldr	r3, [sp, #4]	@ tmp149, i
+ 110 008c 013083E2 		add	r3, r3, #1	@ tmp150, tmp149,
+ 111 0090 04308DE5 		str	r3, [sp, #4]	@ tmp150, i
+ 112              	.L3:
+ 113              		.loc 1 87 0 discriminator 1
+ 114 0094 04209DE5 		ldr	r2, [sp, #4]	@ tmp151, i
+ 115 0098 EA3CA0E3 		mov	r3, #59904	@ tmp152,
+ 116 009c 5F3083E2 		add	r3, r3, #95	@ tmp152, tmp152,
+ 117 00a0 030052E1 		cmp	r2, r3	@ tmp151, tmp152
+ 118 00a4 F7FFFF9A 		bls	.L4	@,
+  85:src/main.c    **** 	  for(j=2;j>0;j--)
+ 119              		.loc 1 85 0 is_stmt 1
+ 120 00a8 00309DE5 		ldr	r3, [sp, #0]	@ tmp153, j
+ 121 00ac 013043E2 		sub	r3, r3, #1	@ tmp154, tmp153,
+ 122 00b0 00308DE5 		str	r3, [sp, #0]	@ tmp154, j
+ 123              	.L2:
+  85:src/main.c    **** 	  for(j=2;j>0;j--)
+ 124              		.loc 1 85 0 is_stmt 0 discriminator 1
+ 125 00b4 00309DE5 		ldr	r3, [sp, #0]	@ tmp155, j
+ 126 00b8 000053E3 		cmp	r3, #0	@ tmp155,
+ 127 00bc EEFFFF1A 		bne	.L5	@,
+  88:src/main.c    **** 	   }
+  89:src/main.c    **** 	  IO1CLR = 0x000F0000;
+ 128              		.loc 1 89 0 is_stmt 1
+ 129 00c0 0E32A0E3 		mov	r3, #-536870912	@ D.3596,
+ 130 00c4 0A3983E2 		add	r3, r3, #163840	@ D.3596, D.3596,
+ 131 00c8 1C3083E2 		add	r3, r3, #28	@ D.3596, D.3596,
+ 132 00cc 0F28A0E3 		mov	r2, #983040	@ tmp156,
+ 133 00d0 002083E5 		str	r2, [r3, #0]	@ tmp156,* D.3596
+ARM GAS  C:\DOCUME~1\Nex\LOCALS~1\Temp\ccNFAe56.s 			page 5
+
+
+  90:src/main.c    **** 	  for(j=2;j>0;j--)
+ 134              		.loc 1 90 0
+ 135 00d4 0230A0E3 		mov	r3, #2	@ tmp157,
+ 136 00d8 00308DE5 		str	r3, [sp, #0]	@ tmp157, j
+ 137 00dc 0D0000EA 		b	.L6	@
+ 138              	.L9:
+  91:src/main.c    **** 	   {
+  92:src/main.c    **** 	  	for(i=0; i<60000; i++);
+ 139              		.loc 1 92 0
+ 140 00e0 0030A0E3 		mov	r3, #0	@ tmp158,
+ 141 00e4 04308DE5 		str	r3, [sp, #4]	@ tmp158, i
+ 142 00e8 020000EA 		b	.L7	@
+ 143              	.L8:
+ 144              		.loc 1 92 0 is_stmt 0 discriminator 2
+ 145 00ec 04309DE5 		ldr	r3, [sp, #4]	@ tmp159, i
+ 146 00f0 013083E2 		add	r3, r3, #1	@ tmp160, tmp159,
+ 147 00f4 04308DE5 		str	r3, [sp, #4]	@ tmp160, i
+ 148              	.L7:
+ 149              		.loc 1 92 0 discriminator 1
+ 150 00f8 04209DE5 		ldr	r2, [sp, #4]	@ tmp161, i
+ 151 00fc EA3CA0E3 		mov	r3, #59904	@ tmp162,
+ 152 0100 5F3083E2 		add	r3, r3, #95	@ tmp162, tmp162,
+ 153 0104 030052E1 		cmp	r2, r3	@ tmp161, tmp162
+ 154 0108 F7FFFF9A 		bls	.L8	@,
+  90:src/main.c    **** 	  for(j=2;j>0;j--)
+ 155              		.loc 1 90 0 is_stmt 1
+ 156 010c 00309DE5 		ldr	r3, [sp, #0]	@ tmp163, j
+ 157 0110 013043E2 		sub	r3, r3, #1	@ tmp164, tmp163,
+ 158 0114 00308DE5 		str	r3, [sp, #0]	@ tmp164, j
+ 159              	.L6:
+  90:src/main.c    **** 	  for(j=2;j>0;j--)
+ 160              		.loc 1 90 0 is_stmt 0 discriminator 1
+ 161 0118 00309DE5 		ldr	r3, [sp, #0]	@ tmp165, j
+ 162 011c 000053E3 		cmp	r3, #0	@ tmp165,
+ 163 0120 EEFFFF1A 		bne	.L9	@,
+  93:src/main.c    **** 	   }
+  94:src/main.c    ****   }
+ 164              		.loc 1 94 0 is_stmt 1
+ 165 0124 CCFFFFEA 		b	.L10	@
+ 166              		.cfi_endproc
+ 167              	.LFE0:
+ 168              		.size	main, .-main
+ 169              	.Letext0:
+ 170              		.section	.debug_loc,"",%progbits
+ 171              	.Ldebug_loc0:
+ 172              	.LLST0:
+ 173 0000 00000000 		.4byte	.LFB0-.Ltext0
+ 174 0004 04000000 		.4byte	.LCFI0-.Ltext0
+ 175 0008 0200     		.2byte	0x2
+ 176 000a 7D       		.byte	0x7d
+ 177 000b 00       		.sleb128 0
+ 178 000c 04000000 		.4byte	.LCFI0-.Ltext0
+ 179 0010 28010000 		.4byte	.LFE0-.Ltext0
+ 180 0014 0200     		.2byte	0x2
+ 181 0016 7D       		.byte	0x7d
+ 182 0017 08       		.sleb128 8
+ 183 0018 00000000 		.4byte	0x0
+ARM GAS  C:\DOCUME~1\Nex\LOCALS~1\Temp\ccNFAe56.s 			page 6
+
+
+ 184 001c 00000000 		.4byte	0x0
+ 185              		.section	.debug_info
+ 186 0000 A4000000 		.4byte	0xa4
+ 187 0004 0200     		.2byte	0x2
+ 188 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 189 000a 04       		.byte	0x4
+ 190 000b 01       		.uleb128 0x1
+ 191 000c A0000000 		.4byte	.LASF10
+ 192 0010 01       		.byte	0x1
+ 193 0011 79000000 		.4byte	.LASF11
+ 194 0015 0E000000 		.4byte	.LASF12
+ 195 0019 00000000 		.4byte	.Ltext0
+ 196 001d 28010000 		.4byte	.Letext0
+ 197 0021 00000000 		.4byte	.Ldebug_line0
+ 198 0025 02       		.uleb128 0x2
+ 199 0026 04       		.byte	0x4
+ 200 0027 07       		.byte	0x7
+ 201 0028 3E000000 		.4byte	.LASF0
+ 202 002c 02       		.uleb128 0x2
+ 203 002d 01       		.byte	0x1
+ 204 002e 06       		.byte	0x6
+ 205 002f BF000000 		.4byte	.LASF1
+ 206 0033 02       		.uleb128 0x2
+ 207 0034 01       		.byte	0x1
+ 208 0035 08       		.byte	0x8
+ 209 0036 84000000 		.4byte	.LASF2
+ 210 003a 02       		.uleb128 0x2
+ 211 003b 02       		.byte	0x2
+ 212 003c 05       		.byte	0x5
+ 213 003d CB000000 		.4byte	.LASF3
+ 214 0041 02       		.uleb128 0x2
+ 215 0042 02       		.byte	0x2
+ 216 0043 07       		.byte	0x7
+ 217 0044 AC000000 		.4byte	.LASF4
+ 218 0048 03       		.uleb128 0x3
+ 219 0049 04       		.byte	0x4
+ 220 004a 05       		.byte	0x5
+ 221 004b 696E7400 		.ascii	"int\000"
+ 222 004f 02       		.uleb128 0x2
+ 223 0050 08       		.byte	0x8
+ 224 0051 05       		.byte	0x5
+ 225 0052 00000000 		.4byte	.LASF5
+ 226 0056 02       		.uleb128 0x2
+ 227 0057 08       		.byte	0x8
+ 228 0058 07       		.byte	0x7
+ 229 0059 62000000 		.4byte	.LASF6
+ 230 005d 02       		.uleb128 0x2
+ 231 005e 04       		.byte	0x4
+ 232 005f 05       		.byte	0x5
+ 233 0060 97000000 		.4byte	.LASF7
+ 234 0064 04       		.uleb128 0x4
+ 235 0065 04       		.byte	0x4
+ 236 0066 07       		.byte	0x7
+ 237 0067 02       		.uleb128 0x2
+ 238 0068 04       		.byte	0x4
+ 239 0069 07       		.byte	0x7
+ 240 006a 50000000 		.4byte	.LASF8
+ARM GAS  C:\DOCUME~1\Nex\LOCALS~1\Temp\ccNFAe56.s 			page 7
+
+
+ 241 006e 02       		.uleb128 0x2
+ 242 006f 01       		.byte	0x1
+ 243 0070 08       		.byte	0x8
+ 244 0071 92000000 		.4byte	.LASF9
+ 245 0075 05       		.uleb128 0x5
+ 246 0076 01       		.byte	0x1
+ 247 0077 4B000000 		.4byte	.LASF13
+ 248 007b 01       		.byte	0x1
+ 249 007c 4B       		.byte	0x4b
+ 250 007d 01       		.byte	0x1
+ 251 007e 48000000 		.4byte	0x48
+ 252 0082 00000000 		.4byte	.LFB0
+ 253 0086 28010000 		.4byte	.LFE0
+ 254 008a 00000000 		.4byte	.LLST0
+ 255 008e 06       		.uleb128 0x6
+ 256 008f 6900     		.ascii	"i\000"
+ 257 0091 01       		.byte	0x1
+ 258 0092 4D       		.byte	0x4d
+ 259 0093 25000000 		.4byte	0x25
+ 260 0097 02       		.byte	0x2
+ 261 0098 91       		.byte	0x91
+ 262 0099 7C       		.sleb128 -4
+ 263 009a 06       		.uleb128 0x6
+ 264 009b 6A00     		.ascii	"j\000"
+ 265 009d 01       		.byte	0x1
+ 266 009e 4D       		.byte	0x4d
+ 267 009f 25000000 		.4byte	0x25
+ 268 00a3 02       		.byte	0x2
+ 269 00a4 91       		.byte	0x91
+ 270 00a5 78       		.sleb128 -8
+ 271 00a6 00       		.byte	0x0
+ 272 00a7 00       		.byte	0x0
+ 273              		.section	.debug_abbrev
+ 274 0000 01       		.uleb128 0x1
+ 275 0001 11       		.uleb128 0x11
+ 276 0002 01       		.byte	0x1
+ 277 0003 25       		.uleb128 0x25
+ 278 0004 0E       		.uleb128 0xe
+ 279 0005 13       		.uleb128 0x13
+ 280 0006 0B       		.uleb128 0xb
+ 281 0007 03       		.uleb128 0x3
+ 282 0008 0E       		.uleb128 0xe
+ 283 0009 1B       		.uleb128 0x1b
+ 284 000a 0E       		.uleb128 0xe
+ 285 000b 11       		.uleb128 0x11
+ 286 000c 01       		.uleb128 0x1
+ 287 000d 12       		.uleb128 0x12
+ 288 000e 01       		.uleb128 0x1
+ 289 000f 10       		.uleb128 0x10
+ 290 0010 06       		.uleb128 0x6
+ 291 0011 00       		.byte	0x0
+ 292 0012 00       		.byte	0x0
+ 293 0013 02       		.uleb128 0x2
+ 294 0014 24       		.uleb128 0x24
+ 295 0015 00       		.byte	0x0
+ 296 0016 0B       		.uleb128 0xb
+ 297 0017 0B       		.uleb128 0xb
+ARM GAS  C:\DOCUME~1\Nex\LOCALS~1\Temp\ccNFAe56.s 			page 8
+
+
+ 298 0018 3E       		.uleb128 0x3e
+ 299 0019 0B       		.uleb128 0xb
+ 300 001a 03       		.uleb128 0x3
+ 301 001b 0E       		.uleb128 0xe
+ 302 001c 00       		.byte	0x0
+ 303 001d 00       		.byte	0x0
+ 304 001e 03       		.uleb128 0x3
+ 305 001f 24       		.uleb128 0x24
+ 306 0020 00       		.byte	0x0
+ 307 0021 0B       		.uleb128 0xb
+ 308 0022 0B       		.uleb128 0xb
+ 309 0023 3E       		.uleb128 0x3e
+ 310 0024 0B       		.uleb128 0xb
+ 311 0025 03       		.uleb128 0x3
+ 312 0026 08       		.uleb128 0x8
+ 313 0027 00       		.byte	0x0
+ 314 0028 00       		.byte	0x0
+ 315 0029 04       		.uleb128 0x4
+ 316 002a 24       		.uleb128 0x24
+ 317 002b 00       		.byte	0x0
+ 318 002c 0B       		.uleb128 0xb
+ 319 002d 0B       		.uleb128 0xb
+ 320 002e 3E       		.uleb128 0x3e
+ 321 002f 0B       		.uleb128 0xb
+ 322 0030 00       		.byte	0x0
+ 323 0031 00       		.byte	0x0
+ 324 0032 05       		.uleb128 0x5
+ 325 0033 2E       		.uleb128 0x2e
+ 326 0034 01       		.byte	0x1
+ 327 0035 3F       		.uleb128 0x3f
+ 328 0036 0C       		.uleb128 0xc
+ 329 0037 03       		.uleb128 0x3
+ 330 0038 0E       		.uleb128 0xe
+ 331 0039 3A       		.uleb128 0x3a
+ 332 003a 0B       		.uleb128 0xb
+ 333 003b 3B       		.uleb128 0x3b
+ 334 003c 0B       		.uleb128 0xb
+ 335 003d 27       		.uleb128 0x27
+ 336 003e 0C       		.uleb128 0xc
+ 337 003f 49       		.uleb128 0x49
+ 338 0040 13       		.uleb128 0x13
+ 339 0041 11       		.uleb128 0x11
+ 340 0042 01       		.uleb128 0x1
+ 341 0043 12       		.uleb128 0x12
+ 342 0044 01       		.uleb128 0x1
+ 343 0045 40       		.uleb128 0x40
+ 344 0046 06       		.uleb128 0x6
+ 345 0047 00       		.byte	0x0
+ 346 0048 00       		.byte	0x0
+ 347 0049 06       		.uleb128 0x6
+ 348 004a 34       		.uleb128 0x34
+ 349 004b 00       		.byte	0x0
+ 350 004c 03       		.uleb128 0x3
+ 351 004d 08       		.uleb128 0x8
+ 352 004e 3A       		.uleb128 0x3a
+ 353 004f 0B       		.uleb128 0xb
+ 354 0050 3B       		.uleb128 0x3b
+ARM GAS  C:\DOCUME~1\Nex\LOCALS~1\Temp\ccNFAe56.s 			page 9
+
+
+ 355 0051 0B       		.uleb128 0xb
+ 356 0052 49       		.uleb128 0x49
+ 357 0053 13       		.uleb128 0x13
+ 358 0054 02       		.uleb128 0x2
+ 359 0055 0A       		.uleb128 0xa
+ 360 0056 00       		.byte	0x0
+ 361 0057 00       		.byte	0x0
+ 362 0058 00       		.byte	0x0
+ 363              		.section	.debug_pubnames,"",%progbits
+ 364 0000 17000000 		.4byte	0x17
+ 365 0004 0200     		.2byte	0x2
+ 366 0006 00000000 		.4byte	.Ldebug_info0
+ 367 000a A8000000 		.4byte	0xa8
+ 368 000e 75000000 		.4byte	0x75
+ 369 0012 6D61696E 		.ascii	"main\000"
+ 369      00
+ 370 0017 00000000 		.4byte	0x0
+ 371              		.section	.debug_pubtypes,"",%progbits
+ 372 0000 0E000000 		.4byte	0xe
+ 373 0004 0200     		.2byte	0x2
+ 374 0006 00000000 		.4byte	.Ldebug_info0
+ 375 000a A8000000 		.4byte	0xa8
+ 376 000e 00000000 		.4byte	0x0
+ 377              		.section	.debug_aranges,"",%progbits
+ 378 0000 1C000000 		.4byte	0x1c
+ 379 0004 0200     		.2byte	0x2
+ 380 0006 00000000 		.4byte	.Ldebug_info0
+ 381 000a 04       		.byte	0x4
+ 382 000b 00       		.byte	0x0
+ 383 000c 0000     		.2byte	0x0
+ 384 000e 0000     		.2byte	0x0
+ 385 0010 00000000 		.4byte	.Ltext0
+ 386 0014 28010000 		.4byte	.Letext0-.Ltext0
+ 387 0018 00000000 		.4byte	0x0
+ 388 001c 00000000 		.4byte	0x0
+ 389              		.section	.debug_str,"MS",%progbits,1
+ 390              	.LASF5:
+ 391 0000 6C6F6E67 		.ascii	"long long int\000"
+ 391      206C6F6E 
+ 391      6720696E 
+ 391      7400
+ 392              	.LASF12:
+ 393 000e 453A5C50 		.ascii	"E:\\Projects\\ARM\\Codes\\Eclipse_Projects\\LED_Dem"
+ 393      726F6A65 
+ 393      6374735C 
+ 393      41524D5C 
+ 393      436F6465 
+ 394 003c 6F00     		.ascii	"o\000"
+ 395              	.LASF0:
+ 396 003e 756E7369 		.ascii	"unsigned int\000"
+ 396      676E6564 
+ 396      20696E74 
+ 396      00
+ 397              	.LASF13:
+ 398 004b 6D61696E 		.ascii	"main\000"
+ 398      00
+ 399              	.LASF8:
+ARM GAS  C:\DOCUME~1\Nex\LOCALS~1\Temp\ccNFAe56.s 			page 10
+
+
+ 400 0050 6C6F6E67 		.ascii	"long unsigned int\000"
+ 400      20756E73 
+ 400      69676E65 
+ 400      6420696E 
+ 400      7400
+ 401              	.LASF6:
+ 402 0062 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 402      206C6F6E 
+ 402      6720756E 
+ 402      7369676E 
+ 402      65642069 
+ 403              	.LASF11:
+ 404 0079 7372632F 		.ascii	"src/main.c\000"
+ 404      6D61696E 
+ 404      2E6300
+ 405              	.LASF2:
+ 406 0084 756E7369 		.ascii	"unsigned char\000"
+ 406      676E6564 
+ 406      20636861 
+ 406      7200
+ 407              	.LASF9:
+ 408 0092 63686172 		.ascii	"char\000"
+ 408      00
+ 409              	.LASF7:
+ 410 0097 6C6F6E67 		.ascii	"long int\000"
+ 410      20696E74 
+ 410      00
+ 411              	.LASF10:
+ 412 00a0 474E5520 		.ascii	"GNU C 4.5.0\000"
+ 412      4320342E 
+ 412      352E3000 
+ 413              	.LASF4:
+ 414 00ac 73686F72 		.ascii	"short unsigned int\000"
+ 414      7420756E 
+ 414      7369676E 
+ 414      65642069 
+ 414      6E7400
+ 415              	.LASF1:
+ 416 00bf 7369676E 		.ascii	"signed char\000"
+ 416      65642063 
+ 416      68617200 
+ 417              	.LASF3:
+ 418 00cb 73686F72 		.ascii	"short int\000"
+ 418      7420696E 
+ 418      7400
+ 419              		.ident	"GCC: (GNU) 4.5.0"
+ARM GAS  C:\DOCUME~1\Nex\LOCALS~1\Temp\ccNFAe56.s 			page 11
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.c
+C:\DOCUME~1\Nex\LOCALS~1\Temp\ccNFAe56.s:50     .text:00000000 $a
+C:\DOCUME~1\Nex\LOCALS~1\Temp\ccNFAe56.s:53     .text:00000000 main
+                     .debug_frame:00000010 $d
+
+NO UNDEFINED SYMBOLS

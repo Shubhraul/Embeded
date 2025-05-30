@@ -1,0 +1,23 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Project:</h2>
+C:\Documents and Settings\abc\Desktop\Dev Board Codes on 192.168.1.108\XBEE WIRELESS COMM\XBEE_WIRELESS_COMM.uvproj
+Project File Date:  09/20/2010
+
+<h2>Output:</h2>
+Build target 'Target 1'
+assembling Startup.s...
+compiling main.c...
+main.c(137): warning:  #111-D: statement is unreachable
+main.c:      return(0);
+main.c:      ^
+main.c(138): warning:  #1-D: last line of file ends without a newline
+main.c:   }
+main.c:    ^
+main.c: main.c: 2 warnings, 0 errors
+linking...
+Program Size: Code=1004 RO-data=132 RW-data=0 ZI-data=1256  
+FromELF: creating hex file...
+"XBEE_WIRELESS_COMM.axf" - 0 Error(s), 2 Warning(s).

@@ -1,0 +1,4 @@
+--cpu ARM7TDMI "startup.o" "main.o" --strict --scatter "XBEE_WIRELESS_COMM.sct" 
+--autoat --summary_stderr --info summarysizes --map --xref --callgraph --symbols 
+--info sizes --info totals --info unused --info veneers 
+ --list ".\XBEE_WIRELESS_COMM.map" -o "XBEE_WIRELESS_COMM.axf"

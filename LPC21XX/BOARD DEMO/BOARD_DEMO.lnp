@@ -1,0 +1,4 @@
+--cpu ARM7TDMI "startup.o" "main.o" "lcd.o" "eeprom.o" "uart0.o" "spi_mmc.o" "adc.o" "rtc.o" "uart1.o" --strict --scatter "BOARD_DEMO.sct" 
+--autoat --summary_stderr --info summarysizes --map --xref --callgraph --symbols 
+--info sizes --info totals --info unused --info veneers 
+ --list ".\BOARD_DEMO.map" -o "BOARD_DEMO.axf"

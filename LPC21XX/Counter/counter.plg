@@ -1,0 +1,63 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Project:</h2>
+H:\My Drive\My-Mtech\sem1\Embeded System\Lab Practicle\Lab3\counter.uvproj
+Project File Date:  10/10/2023
+
+<h2>Output:</h2>
+Build target 'Target 1'
+compiling led_counter.c...
+led_counter.c(1): error:  #5: cannot open source input file "lcp21xx.h": No such file or directory
+Target not created
+Build target 'Target 1'
+compiling led_counter.c...
+led_counter.c(15): error:  #65: expected a ";"
+led_counter.c(28): warning:  #1-D: last line of file ends without a newline
+led_counter.c(28): warning:  #12-D: parsing restarts here after previous syntax error
+led_counter.c(9): warning:  #550-D: variable "prev_status" was set but never used
+led_counter.c(9): warning:  #177-D: variable "count" was declared but never referenced
+led_counter.c(9): warning:  #177-D: variable "flag" was declared but never referenced
+Target not created
+Build target 'Target 1'
+compiling led_counter.c...
+led_counter.c(28): warning:  #1-D: last line of file ends without a newline
+linking...
+Program Size: Code=628 RO-data=16 RW-data=0 ZI-data=1256  
+"counter.axf" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+compiling led_counter.c...
+led_counter.c(28): warning:  #1-D: last line of file ends without a newline
+linking...
+Program Size: Code=660 RO-data=16 RW-data=0 ZI-data=1256  
+"counter.axf" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+compiling led_counter.c...
+led_counter.c(30): warning:  #1-D: last line of file ends without a newline
+linking...
+Program Size: Code=628 RO-data=16 RW-data=0 ZI-data=1256  
+"counter.axf" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+compiling led_counter.c...
+led_counter.c(30): warning:  #1-D: last line of file ends without a newline
+linking...
+Program Size: Code=628 RO-data=16 RW-data=0 ZI-data=1256  
+"counter.axf" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+compiling led_counter.c...
+led_counter.c(20): error:  #20: identifier "flag" is undefined
+led_counter.c(27): warning:  #1-D: last line of file ends without a newline
+Target not created
+Build target 'Target 1'
+compiling led_counter.c...
+led_counter.c(26): warning:  #1-D: last line of file ends without a newline
+linking...
+Program Size: Code=608 RO-data=16 RW-data=0 ZI-data=1256  
+"counter.axf" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+compiling led_counter.c...
+led_counter.c(26): warning:  #1-D: last line of file ends without a newline
+linking...
+Program Size: Code=612 RO-data=16 RW-data=0 ZI-data=1256  
+"counter.axf" - 0 Error(s), 1 Warning(s).

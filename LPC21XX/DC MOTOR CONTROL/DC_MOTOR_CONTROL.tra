@@ -1,0 +1,20 @@
+*** Creating Trace Output File 'DC_MOTOR_CONTROL.tra' Ok.
+### Preparing for ADS-LD.
+### Creating ADS-LD Command Line
+### List of Objects: adding '"startup.o"'
+### List of Objects: adding '"main.o"'
+### ADS-LD Command completed:
+--cpu ARM7TDMI "startup.o" "main.o" --strict --scatter "DC_MOTOR_CONTROL.sct" 
+--autoat --summary_stderr --info summarysizes --map --xref --callgraph --symbols 
+--info sizes --info totals --info unused --info veneers 
+ --list ".\DC_MOTOR_CONTROL.map" -o "DC_MOTOR_CONTROL.axf"### Preparing Environment (PrepEnvAds)
+### ADS-LD Output File: 'DC_MOTOR_CONTROL.axf'
+### ADS-LD Command File: 'DC_MOTOR_CONTROL.lnp'
+### Checking for dirty Components...
+### Creating CmdFile 'DC_MOTOR_CONTROL.lnp', Handle=0x000002C0
+### Writing '.lnp' file
+### ADS-LD Command file 'DC_MOTOR_CONTROL.lnp' is ready.
+### ADS-LD: About to start ADS-LD Thread.
+### ADS-LD: executed with 0 errors
+### Updating obj list
+### LDADS_file() completed.

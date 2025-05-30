@@ -1,0 +1,4 @@
+--device DARMP "startup.o" "timer.o" --strict --scatter "timer.sct" 
+--autoat --summary_stderr --info summarysizes --map --xref --callgraph --symbols 
+--info sizes --info totals --info unused --info veneers 
+ --list ".\timer.map" -o "timer.axf"

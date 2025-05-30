@@ -1,0 +1,114 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Project:</h2>
+H:\My Drive\My-Mtech\sem1\Embeded System\Lab Practicle\Lab7\timer.uvproj
+Project File Date:  10/26/2023
+
+<h2>Output:</h2>
+Build target 'Target 1'
+assembling Startup.s...
+compiling timer.c...
+timer.c(2): warning:  #1-D: last line of file ends without a newline
+timer.c(2): error:  #5: cannot open source input file "timer.h": No such file or directory
+Target not created
+Build target 'Target 1'
+compiling timer.c...
+timer.c(2): warning:  #1-D: last line of file ends without a newline
+timer.c(2): error:  #5: cannot open source input file "Timer.h": No such file or directory
+Target not created
+Build target 'Target 1'
+compiling timer.c...
+timer.c(3): error:  #20: identifier "T0CTCR" is undefined
+timer.c(6): error:  #20: identifier "Val" is undefined
+timer.c(17): warning:  #1-D: last line of file ends without a newline
+Target not created
+Build target 'Target 1'
+compiling timer.c...
+timer.c(3): error:  #20: identifier "T0CTCR" is undefined
+timer.c(17): warning:  #1-D: last line of file ends without a newline
+Target not created
+Build target 'Target 1'
+compiling timer.c...
+timer.c(17): warning:  #1-D: last line of file ends without a newline
+linking...
+Program Size: Code=600 RO-data=16 RW-data=0 ZI-data=1256  
+"timer.axf" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+compiling timer.c...
+timer.c(17): warning:  #1-D: last line of file ends without a newline
+linking...
+Program Size: Code=600 RO-data=16 RW-data=0 ZI-data=1256  
+"timer.axf" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+compiling timer.c...
+timer.c(18): warning:  #1-D: last line of file ends without a newline
+linking...
+Program Size: Code=608 RO-data=16 RW-data=0 ZI-data=1256  
+"timer.axf" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+compiling timer.c...
+timer.c(18): warning:  #1-D: last line of file ends without a newline
+linking...
+Program Size: Code=608 RO-data=16 RW-data=0 ZI-data=1256  
+"timer.axf" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+compiling timer.c...
+timer.c(18): warning:  #1-D: last line of file ends without a newline
+linking...
+Program Size: Code=608 RO-data=16 RW-data=0 ZI-data=1256  
+"timer.axf" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+compiling timer.c...
+timer.c(5): error:  #20: identifier "TOTCR" is undefined
+timer.c(19): warning:  #1-D: last line of file ends without a newline
+Target not created
+Build target 'Target 1'
+compiling timer.c...
+timer.c(19): warning:  #1-D: last line of file ends without a newline
+linking...
+Program Size: Code=616 RO-data=16 RW-data=0 ZI-data=1256  
+"timer.axf" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+assembling Startup.s...
+compiling timer.c...
+timer.c(19): warning:  #1-D: last line of file ends without a newline
+linking...
+Program Size: Code=616 RO-data=16 RW-data=0 ZI-data=1256  
+"timer.axf" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+compiling timer.c...
+timer.c(18): warning:  #1-D: last line of file ends without a newline
+linking...
+Program Size: Code=608 RO-data=16 RW-data=0 ZI-data=1256  
+"timer.axf" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+linking...
+Program Size: Code=608 RO-data=16 RW-data=0 ZI-data=1256  
+"timer.axf" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling timer.c...
+timer.c(19): warning:  #1-D: last line of file ends without a newline
+linking...
+Program Size: Code=616 RO-data=16 RW-data=0 ZI-data=1256  
+"timer.axf" - 0 Error(s), 1 Warning(s).
+compiling timer.c...
+timer.c(19): warning:  #1-D: last line of file ends without a newline
+timer.c - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+compiling timer.c...
+timer.c(19): warning:  #1-D: last line of file ends without a newline
+linking...
+Program Size: Code=616 RO-data=16 RW-data=0 ZI-data=1256  
+"timer.axf" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+linking...
+Program Size: Code=616 RO-data=16 RW-data=0 ZI-data=1256  
+"timer.axf" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling timer.c...
+timer.c(19): warning:  #1-D: last line of file ends without a newline
+linking...
+Program Size: Code=616 RO-data=16 RW-data=0 ZI-data=1256  
+"timer.axf" - 0 Error(s), 1 Warning(s).

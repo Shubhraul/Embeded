@@ -1,0 +1,20 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Project:</h2>
+\\172.17.9.24\Embedded-Lab\Lab Session Dtas\Embedded Kit CD datas\LPC2148 - NEX ROBOTICS\Codes\UART0 COMM 9600\UART0_COMM_9600.uvproj
+Project File Date:  08/20/2010
+
+<h2>Output:</h2>
+Build target 'Target 1'
+assembling Startup.s...
+compiling main.c...
+main.c(134): warning:  #111-D: statement is unreachable
+main.c(135): warning:  #1-D: last line of file ends without a newline
+linking...
+Program Size: Code=960 RO-data=132 RW-data=0 ZI-data=1256  
+FromELF: creating hex file...
+"UART0_COMM_9600.axf" - 0 Error(s), 2 Warning(s).
+"LPC210x_ISP.EXE" "\\172.17.9.24\Embedded-Lab\Lab Session Dtas\Embedded Kit CD datas\LPC2148 - NEX ROBOTICS\Codes\UART0 COMM 9600\UART0_COMM_9600.HEX" 12000 LPC2148 COM1: 38400 1
+--- Error: failed to execute '"LPC210x_ISP.EXE" "\\172.17.9.24\Embedded-Lab\Lab Session Dtas\Embedded Kit CD datas\LPC2148 - NEX ROBOTICS\Codes\UART0 COMM 9600\UART0_COMM_9600.HEX" 12000 LPC2148 COM1: 38400 1'

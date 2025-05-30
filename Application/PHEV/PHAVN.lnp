@@ -1,0 +1,4 @@
+--device DARMP "startup.o" "new.o" --strict --scatter "PHAVN.sct" 
+--autoat --summary_stderr --info summarysizes --map --xref --callgraph --symbols 
+--info sizes --info totals --info unused --info veneers 
+ --list ".\PHAVN.map" -o "PHAVN.axf"

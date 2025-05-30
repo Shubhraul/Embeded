@@ -1,0 +1,752 @@
+ARM GAS  C:\DOCUME~1\Nex\LOCALS~1\Temp\ccRpiNbh.s 			page 1
+
+
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"low_level_init.c"
+  12              	@ GNU C (GCC) version 4.5.0 (arm-none-eabi)
+  13              	@	compiled by GNU C version 3.4.5 (mingw-vista special r3), GMP version 4.3.2, MPFR version 2.4.2, 
+  14              	@ GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+  15              	@ options passed:  -I . -I./inc -iprefix
+  16              	@ c:\program files\yagarto\bin\../lib/gcc/arm-none-eabi/4.5.0/ -MD
+  17              	@ src/low_level_init.d -MF .dep/low_level_init.o.d -MP -MQ
+  18              	@ src/low_level_init.o -D__USES_INITFINI__ src/low_level_init.c
+  19              	@ -mcpu=arm7tdmi -mthumb-interwork -auxbase-strip src/low_level_init.o
+  20              	@ -gdwarf-2 -O0 -Wall -Wstrict-prototypes -fomit-frame-pointer
+  21              	@ -fverbose-asm
+  22              	@ options enabled:  -falign-loops -fargument-alias -fauto-inc-dec
+  23              	@ -fbranch-count-reg -fcommon -fdelete-null-pointer-checks -fdwarf2-cfi-asm
+  24              	@ -fearly-inlining -feliminate-unused-debug-types -ffunction-cse -fgcse-lm
+  25              	@ -fident -finline-functions-called-once -fira-share-save-slots
+  26              	@ -fira-share-spill-slots -fivopts -fkeep-static-consts
+  27              	@ -fleading-underscore -fmath-errno -fmerge-debug-strings
+  28              	@ -fmove-loop-invariants -fomit-frame-pointer -fpeephole
+  29              	@ -freg-struct-return -fsched-critical-path-heuristic
+  30              	@ -fsched-dep-count-heuristic -fsched-group-heuristic -fsched-interblock
+  31              	@ -fsched-last-insn-heuristic -fsched-rank-heuristic -fsched-spec
+  32              	@ -fsched-spec-insn-heuristic -fsched-stalled-insns-dep -fshow-column
+  33              	@ -fsigned-zeros -fsplit-ivs-in-unroller -ftrapping-math -ftree-cselim
+  34              	@ -ftree-forwprop -ftree-loop-im -ftree-loop-ivcanon -ftree-loop-optimize
+  35              	@ -ftree-parallelize-loops= -ftree-phiprop -ftree-pta -ftree-reassoc
+  36              	@ -ftree-scev-cprop -ftree-slp-vectorize -ftree-vect-loop-version
+  37              	@ -funit-at-a-time -fverbose-asm -fzero-initialized-in-bss -mlittle-endian
+  38              	@ -msched-prolog -mthumb-interwork
+  39              	
+  40              		.section	.debug_abbrev,"",%progbits
+  41              	.Ldebug_abbrev0:
+  42              		.section	.debug_info,"",%progbits
+  43              	.Ldebug_info0:
+  44              		.section	.debug_line,"",%progbits
+  45              	.Ldebug_line0:
+  46 0000 A5000000 		.text
+  46      02007800 
+  46      00000201 
+  46      FB0E0D00 
+  46      01010101 
+  47              	.Ltext0:
+  48              	@ Compiler executable checksum: 0a8504ba0596d77ae915b5973c016248
+  49              	
+  50              		.cfi_sections	.debug_frame
+  51              		.align	2
+  52              		.global	low_level_init
+  53              		.type	low_level_init, %function
+ARM GAS  C:\DOCUME~1\Nex\LOCALS~1\Temp\ccRpiNbh.s 			page 2
+
+
+  54              	low_level_init:
+  55              	.LFB0:
+  56              		.file 1 "src/low_level_init.c"
+   1:src/low_level_init.c **** /****************************************************************************
+   2:src/low_level_init.c **** *  Copyright (c) 2009 by Michael Fischer. All rights reserved.
+   3:src/low_level_init.c **** *
+   4:src/low_level_init.c **** *  Redistribution and use in source and binary forms, with or without 
+   5:src/low_level_init.c **** *  modification, are permitted provided that the following conditions 
+   6:src/low_level_init.c **** *  are met:
+   7:src/low_level_init.c **** *  
+   8:src/low_level_init.c **** *  1. Redistributions of source code must retain the above copyright 
+   9:src/low_level_init.c **** *     notice, this list of conditions and the following disclaimer.
+  10:src/low_level_init.c **** *  2. Redistributions in binary form must reproduce the above copyright
+  11:src/low_level_init.c **** *     notice, this list of conditions and the following disclaimer in the 
+  12:src/low_level_init.c **** *     documentation and/or other materials provided with the distribution.
+  13:src/low_level_init.c **** *  3. Neither the name of the author nor the names of its contributors may 
+  14:src/low_level_init.c **** *     be used to endorse or promote products derived from this software 
+  15:src/low_level_init.c **** *     without specific prior written permission.
+  16:src/low_level_init.c **** *
+  17:src/low_level_init.c **** *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
+  18:src/low_level_init.c **** *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
+  19:src/low_level_init.c **** *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+  20:src/low_level_init.c **** *  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL 
+  21:src/low_level_init.c **** *  THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
+  22:src/low_level_init.c **** *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+  23:src/low_level_init.c **** *  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
+  24:src/low_level_init.c **** *  OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED 
+  25:src/low_level_init.c **** *  AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
+  26:src/low_level_init.c **** *  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF 
+  27:src/low_level_init.c **** *  THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF 
+  28:src/low_level_init.c **** *  SUCH DAMAGE.
+  29:src/low_level_init.c **** *
+  30:src/low_level_init.c **** ****************************************************************************
+  31:src/low_level_init.c **** *
+  32:src/low_level_init.c **** *  History:
+  33:src/low_level_init.c **** *
+  34:src/low_level_init.c **** *  25.09.09  mifi   First Version, based on the example from Quantum Leaps 
+  35:src/low_level_init.c **** *                   with some small modifications. The original can be find 
+  36:src/low_level_init.c **** *                   here: http://www.embedded.com/design/200900043
+  37:src/low_level_init.c **** *
+  38:src/low_level_init.c **** *                   For information e.g. how to setup the CPU take a look
+  39:src/low_level_init.c **** *                   in the AT91 Software Packages which can be find here:
+  40:src/low_level_init.c **** *                   http://www.atmel.com/dyn/products/tools_card.asp?tool_id=4343
+  41:src/low_level_init.c **** ****************************************************************************/
+  42:src/low_level_init.c **** #define __LOW_LEVEL_INIT_C__
+  43:src/low_level_init.c **** 
+  44:src/low_level_init.c **** #include <stdint.h>
+  45:src/low_level_init.c **** 
+  46:src/low_level_init.c **** extern void UndefHandler (void);
+  47:src/low_level_init.c **** extern void SWIHandler (void);
+  48:src/low_level_init.c **** extern void PAbortHandler (void);
+  49:src/low_level_init.c **** extern void DAbortHandler (void);
+  50:src/low_level_init.c **** extern void IRQHandler (void);
+  51:src/low_level_init.c **** extern void FIQHandler (void);
+  52:src/low_level_init.c **** 
+  53:src/low_level_init.c **** /*=========================================================================*/
+  54:src/low_level_init.c **** /*  DEFINE: All Structures and Common Constants                            */
+ARM GAS  C:\DOCUME~1\Nex\LOCALS~1\Temp\ccRpiNbh.s 			page 3
+
+
+  55:src/low_level_init.c **** /*=========================================================================*/
+  56:src/low_level_init.c **** /* LDR pc, [pc, #0x18] */
+  57:src/low_level_init.c **** #define LDR_PC_PC       0xE59FF018U 
+  58:src/low_level_init.c **** #define MAGIC           0xDEADBEEFU
+  59:src/low_level_init.c **** 
+  60:src/low_level_init.c **** /*=========================================================================*/
+  61:src/low_level_init.c **** /*  DEFINE: Prototypes                                                     */
+  62:src/low_level_init.c **** /*=========================================================================*/
+  63:src/low_level_init.c **** 
+  64:src/low_level_init.c **** /*=========================================================================*/
+  65:src/low_level_init.c **** /*  DEFINE: Definition of all local Data                                   */
+  66:src/low_level_init.c **** /*=========================================================================*/
+  67:src/low_level_init.c **** 
+  68:src/low_level_init.c **** /*=========================================================================*/
+  69:src/low_level_init.c **** /*  DEFINE: Definition of all local Procedures                             */
+  70:src/low_level_init.c **** /*=========================================================================*/
+  71:src/low_level_init.c **** 
+  72:src/low_level_init.c **** /*=========================================================================*/
+  73:src/low_level_init.c **** /*  DEFINE: All code exported                                              */
+  74:src/low_level_init.c **** /*=========================================================================*/
+  75:src/low_level_init.c **** /***************************************************************************/
+  76:src/low_level_init.c **** /*  low_level_init                                                         */
+  77:src/low_level_init.c **** /*                                                                         */
+  78:src/low_level_init.c **** /*  This function is invoked by the startup sequence after initializing    */
+  79:src/low_level_init.c **** /*  the C stack, but before initializing the segments in RAM.              */
+  80:src/low_level_init.c **** /*                                                                         */
+  81:src/low_level_init.c **** /*  low_level_init() is invoked in the ARM state. The function gives the   */
+  82:src/low_level_init.c **** /*  application a chance to perform early initializations of the hardware. */
+  83:src/low_level_init.c **** /*  This function cannot rely on initialization of any static variables,   */
+  84:src/low_level_init.c **** /*  because these have not yet been initialized in RAM.                    */
+  85:src/low_level_init.c **** /***************************************************************************/
+  86:src/low_level_init.c **** void low_level_init (void *reset_addr, void *return_addr) 
+  87:src/low_level_init.c **** {
+  57              		.loc 1 87 0
+  58              		.cfi_startproc
+  59              		@ Function supports interworking.
+  60              		@ args = 0, pretend = 0, frame = 8
+  61              		@ frame_needed = 0, uses_anonymous_args = 0
+  62              		@ link register save eliminated.
+  63 0000 08D04DE2 		sub	sp, sp, #8	@,,
+  64              	.LCFI0:
+  65              		.cfi_def_cfa_offset 8
+  66 0004 04008DE5 		str	r0, [sp, #4]	@ reset_addr, reset_addr
+  67 0008 00108DE5 		str	r1, [sp, #0]	@ return_addr, return_addr
+  88:src/low_level_init.c ****    extern uint8_t __ram_start;
+  89:src/low_level_init.c ****    
+  90:src/low_level_init.c ****    /*******************************************************************/
+  91:src/low_level_init.c ****    /*  Warning, warning, warning, warning, warning, warning           */
+  92:src/low_level_init.c ****    /*                                                                 */
+  93:src/low_level_init.c ****    /*  This trick is used to check if we are running from Flash.      */
+  94:src/low_level_init.c ****    /*  In this case __ram_start is set to the RAM start address       */
+  95:src/low_level_init.c ****    /*  of the LPC, which is 0x40000000.                           */
+  96:src/low_level_init.c ****    /*                                                                 */
+  97:src/low_level_init.c ****    /*  Only than, we can map the exception vectors from RAM to Flash. */
+  98:src/low_level_init.c ****    /*******************************************************************/
+  99:src/low_level_init.c ****    if ((uint32_t)&__ram_start == 0x40000000)
+  68              		.loc 1 99 0
+ARM GAS  C:\DOCUME~1\Nex\LOCALS~1\Temp\ccRpiNbh.s 			page 4
+
+
+  69 000c 50319FE5 		ldr	r3, .L3	@ tmp173,
+  70 0010 010153E3 		cmp	r3, #1073741824	@ tmp173,
+  71 0014 5000001A 		bne	.L1	@,
+ 100:src/low_level_init.c ****    {
+ 101:src/low_level_init.c ****       /* 
+ 102:src/low_level_init.c ****        * Setup the exception vectors to RAM
+ 103:src/low_level_init.c ****        *
+ 104:src/low_level_init.c ****        * NOTE: the exception vectors must be in RAM *before* the remap
+ 105:src/low_level_init.c ****        * in order to guarantee that the ARM core is provided with valid vectors
+ 106:src/low_level_init.c ****        * during the remap operation.
+ 107:src/low_level_init.c ****        */
+ 108:src/low_level_init.c ****        
+ 109:src/low_level_init.c ****       /* Setup the primary vector table in RAM */
+ 110:src/low_level_init.c ****       *(uint32_t volatile *)(&__ram_start + 0x00) = LDR_PC_PC;
+  72              		.loc 1 110 0
+  73 0018 44219FE5 		ldr	r2, .L3	@ __ram_start.0,
+  74 001c FE3EE0E3 		mvn	r3, #4064	@ tmp174,
+  75 0020 713243E2 		sub	r3, r3, #268435463	@ tmp174, tmp174,
+  76 0024 A63643E2 		sub	r3, r3, #174063616	@ tmp174, tmp174,
+  77 0028 003082E5 		str	r3, [r2, #0]	@ tmp174,* __ram_start.0
+ 111:src/low_level_init.c ****       *(uint32_t volatile *)(&__ram_start + 0x04) = LDR_PC_PC;
+  78              		.loc 1 111 0
+  79 002c 30319FE5 		ldr	r3, .L3	@ __ram_start.1,
+  80 0030 042083E2 		add	r2, r3, #4	@ D.2058, __ram_start.1,
+  81 0034 FE3EE0E3 		mvn	r3, #4064	@ tmp175,
+  82 0038 713243E2 		sub	r3, r3, #268435463	@ tmp175, tmp175,
+  83 003c A63643E2 		sub	r3, r3, #174063616	@ tmp175, tmp175,
+  84 0040 003082E5 		str	r3, [r2, #0]	@ tmp175,* D.2058
+ 112:src/low_level_init.c ****       *(uint32_t volatile *)(&__ram_start + 0x08) = LDR_PC_PC;
+  85              		.loc 1 112 0
+  86 0044 18319FE5 		ldr	r3, .L3	@ __ram_start.2,
+  87 0048 082083E2 		add	r2, r3, #8	@ D.2060, __ram_start.2,
+  88 004c FE3EE0E3 		mvn	r3, #4064	@ tmp176,
+  89 0050 713243E2 		sub	r3, r3, #268435463	@ tmp176, tmp176,
+  90 0054 A63643E2 		sub	r3, r3, #174063616	@ tmp176, tmp176,
+  91 0058 003082E5 		str	r3, [r2, #0]	@ tmp176,* D.2060
+ 113:src/low_level_init.c ****       *(uint32_t volatile *)(&__ram_start + 0x0C) = LDR_PC_PC;
+  92              		.loc 1 113 0
+  93 005c 00319FE5 		ldr	r3, .L3	@ __ram_start.3,
+  94 0060 0C2083E2 		add	r2, r3, #12	@ D.2062, __ram_start.3,
+  95 0064 FE3EE0E3 		mvn	r3, #4064	@ tmp177,
+  96 0068 713243E2 		sub	r3, r3, #268435463	@ tmp177, tmp177,
+  97 006c A63643E2 		sub	r3, r3, #174063616	@ tmp177, tmp177,
+  98 0070 003082E5 		str	r3, [r2, #0]	@ tmp177,* D.2062
+ 114:src/low_level_init.c ****       *(uint32_t volatile *)(&__ram_start + 0x10) = LDR_PC_PC;
+  99              		.loc 1 114 0
+ 100 0074 E8309FE5 		ldr	r3, .L3	@ __ram_start.4,
+ 101 0078 102083E2 		add	r2, r3, #16	@ D.2064, __ram_start.4,
+ 102 007c FE3EE0E3 		mvn	r3, #4064	@ tmp178,
+ 103 0080 713243E2 		sub	r3, r3, #268435463	@ tmp178, tmp178,
+ 104 0084 A63643E2 		sub	r3, r3, #174063616	@ tmp178, tmp178,
+ 105 0088 003082E5 		str	r3, [r2, #0]	@ tmp178,* D.2064
+ 115:src/low_level_init.c ****       *(uint32_t volatile *)(&__ram_start + 0x14) = MAGIC;
+ 106              		.loc 1 115 0
+ 107 008c D0309FE5 		ldr	r3, .L3	@ __ram_start.5,
+ 108 0090 142083E2 		add	r2, r3, #20	@ D.2066, __ram_start.5,
+ 109 0094 8535E0E3 		mvn	r3, #557842432	@ tmp179,
+ARM GAS  C:\DOCUME~1\Nex\LOCALS~1\Temp\ccRpiNbh.s 			page 5
+
+
+ 110 0098 493943E2 		sub	r3, r3, #1196032	@ tmp179, tmp179,
+ 111 009c 113E43E2 		sub	r3, r3, #272	@ tmp179, tmp179,
+ 112 00a0 003082E5 		str	r3, [r2, #0]	@ tmp179,* D.2066
+ 116:src/low_level_init.c ****       *(uint32_t volatile *)(&__ram_start + 0x18) = LDR_PC_PC;
+ 113              		.loc 1 116 0
+ 114 00a4 B8309FE5 		ldr	r3, .L3	@ __ram_start.6,
+ 115 00a8 182083E2 		add	r2, r3, #24	@ D.2068, __ram_start.6,
+ 116 00ac FE3EE0E3 		mvn	r3, #4064	@ tmp180,
+ 117 00b0 713243E2 		sub	r3, r3, #268435463	@ tmp180, tmp180,
+ 118 00b4 A63643E2 		sub	r3, r3, #174063616	@ tmp180, tmp180,
+ 119 00b8 003082E5 		str	r3, [r2, #0]	@ tmp180,* D.2068
+ 117:src/low_level_init.c ****       *(uint32_t volatile *)(&__ram_start + 0x1C) = LDR_PC_PC;
+ 120              		.loc 1 117 0
+ 121 00bc A0309FE5 		ldr	r3, .L3	@ __ram_start.7,
+ 122 00c0 1C2083E2 		add	r2, r3, #28	@ D.2070, __ram_start.7,
+ 123 00c4 FE3EE0E3 		mvn	r3, #4064	@ tmp181,
+ 124 00c8 713243E2 		sub	r3, r3, #268435463	@ tmp181, tmp181,
+ 125 00cc A63643E2 		sub	r3, r3, #174063616	@ tmp181, tmp181,
+ 126 00d0 003082E5 		str	r3, [r2, #0]	@ tmp181,* D.2070
+ 118:src/low_level_init.c **** 
+ 119:src/low_level_init.c ****       /* setup the secondary vector table in RAM */
+ 120:src/low_level_init.c ****       *(uint32_t volatile *)(&__ram_start + 0x20) = (uint32_t)reset_addr;
+ 127              		.loc 1 120 0
+ 128 00d4 88309FE5 		ldr	r3, .L3	@ __ram_start.8,
+ 129 00d8 203083E2 		add	r3, r3, #32	@ D.2072, __ram_start.8,
+ 130 00dc 04209DE5 		ldr	r2, [sp, #4]	@ reset_addr.9, reset_addr
+ 131 00e0 002083E5 		str	r2, [r3, #0]	@ reset_addr.9,* D.2072
+ 121:src/low_level_init.c ****       *(uint32_t volatile *)(&__ram_start + 0x24) = (uint32_t)UndefHandler;
+ 132              		.loc 1 121 0
+ 133 00e4 78309FE5 		ldr	r3, .L3	@ __ram_start.10,
+ 134 00e8 243083E2 		add	r3, r3, #36	@ D.2075, __ram_start.10,
+ 135 00ec 74209FE5 		ldr	r2, .L3+4	@ UndefHandler.11,
+ 136 00f0 002083E5 		str	r2, [r3, #0]	@ UndefHandler.11,* D.2075
+ 122:src/low_level_init.c ****       *(uint32_t volatile *)(&__ram_start + 0x28) = (uint32_t)SWIHandler;
+ 137              		.loc 1 122 0
+ 138 00f4 68309FE5 		ldr	r3, .L3	@ __ram_start.12,
+ 139 00f8 283083E2 		add	r3, r3, #40	@ D.2078, __ram_start.12,
+ 140 00fc 68209FE5 		ldr	r2, .L3+8	@ SWIHandler.13,
+ 141 0100 002083E5 		str	r2, [r3, #0]	@ SWIHandler.13,* D.2078
+ 123:src/low_level_init.c ****       *(uint32_t volatile *)(&__ram_start + 0x2C) = (uint32_t)PAbortHandler;
+ 142              		.loc 1 123 0
+ 143 0104 58309FE5 		ldr	r3, .L3	@ __ram_start.14,
+ 144 0108 2C3083E2 		add	r3, r3, #44	@ D.2081, __ram_start.14,
+ 145 010c 5C209FE5 		ldr	r2, .L3+12	@ PAbortHandler.15,
+ 146 0110 002083E5 		str	r2, [r3, #0]	@ PAbortHandler.15,* D.2081
+ 124:src/low_level_init.c ****       *(uint32_t volatile *)(&__ram_start + 0x30) = (uint32_t)DAbortHandler;
+ 147              		.loc 1 124 0
+ 148 0114 48309FE5 		ldr	r3, .L3	@ __ram_start.16,
+ 149 0118 303083E2 		add	r3, r3, #48	@ D.2084, __ram_start.16,
+ 150 011c 50209FE5 		ldr	r2, .L3+16	@ DAbortHandler.17,
+ 151 0120 002083E5 		str	r2, [r3, #0]	@ DAbortHandler.17,* D.2084
+ 125:src/low_level_init.c ****       *(uint32_t volatile *)(&__ram_start + 0x34) = 0;
+ 152              		.loc 1 125 0
+ 153 0124 38309FE5 		ldr	r3, .L3	@ __ram_start.18,
+ 154 0128 343083E2 		add	r3, r3, #52	@ D.2087, __ram_start.18,
+ 155 012c 0020A0E3 		mov	r2, #0	@ tmp182,
+ 156 0130 002083E5 		str	r2, [r3, #0]	@ tmp182,* D.2087
+ARM GAS  C:\DOCUME~1\Nex\LOCALS~1\Temp\ccRpiNbh.s 			page 6
+
+
+ 126:src/low_level_init.c ****       *(uint32_t volatile *)(&__ram_start + 0x38) = (uint32_t)IRQHandler;
+ 157              		.loc 1 126 0
+ 158 0134 28309FE5 		ldr	r3, .L3	@ __ram_start.19,
+ 159 0138 383083E2 		add	r3, r3, #56	@ D.2089, __ram_start.19,
+ 160 013c 34209FE5 		ldr	r2, .L3+20	@ IRQHandler.20,
+ 161 0140 002083E5 		str	r2, [r3, #0]	@ IRQHandler.20,* D.2089
+ 127:src/low_level_init.c ****       *(uint32_t volatile *)(&__ram_start + 0x3C) = (uint32_t)FIQHandler;
+ 162              		.loc 1 127 0
+ 163 0144 18309FE5 		ldr	r3, .L3	@ __ram_start.21,
+ 164 0148 3C3083E2 		add	r3, r3, #60	@ D.2092, __ram_start.21,
+ 165 014c 28209FE5 		ldr	r2, .L3+24	@ FIQHandler.22,
+ 166 0150 002083E5 		str	r2, [r3, #0]	@ FIQHandler.22,* D.2092
+ 128:src/low_level_init.c **** 
+ 129:src/low_level_init.c ****       /* 
+ 130:src/low_level_init.c ****        * Check if the Memory Controller has been remapped already 
+ 131:src/low_level_init.c ****        */
+ 132:src/low_level_init.c ****       if (MAGIC != (*(uint32_t volatile *)0x14)) 
+ 167              		.loc 1 132 0
+ 168 0154 1430A0E3 		mov	r3, #20	@ D.2094,
+ 169 0158 003093E5 		ldr	r3, [r3, #0]	@ D.2095,* D.2094
+ 170              	.L1:
+ 133:src/low_level_init.c ****       {
+ 134:src/low_level_init.c ****          /* perform Memory Controller remapping */
+ 135:src/low_level_init.c ****          // Add command here
+ 136:src/low_level_init.c ****       }
+ 137:src/low_level_init.c ****    }      
+ 138:src/low_level_init.c ****    
+ 139:src/low_level_init.c **** } /* low_level_init */
+ 171              		.loc 1 139 0
+ 172 015c 08D08DE2 		add	sp, sp, #8	@,,
+ 173 0160 1EFF2FE1 		bx	lr
+ 174              	.L4:
+ 175              		.align	2
+ 176              	.L3:
+ 177 0164 00000000 		.word	__ram_start
+ 178 0168 00000000 		.word	UndefHandler
+ 179 016c 00000000 		.word	SWIHandler
+ 180 0170 00000000 		.word	PAbortHandler
+ 181 0174 00000000 		.word	DAbortHandler
+ 182 0178 00000000 		.word	IRQHandler
+ 183 017c 00000000 		.word	FIQHandler
+ 184              		.cfi_endproc
+ 185              	.LFE0:
+ 186              		.size	low_level_init, .-low_level_init
+ 187              	.Letext0:
+ 188              		.section	.debug_loc,"",%progbits
+ 189              	.Ldebug_loc0:
+ 190              	.LLST0:
+ 191 0000 00000000 		.4byte	.LFB0-.Ltext0
+ 192 0004 04000000 		.4byte	.LCFI0-.Ltext0
+ 193 0008 0200     		.2byte	0x2
+ 194 000a 7D       		.byte	0x7d
+ 195 000b 00       		.sleb128 0
+ 196 000c 04000000 		.4byte	.LCFI0-.Ltext0
+ 197 0010 80010000 		.4byte	.LFE0-.Ltext0
+ 198 0014 0200     		.2byte	0x2
+ 199 0016 7D       		.byte	0x7d
+ARM GAS  C:\DOCUME~1\Nex\LOCALS~1\Temp\ccRpiNbh.s 			page 7
+
+
+ 200 0017 08       		.sleb128 8
+ 201 0018 00000000 		.4byte	0x0
+ 202 001c 00000000 		.4byte	0x0
+ 203              		.file 2 "c:/program files/yagarto/lib/gcc/../../arm-none-eabi/sys-include/stdint.h"
+ 204              		.section	.debug_info
+ 205 0000 D0000000 		.4byte	0xd0
+ 206 0004 0200     		.2byte	0x2
+ 207 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 208 000a 04       		.byte	0x4
+ 209 000b 01       		.uleb128 0x1
+ 210 000c 00000000 		.4byte	.LASF14
+ 211 0010 01       		.byte	0x1
+ 212 0011 55000000 		.4byte	.LASF15
+ 213 0015 0C000000 		.4byte	.LASF16
+ 214 0019 00000000 		.4byte	.Ltext0
+ 215 001d 80010000 		.4byte	.Letext0
+ 216 0021 00000000 		.4byte	.Ldebug_line0
+ 217 0025 02       		.uleb128 0x2
+ 218 0026 01       		.byte	0x1
+ 219 0027 06       		.byte	0x6
+ 220 0028 E8000000 		.4byte	.LASF0
+ 221 002c 03       		.uleb128 0x3
+ 222 002d 9F000000 		.4byte	.LASF5
+ 223 0031 02       		.byte	0x2
+ 224 0032 2A       		.byte	0x2a
+ 225 0033 37000000 		.4byte	0x37
+ 226 0037 02       		.uleb128 0x2
+ 227 0038 01       		.byte	0x1
+ 228 0039 08       		.byte	0x8
+ 229 003a A7000000 		.4byte	.LASF1
+ 230 003e 02       		.uleb128 0x2
+ 231 003f 02       		.byte	0x2
+ 232 0040 05       		.byte	0x5
+ 233 0041 0E010000 		.4byte	.LASF2
+ 234 0045 02       		.uleb128 0x2
+ 235 0046 02       		.byte	0x2
+ 236 0047 07       		.byte	0x7
+ 237 0048 D5000000 		.4byte	.LASF3
+ 238 004c 02       		.uleb128 0x2
+ 239 004d 04       		.byte	0x4
+ 240 004e 05       		.byte	0x5
+ 241 004f BE000000 		.4byte	.LASF4
+ 242 0053 03       		.uleb128 0x3
+ 243 0054 B5000000 		.4byte	.LASF6
+ 244 0058 02       		.byte	0x2
+ 245 0059 50       		.byte	0x50
+ 246 005a 5E000000 		.4byte	0x5e
+ 247 005e 02       		.uleb128 0x2
+ 248 005f 04       		.byte	0x4
+ 249 0060 07       		.byte	0x7
+ 250 0061 6A000000 		.4byte	.LASF7
+ 251 0065 02       		.uleb128 0x2
+ 252 0066 08       		.byte	0x8
+ 253 0067 05       		.byte	0x5
+ 254 0068 C7000000 		.4byte	.LASF8
+ 255 006c 02       		.uleb128 0x2
+ 256 006d 08       		.byte	0x8
+ARM GAS  C:\DOCUME~1\Nex\LOCALS~1\Temp\ccRpiNbh.s 			page 8
+
+
+ 257 006e 07       		.byte	0x7
+ 258 006f 7C000000 		.4byte	.LASF9
+ 259 0073 04       		.uleb128 0x4
+ 260 0074 04       		.byte	0x4
+ 261 0075 05       		.byte	0x5
+ 262 0076 696E7400 		.ascii	"int\000"
+ 263 007a 02       		.uleb128 0x2
+ 264 007b 04       		.byte	0x4
+ 265 007c 07       		.byte	0x7
+ 266 007d 3C000000 		.4byte	.LASF10
+ 267 0081 05       		.uleb128 0x5
+ 268 0082 01       		.byte	0x1
+ 269 0083 FF000000 		.4byte	.LASF17
+ 270 0087 01       		.byte	0x1
+ 271 0088 56       		.byte	0x56
+ 272 0089 01       		.byte	0x1
+ 273 008a 00000000 		.4byte	.LFB0
+ 274 008e 80010000 		.4byte	.LFE0
+ 275 0092 00000000 		.4byte	.LLST0
+ 276 0096 C4000000 		.4byte	0xc4
+ 277 009a 06       		.uleb128 0x6
+ 278 009b F4000000 		.4byte	.LASF11
+ 279 009f 01       		.byte	0x1
+ 280 00a0 56       		.byte	0x56
+ 281 00a1 C4000000 		.4byte	0xc4
+ 282 00a5 02       		.byte	0x2
+ 283 00a6 91       		.byte	0x91
+ 284 00a7 7C       		.sleb128 -4
+ 285 00a8 06       		.uleb128 0x6
+ 286 00a9 93000000 		.4byte	.LASF12
+ 287 00ad 01       		.byte	0x1
+ 288 00ae 56       		.byte	0x56
+ 289 00af C4000000 		.4byte	0xc4
+ 290 00b3 02       		.byte	0x2
+ 291 00b4 91       		.byte	0x91
+ 292 00b5 78       		.sleb128 -8
+ 293 00b6 07       		.uleb128 0x7
+ 294 00b7 49000000 		.4byte	.LASF13
+ 295 00bb 01       		.byte	0x1
+ 296 00bc 58       		.byte	0x58
+ 297 00bd 2C000000 		.4byte	0x2c
+ 298 00c1 01       		.byte	0x1
+ 299 00c2 01       		.byte	0x1
+ 300 00c3 00       		.byte	0x0
+ 301 00c4 08       		.uleb128 0x8
+ 302 00c5 04       		.byte	0x4
+ 303 00c6 07       		.uleb128 0x7
+ 304 00c7 49000000 		.4byte	.LASF13
+ 305 00cb 01       		.byte	0x1
+ 306 00cc 58       		.byte	0x58
+ 307 00cd 2C000000 		.4byte	0x2c
+ 308 00d1 01       		.byte	0x1
+ 309 00d2 01       		.byte	0x1
+ 310 00d3 00       		.byte	0x0
+ 311              		.section	.debug_abbrev
+ 312 0000 01       		.uleb128 0x1
+ 313 0001 11       		.uleb128 0x11
+ARM GAS  C:\DOCUME~1\Nex\LOCALS~1\Temp\ccRpiNbh.s 			page 9
+
+
+ 314 0002 01       		.byte	0x1
+ 315 0003 25       		.uleb128 0x25
+ 316 0004 0E       		.uleb128 0xe
+ 317 0005 13       		.uleb128 0x13
+ 318 0006 0B       		.uleb128 0xb
+ 319 0007 03       		.uleb128 0x3
+ 320 0008 0E       		.uleb128 0xe
+ 321 0009 1B       		.uleb128 0x1b
+ 322 000a 0E       		.uleb128 0xe
+ 323 000b 11       		.uleb128 0x11
+ 324 000c 01       		.uleb128 0x1
+ 325 000d 12       		.uleb128 0x12
+ 326 000e 01       		.uleb128 0x1
+ 327 000f 10       		.uleb128 0x10
+ 328 0010 06       		.uleb128 0x6
+ 329 0011 00       		.byte	0x0
+ 330 0012 00       		.byte	0x0
+ 331 0013 02       		.uleb128 0x2
+ 332 0014 24       		.uleb128 0x24
+ 333 0015 00       		.byte	0x0
+ 334 0016 0B       		.uleb128 0xb
+ 335 0017 0B       		.uleb128 0xb
+ 336 0018 3E       		.uleb128 0x3e
+ 337 0019 0B       		.uleb128 0xb
+ 338 001a 03       		.uleb128 0x3
+ 339 001b 0E       		.uleb128 0xe
+ 340 001c 00       		.byte	0x0
+ 341 001d 00       		.byte	0x0
+ 342 001e 03       		.uleb128 0x3
+ 343 001f 16       		.uleb128 0x16
+ 344 0020 00       		.byte	0x0
+ 345 0021 03       		.uleb128 0x3
+ 346 0022 0E       		.uleb128 0xe
+ 347 0023 3A       		.uleb128 0x3a
+ 348 0024 0B       		.uleb128 0xb
+ 349 0025 3B       		.uleb128 0x3b
+ 350 0026 0B       		.uleb128 0xb
+ 351 0027 49       		.uleb128 0x49
+ 352 0028 13       		.uleb128 0x13
+ 353 0029 00       		.byte	0x0
+ 354 002a 00       		.byte	0x0
+ 355 002b 04       		.uleb128 0x4
+ 356 002c 24       		.uleb128 0x24
+ 357 002d 00       		.byte	0x0
+ 358 002e 0B       		.uleb128 0xb
+ 359 002f 0B       		.uleb128 0xb
+ 360 0030 3E       		.uleb128 0x3e
+ 361 0031 0B       		.uleb128 0xb
+ 362 0032 03       		.uleb128 0x3
+ 363 0033 08       		.uleb128 0x8
+ 364 0034 00       		.byte	0x0
+ 365 0035 00       		.byte	0x0
+ 366 0036 05       		.uleb128 0x5
+ 367 0037 2E       		.uleb128 0x2e
+ 368 0038 01       		.byte	0x1
+ 369 0039 3F       		.uleb128 0x3f
+ 370 003a 0C       		.uleb128 0xc
+ARM GAS  C:\DOCUME~1\Nex\LOCALS~1\Temp\ccRpiNbh.s 			page 10
+
+
+ 371 003b 03       		.uleb128 0x3
+ 372 003c 0E       		.uleb128 0xe
+ 373 003d 3A       		.uleb128 0x3a
+ 374 003e 0B       		.uleb128 0xb
+ 375 003f 3B       		.uleb128 0x3b
+ 376 0040 0B       		.uleb128 0xb
+ 377 0041 27       		.uleb128 0x27
+ 378 0042 0C       		.uleb128 0xc
+ 379 0043 11       		.uleb128 0x11
+ 380 0044 01       		.uleb128 0x1
+ 381 0045 12       		.uleb128 0x12
+ 382 0046 01       		.uleb128 0x1
+ 383 0047 40       		.uleb128 0x40
+ 384 0048 06       		.uleb128 0x6
+ 385 0049 01       		.uleb128 0x1
+ 386 004a 13       		.uleb128 0x13
+ 387 004b 00       		.byte	0x0
+ 388 004c 00       		.byte	0x0
+ 389 004d 06       		.uleb128 0x6
+ 390 004e 05       		.uleb128 0x5
+ 391 004f 00       		.byte	0x0
+ 392 0050 03       		.uleb128 0x3
+ 393 0051 0E       		.uleb128 0xe
+ 394 0052 3A       		.uleb128 0x3a
+ 395 0053 0B       		.uleb128 0xb
+ 396 0054 3B       		.uleb128 0x3b
+ 397 0055 0B       		.uleb128 0xb
+ 398 0056 49       		.uleb128 0x49
+ 399 0057 13       		.uleb128 0x13
+ 400 0058 02       		.uleb128 0x2
+ 401 0059 0A       		.uleb128 0xa
+ 402 005a 00       		.byte	0x0
+ 403 005b 00       		.byte	0x0
+ 404 005c 07       		.uleb128 0x7
+ 405 005d 34       		.uleb128 0x34
+ 406 005e 00       		.byte	0x0
+ 407 005f 03       		.uleb128 0x3
+ 408 0060 0E       		.uleb128 0xe
+ 409 0061 3A       		.uleb128 0x3a
+ 410 0062 0B       		.uleb128 0xb
+ 411 0063 3B       		.uleb128 0x3b
+ 412 0064 0B       		.uleb128 0xb
+ 413 0065 49       		.uleb128 0x49
+ 414 0066 13       		.uleb128 0x13
+ 415 0067 3F       		.uleb128 0x3f
+ 416 0068 0C       		.uleb128 0xc
+ 417 0069 3C       		.uleb128 0x3c
+ 418 006a 0C       		.uleb128 0xc
+ 419 006b 00       		.byte	0x0
+ 420 006c 00       		.byte	0x0
+ 421 006d 08       		.uleb128 0x8
+ 422 006e 0F       		.uleb128 0xf
+ 423 006f 00       		.byte	0x0
+ 424 0070 0B       		.uleb128 0xb
+ 425 0071 0B       		.uleb128 0xb
+ 426 0072 00       		.byte	0x0
+ 427 0073 00       		.byte	0x0
+ARM GAS  C:\DOCUME~1\Nex\LOCALS~1\Temp\ccRpiNbh.s 			page 11
+
+
+ 428 0074 00       		.byte	0x0
+ 429              		.section	.debug_pubnames,"",%progbits
+ 430 0000 21000000 		.4byte	0x21
+ 431 0004 0200     		.2byte	0x2
+ 432 0006 00000000 		.4byte	.Ldebug_info0
+ 433 000a D4000000 		.4byte	0xd4
+ 434 000e 81000000 		.4byte	0x81
+ 435 0012 6C6F775F 		.ascii	"low_level_init\000"
+ 435      6C657665 
+ 435      6C5F696E 
+ 435      697400
+ 436 0021 00000000 		.4byte	0x0
+ 437              		.section	.debug_pubtypes,"",%progbits
+ 438 0000 27000000 		.4byte	0x27
+ 439 0004 0200     		.2byte	0x2
+ 440 0006 00000000 		.4byte	.Ldebug_info0
+ 441 000a D4000000 		.4byte	0xd4
+ 442 000e 2C000000 		.4byte	0x2c
+ 443 0012 75696E74 		.ascii	"uint8_t\000"
+ 443      385F7400 
+ 444 001a 53000000 		.4byte	0x53
+ 445 001e 75696E74 		.ascii	"uint32_t\000"
+ 445      33325F74 
+ 445      00
+ 446 0027 00000000 		.4byte	0x0
+ 447              		.section	.debug_aranges,"",%progbits
+ 448 0000 1C000000 		.4byte	0x1c
+ 449 0004 0200     		.2byte	0x2
+ 450 0006 00000000 		.4byte	.Ldebug_info0
+ 451 000a 04       		.byte	0x4
+ 452 000b 00       		.byte	0x0
+ 453 000c 0000     		.2byte	0x0
+ 454 000e 0000     		.2byte	0x0
+ 455 0010 00000000 		.4byte	.Ltext0
+ 456 0014 80010000 		.4byte	.Letext0-.Ltext0
+ 457 0018 00000000 		.4byte	0x0
+ 458 001c 00000000 		.4byte	0x0
+ 459              		.section	.debug_str,"MS",%progbits,1
+ 460              	.LASF14:
+ 461 0000 474E5520 		.ascii	"GNU C 4.5.0\000"
+ 461      4320342E 
+ 461      352E3000 
+ 462              	.LASF16:
+ 463 000c 453A5C50 		.ascii	"E:\\Projects\\ARM\\Codes\\Eclipse_Projects\\LED_Dem"
+ 463      726F6A65 
+ 463      6374735C 
+ 463      41524D5C 
+ 463      436F6465 
+ 464 003a 6F00     		.ascii	"o\000"
+ 465              	.LASF10:
+ 466 003c 756E7369 		.ascii	"unsigned int\000"
+ 466      676E6564 
+ 466      20696E74 
+ 466      00
+ 467              	.LASF13:
+ 468 0049 5F5F7261 		.ascii	"__ram_start\000"
+ 468      6D5F7374 
+ARM GAS  C:\DOCUME~1\Nex\LOCALS~1\Temp\ccRpiNbh.s 			page 12
+
+
+ 468      61727400 
+ 469              	.LASF15:
+ 470 0055 7372632F 		.ascii	"src/low_level_init.c\000"
+ 470      6C6F775F 
+ 470      6C657665 
+ 470      6C5F696E 
+ 470      69742E63 
+ 471              	.LASF7:
+ 472 006a 6C6F6E67 		.ascii	"long unsigned int\000"
+ 472      20756E73 
+ 472      69676E65 
+ 472      6420696E 
+ 472      7400
+ 473              	.LASF9:
+ 474 007c 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 474      206C6F6E 
+ 474      6720756E 
+ 474      7369676E 
+ 474      65642069 
+ 475              	.LASF12:
+ 476 0093 72657475 		.ascii	"return_addr\000"
+ 476      726E5F61 
+ 476      64647200 
+ 477              	.LASF5:
+ 478 009f 75696E74 		.ascii	"uint8_t\000"
+ 478      385F7400 
+ 479              	.LASF1:
+ 480 00a7 756E7369 		.ascii	"unsigned char\000"
+ 480      676E6564 
+ 480      20636861 
+ 480      7200
+ 481              	.LASF6:
+ 482 00b5 75696E74 		.ascii	"uint32_t\000"
+ 482      33325F74 
+ 482      00
+ 483              	.LASF4:
+ 484 00be 6C6F6E67 		.ascii	"long int\000"
+ 484      20696E74 
+ 484      00
+ 485              	.LASF8:
+ 486 00c7 6C6F6E67 		.ascii	"long long int\000"
+ 486      206C6F6E 
+ 486      6720696E 
+ 486      7400
+ 487              	.LASF3:
+ 488 00d5 73686F72 		.ascii	"short unsigned int\000"
+ 488      7420756E 
+ 488      7369676E 
+ 488      65642069 
+ 488      6E7400
+ 489              	.LASF0:
+ 490 00e8 7369676E 		.ascii	"signed char\000"
+ 490      65642063 
+ 490      68617200 
+ 491              	.LASF11:
+ 492 00f4 72657365 		.ascii	"reset_addr\000"
+ 492      745F6164 
+ARM GAS  C:\DOCUME~1\Nex\LOCALS~1\Temp\ccRpiNbh.s 			page 13
+
+
+ 492      647200
+ 493              	.LASF17:
+ 494 00ff 6C6F775F 		.ascii	"low_level_init\000"
+ 494      6C657665 
+ 494      6C5F696E 
+ 494      697400
+ 495              	.LASF2:
+ 496 010e 73686F72 		.ascii	"short int\000"
+ 496      7420696E 
+ 496      7400
+ 497              		.ident	"GCC: (GNU) 4.5.0"
+ARM GAS  C:\DOCUME~1\Nex\LOCALS~1\Temp\ccRpiNbh.s 			page 14
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 low_level_init.c
+C:\DOCUME~1\Nex\LOCALS~1\Temp\ccRpiNbh.s:51     .text:00000000 $a
+C:\DOCUME~1\Nex\LOCALS~1\Temp\ccRpiNbh.s:54     .text:00000000 low_level_init
+C:\DOCUME~1\Nex\LOCALS~1\Temp\ccRpiNbh.s:177    .text:00000164 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+__ram_start
+UndefHandler
+SWIHandler
+PAbortHandler
+DAbortHandler
+IRQHandler
+FIQHandler

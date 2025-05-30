@@ -1,0 +1,159 @@
+ARM COMPILER V2.53,  demo                                                                  28/09/11  15:10:05  PAGE 1   
+
+
+ARM COMPILER V2.53, COMPILATION OF MODULE demo
+OBJECT MODULE PLACED IN .\Obj\demo.obj
+COMPILER INVOKED BY: C:\Keil\ARM\BIN\CA.exe demo.c THUMB DEFINE(MCB2140) DEBUG PRINT(.\LST\DEMO.LST) TABS(4) OBJECT(.\Ob
+                    -j\demo.obj) 
+
+stmt  level    source
+
+    1          /*----------------------------------------------------------------------------
+    2           *      U S B  -  K e r n e l
+    3           *----------------------------------------------------------------------------
+    4           *      Name:    DEMO.C
+    5           *      Purpose: Main C entry file for Philips LPC214x
+    6           *      Version: V1.04
+    7           *----------------------------------------------------------------------------*/
+    8          #include <LPC214x.h>                        /* LPC214x definitions */
+    9          
+   10          #include "type.h"
+   11          #include "usb.h"
+   12          #include "usbcfg.h"
+   13          #include "usbhw.h"
+   14          #include "usbcore.h"
+   15          #include "vcomuser.h"
+   16          #include "demo.h"
+   17          
+   18          extern BYTE ReportStatus0, ReportStatus1;
+   19          extern BYTE Data2Host0, Data2Host1;
+   20          
+   21          BYTE Modem0Status, Modem1Status;
+   22          
+   23          /* Main Program */
+   24          int main (void) {
+   25   1      
+   26   1        BYTE i = 0;
+   27   1      
+   28   1        IODIR1 = LED1 | LED2 | LED3 |             /* LED1..4 are Outputs */
+   29   1                 LED4;
+   30   1        
+   31   1        init_serial();
+   32   1        USB_Init();                               /* USB Initialization */
+   33   1        USB_Connect(TRUE);                        /* USB Connect */
+   34   1      
+   35   1        while (1)                                /* Loop forever */
+   36   1        {
+   37   2      #if USB_VCOM
+   38   2          if ( Data2Host0 || Data2Host1 ) {
+   39   3              DeviceData2Host( 0 );
+   40   3              DeviceData2Host( 1 );
+   41   3          }
+   42   2      #if 0
+                   /* EP3 is used to report UART0 status, and EP9
+                   is used to report UART1 status respectively */
+                   if ( ReportStatus0 ) {
+                       ReportStatus0 = 0;
+                       /* For Interrupt IN on EP3 */
+                       USB_WriteEP( 3 | 0x80, &Modem0Status, sizeof(Modem0Status) );
+                   }
+                   if ( ReportStatus1 ) {
+                       ReportStatus1 = 0;
+                       /* For Interrupt IN on EP9 */
+                       USB_WriteEP( 9 | 0x80, &Modem1Status, sizeof(Modem1Status) );
+                   }
+               #endif
+   56   2      #endif
+   57   2        }                                            
+   58   1      }
+ARM COMPILER V2.53,  demo                                                                  28/09/11  15:10:05  PAGE 2   
+
+ASSEMBLY LISTING OF GENERATED OBJECT CODE
+
+
+
+*** EXTERNALS:
+ EXTERN CODE16 (USB_Init?T)
+ EXTERN CODE16 (USB_Connect?T)
+ EXTERN CODE16 (DeviceData2Host?T)
+ EXTERN CODE16 (init_serial?T)
+ EXTERN DATA (Data2Host0)
+ EXTERN DATA (Data2Host1)
+ EXTERN NUMBER (__startup)
+
+
+
+*** PUBLICS:
+ PUBLIC         main
+ PUBLIC         Modem0Status
+ PUBLIC         Modem1Status
+
+
+
+*** DATA SEGMENT '?DT0?demo':
+ 00000000          Modem0Status:
+ 00000000            DS          1
+ 00000001          Modem1Status:
+ 00000001            DS          1
+
+
+
+*** CODE SEGMENT '?PR?main?demo':
+   24: int main (void) {
+ 00000000  B500      PUSH        {LR}
+ 00000002            ; SCOPE-START
+   28:   IODIR1 = LED1 | LED2 | LED3 |             /* LED1..4 are Outputs */
+ 00000002  4800      LDR         R1,=0xF0000
+ 00000004  4800      LDR         R0,=0xE0028018
+ 00000006  6001      STR         R1,[R0,#0x0]
+   31:   init_serial();
+ 00000008  F7FF      BL          init_serial?T  ; T=0x0001  (1)
+ 0000000A  FFFA      BL          init_serial?T  ; T=0x0001  (2)
+   32:   USB_Init();                               /* USB Initialization */
+ 0000000C  F7FF      BL          USB_Init?T  ; T=0x0001  (1)
+ 0000000E  FFF8      BL          USB_Init?T  ; T=0x0001  (2)
+   33:   USB_Connect(TRUE);                        /* USB Connect */
+ 00000010  2001      MOV         R0,#0x1
+ 00000012  F7FF      BL          USB_Connect?T  ; T=0x0001  (1)
+ 00000014  FFF5      BL          USB_Connect?T  ; T=0x0001  (2)
+   35:   while (1)                                /* Loop forever */
+ 00000016          L_3:
+   38:     if ( Data2Host0 || Data2Host1 ) {
+ 00000016  4800      LDR         R0,=Data2Host0 ; Data2Host0
+ 00000018  7800      LDRB        R0,[R0,#0x0] ; Data2Host0
+ 0000001A  2800      CMP         R0,#0x0
+ 0000001C  D103      BNE         L_6  ; T=0x00000026
+ 0000001E  4800      LDR         R0,=Data2Host1 ; Data2Host1
+ 00000020  7800      LDRB        R0,[R0,#0x0] ; Data2Host1
+ 00000022  2800      CMP         R0,#0x0
+ 00000024  D0F7      BEQ         L_3  ; T=0x00000016
+ 00000026          L_6:
+   39:         DeviceData2Host( 0 );
+ 00000026  2000      MOV         R0,#0x0
+ 00000028  F7FF      BL          DeviceData2Host?T  ; T=0x0001  (1)
+ 0000002A  FFEA      BL          DeviceData2Host?T  ; T=0x0001  (2)
+   40:         DeviceData2Host( 1 );
+ 0000002C  2001      MOV         R0,#0x1
+ 0000002E  F7FF      BL          DeviceData2Host?T  ; T=0x0001  (1)
+ 00000030  FFE7      BL          DeviceData2Host?T  ; T=0x0001  (2)
+   57:   }                                               
+ 00000032  E7F0      B           L_3  ; T=0x00000016
+ 00000034            ; SCOPE-END
+   58: }
+ 00000034  BC08      POP         {R3}
+ARM COMPILER V2.53,  demo                                                                  28/09/11  15:10:05  PAGE 3   
+
+ 00000036  4718      BX          R3
+ 00000038          ENDP ; 'main'
+
+
+
+Module Information          Static
+----------------------------------
+  code size            =    ------
+  data size            =         2
+  const size           =    ------
+End of Module Information.
+
+
+ARM COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

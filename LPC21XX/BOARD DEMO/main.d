@@ -1,0 +1,11 @@
+main.o: main.c
+main.o: C:\Keil\ARM\INC\Philips\LPC214x.h
+main.o: type.h
+main.o: io_cfg.h
+main.o: LCD.h
+main.o: eeprom.h
+main.o: uart0.h
+main.o: uart1.h
+main.o: spi_mmc.h
+main.o: adc.h
+main.o: rtc.h

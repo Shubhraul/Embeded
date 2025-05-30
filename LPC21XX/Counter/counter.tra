@@ -1,0 +1,19 @@
+*** Creating Trace Output File 'counter.tra' Ok.
+### Preparing for ADS-LD.
+### Creating ADS-LD Command Line
+### List of Objects: adding '"startup.o"'
+### List of Objects: adding '"led_counter.o"'
+### ADS-LD Command completed:
+--device DARMP "startup.o" "led_counter.o" --ro-base 0x00000000 --entry 0x00000000 --rw-base 0x40000000 --strict --autoat --summary_stderr --info summarysizes --map --xref --callgraph --symbols 
+--info sizes --info totals --info unused --info veneers 
+ --list ".\counter.map" -o "counter.axf"### Preparing Environment (PrepEnvAds)
+### ADS-LD Output File: 'counter.axf'
+### ADS-LD Command File: 'counter.lnp'
+### Checking for dirty Components...
+### Creating CmdFile 'counter.lnp', Handle=0x00000674
+### Writing '.lnp' file
+### ADS-LD Command file 'counter.lnp' is ready.
+### ADS-LD: About to start ADS-LD Thread.
+### ADS-LD: executed with 0 errors
+### Updating obj list
+### LDADS_file() completed.

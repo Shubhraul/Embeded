@@ -1,0 +1,4 @@
+Dependencies for Project 'timerMatch', Target 'Target 1': (DO NOT MODIFY !)
+F (.\Startup.s)(0x653E69D2)(--device DARMP --pd "__EVAL SETA 1" -g --apcs=interwork -I "C:\Keil_v5\ARM\INC\Philips" --list "Startup.lst" --xref -o "Startup.o")
+F (.\TimerMatch.c)(0x653E6516)(-c --device DARMP -D__EVAL -g -O0 --apcs=interwork -I "C:\Keil_v5\ARM\INC\Philips" -o "timermatch.o" --omf_browse "timermatch.crf" --depend "timermatch.d")
+I (C:\Keil_v5\ARM\INC\Philips\lpc214x.h)(0x4A02A636)

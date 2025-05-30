@@ -1,0 +1,4 @@
+--device DARMP "startup.o" "main.o" --strict --scatter "LED_CHASER.sct" 
+--autoat --summary_stderr --info summarysizes --map --xref --callgraph --symbols 
+--info sizes --info totals --info unused --info veneers 
+ --list ".\LED_CHASER.map" -o "LED_CHASER.axf"

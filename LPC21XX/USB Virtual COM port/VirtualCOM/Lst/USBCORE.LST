@@ -1,0 +1,2340 @@
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 1   
+
+
+ARM COMPILER V2.53, COMPILATION OF MODULE usbcore
+OBJECT MODULE PLACED IN .\Obj\usbcore.obj
+COMPILER INVOKED BY: C:\Keil\ARM\BIN\CA.exe usbcore.c THUMB DEFINE(MCB2140) DEBUG PRINT(.\LST\USBCORE.LST) TABS(4) OBJEC
+                    -T(.\Obj\usbcore.obj) 
+
+stmt  level    source
+
+    1          /*----------------------------------------------------------------------------
+    2           *      U S B  -  K e r n e l
+    3           *----------------------------------------------------------------------------
+    4           *      Name:    usbcore.c
+    5           *      Purpose: USB Core Module file for Philips LPC214x Family 
+    6           *      Microprocessors
+    7           *      Version: V1.04
+    8           *----------------------------------------------------------------------------*/
+    9          #include "type.h"
+   10          
+   11          #include "usb.h"
+   12          #include "usbcfg.h"
+   13          #include "usbhw.h"
+   14          #include "usbcore.h"
+   15          #include "usbdesc.h"
+   16          #include "vcomuser.h"
+   17          
+   18          
+   19          WORD  USB_DeviceStatus;
+   20          BYTE  USB_DeviceAddress;
+   21          BYTE  USB_Configuration;
+   22          DWORD USB_EndPointMask;
+   23          DWORD USB_EndPointHalt;
+   24          BYTE  USB_NumInterfaces;
+   25          BYTE  USB_AltSetting[USB_IF_NUM];
+   26          
+   27          BYTE  EP0Buf[USB_MAX_PACKET0];
+   28          
+   29          USB_EP_DATA EP0Data;
+   30          
+   31          USB_SETUP_PACKET SetupPacket;
+   32          
+   33          
+   34          /*
+   35           *  Reset USB Core
+   36           *    Parameters:      None
+   37           *    Return Value:    None
+   38           */
+   39          
+   40          void USB_ResetCore (void) {
+   41   1      
+   42   1        USB_DeviceStatus  = USB_POWER;
+   43   1        USB_DeviceAddress = 0;
+   44   1        USB_Configuration = 0;
+   45   1        USB_EndPointMask  = 0x00010001;
+   46   1        USB_EndPointHalt  = 0x00000000;
+   47   1      }
+   48          
+   49          
+   50          /*
+   51           *  USB Request - Setup Stage
+   52           *    (global SetupPacket)
+   53           *    Parameters:      None
+   54           *    Return Value:    None
+   55           */
+   56          
+   57          void USB_SetupStage (void) {
+   58   1        USB_ReadEP(0x00, (BYTE *)&SetupPacket);
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 2   
+
+   59   1      }
+   60          
+   61          
+   62          /*
+   63           *  USB Request - Data In Stage
+   64           *    Parameters:      None (global EP0Data)
+   65           *    Return Value:    None
+   66           */
+   67          
+   68          void USB_DataInStage (void) {
+   69   1        DWORD cnt;
+   70   1      
+   71   1        if (EP0Data.Count > USB_MAX_PACKET0) {
+   72   2          cnt = USB_MAX_PACKET0;
+   73   2        } else {
+   74   2          cnt = EP0Data.Count;
+   75   2        }
+   76   1        cnt = USB_WriteEP(0x80, EP0Data.pData, cnt);
+   77   1        EP0Data.pData += cnt;
+   78   1        EP0Data.Count -= cnt;
+   79   1      }
+   80          
+   81          
+   82          /*
+   83           *  USB Request - Data Out Stage
+   84           *    Parameters:      None (global EP0Data)
+   85           *    Return Value:    None
+   86           */
+   87          
+   88          void USB_DataOutStage (void) {
+   89   1        DWORD cnt;
+   90   1      
+   91   1        cnt = USB_ReadEP(0x00, EP0Data.pData);
+   92   1        EP0Data.pData += cnt;
+   93   1        EP0Data.Count -= cnt;
+   94   1      }
+   95          
+   96          
+   97          /*
+   98           *  USB Request - Status In Stage
+   99           *    Parameters:      None
+  100           *    Return Value:    None
+  101           */
+  102          
+  103          void USB_StatusInStage (void) {
+  104   1        USB_WriteEP(0x80, NULL, 0);
+  105   1      }
+  106          
+  107          
+  108          /*
+  109           *  USB Request - Status Out Stage
+  110           *    Parameters:      None
+  111           *    Return Value:    None
+  112           */
+  113          
+  114          void USB_StatusOutStage (void) {
+  115   1        USB_ReadEP(0x00, EP0Buf);
+  116   1      }
+  117          
+  118          
+  119          /*
+  120           *  Get Status USB Request
+  121           *    Parameters:      None (global SetupPacket)
+  122           *    Return Value:    TRUE - Success, FALSE - Error
+  123           */
+  124          
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 3   
+
+  125          __inline BOOL USB_GetStatus (void) {
+  126   1        DWORD n, m;
+  127   1      
+  128   1        switch (SetupPacket.bmRequestType.BM.Recipient) {
+  129   2          case REQUEST_TO_DEVICE:
+  130   2            EP0Data.pData = (BYTE *)&USB_DeviceStatus;
+  131   2            USB_DataInStage();
+  132   2            break;
+  133   2          case REQUEST_TO_INTERFACE:
+  134   2            if ((USB_Configuration != 0) && (SetupPacket.wIndex.WB.L < USB_NumInterfaces)) {
+  135   3              *((WORD *)EP0Buf) = 0;
+  136   3              EP0Data.pData = EP0Buf;
+  137   3              USB_DataInStage();
+  138   3            } else {
+  139   3              return (FALSE);
+  140   3            }
+  141   2            break;
+  142   2          case REQUEST_TO_ENDPOINT:
+  143   2            n = SetupPacket.wIndex.WB.L & 0x8F;
+  144   2            m = (n & 0x80) ? ((1 << 16) << n) : (1 << n);
+  145   2            if (((USB_Configuration != 0) || ((n & 0x0F) == 0)) && (USB_EndPointMask & m)) {
+  146   3              *((WORD *)EP0Buf) = (USB_EndPointHalt & m) ? 1 : 0;
+  147   3              EP0Data.pData = EP0Buf;
+  148   3              USB_DataInStage();
+  149   3            } else {
+  150   3              return (FALSE);
+  151   3            }
+  152   2            break;
+  153   2          default:
+  154   2            return (FALSE);
+  155   2        }
+  156   1        return (TRUE);
+  157   1      }
+  158          
+  159          
+  160          /*
+  161           *  Set/Clear Feature USB Request
+  162           *    Parameters:      sc:    0 - Clear, 1 - Set
+  163           *                            None (global SetupPacket)
+  164           *    Return Value:    TRUE - Success, FALSE - Error
+  165           */
+  166          
+  167          __inline BOOL USB_SetClrFeature (DWORD sc) {
+  168   1        DWORD n, m;
+  169   1      
+  170   1        switch (SetupPacket.bmRequestType.BM.Recipient) {
+  171   2          case REQUEST_TO_DEVICE:
+  172   2            if (SetupPacket.wValue.W == USB_FEATURE_REMOTE_WAKEUP) {
+  173   3              if (sc) {
+  174   4                USB_WakeUpCfg(1);
+  175   4                USB_DeviceStatus |=  USB_GETSTATUS_REMOTE_WAKEUP;
+  176   4              } else {
+  177   4                USB_WakeUpCfg(0);
+  178   4                USB_DeviceStatus &= ~USB_GETSTATUS_REMOTE_WAKEUP;
+  179   4              }
+  180   3            } else {
+  181   3              return (FALSE);
+  182   3            }
+  183   2            break;
+  184   2          case REQUEST_TO_INTERFACE:
+  185   2            return (FALSE);
+  186   2          case REQUEST_TO_ENDPOINT:
+  187   2            n = SetupPacket.wIndex.WB.L & 0x8F;
+  188   2            m = (n & 0x80) ? ((1 << 16) << n) : (1 << n);
+  189   2            if ((USB_Configuration != 0) && ((n & 0x0F) != 0) && (USB_EndPointMask & m)) {
+  190   3              if (SetupPacket.wValue.W == USB_FEATURE_ENDPOINT_STALL) {
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 4   
+
+  191   4                if (sc) {
+  192   5                  USB_SetStallEP(n);
+  193   5                  USB_EndPointHalt |=  m;
+  194   5                } else {
+  195   5                  USB_ClrStallEP(n);
+  196   5                  USB_EndPointHalt &= ~m;
+  197   5                }
+  198   4              } else {
+  199   4                return (FALSE);
+  200   4              }
+  201   3            } else {
+  202   3              return (FALSE);
+  203   3            }
+  204   2            break;
+  205   2          default:
+  206   2            return (FALSE);
+  207   2        }
+  208   1        return (TRUE);
+  209   1      }
+  210          
+  211          
+  212          /*
+  213           *  Get Descriptor USB Request
+  214           *    Parameters:      None (global SetupPacket)
+  215           *    Return Value:    TRUE - Success, FALSE - Error
+  216           */
+  217          
+  218          __inline BOOL USB_GetDescriptor (void) {
+  219   1        BYTE  *pD;
+  220   1        DWORD len, n;
+  221   1      
+  222   1        switch (SetupPacket.bmRequestType.BM.Recipient) {
+  223   2          case REQUEST_TO_DEVICE:
+  224   2            switch (SetupPacket.wValue.WB.H) {
+  225   3              case USB_DEVICE_DESCRIPTOR_TYPE:
+  226   3                EP0Data.pData = (BYTE *)USB_DeviceDescriptor;
+  227   3                len = USB_DEVICE_DESC_SIZE;
+  228   3                break;
+  229   3              case USB_CONFIGURATION_DESCRIPTOR_TYPE:
+  230   3                pD = (BYTE *)USB_ConfigDescriptor;
+  231   3                for (n = 0; n != SetupPacket.wValue.WB.L; n++) {
+  232   4                  if (((USB_CONFIGURATION_DESCRIPTOR *)pD)->bLength != 0) {
+  233   5                    pD += ((USB_CONFIGURATION_DESCRIPTOR *)pD)->wTotalLength;
+  234   5                  }
+  235   4                }
+  236   3                if (((USB_CONFIGURATION_DESCRIPTOR *)pD)->bLength == 0) {
+  237   4                  return (FALSE);
+  238   4                }
+  239   3                EP0Data.pData = pD;
+  240   3                len = ((USB_CONFIGURATION_DESCRIPTOR *)pD)->wTotalLength;
+  241   3                break;
+  242   3              case USB_STRING_DESCRIPTOR_TYPE:
+  243   3                EP0Data.pData = (BYTE *)USB_StringDescriptor + SetupPacket.wValue.WB.L;
+  244   3                len = ((USB_STRING_DESCRIPTOR *)EP0Data.pData)->bLength;
+  245   3                break;
+  246   3              default:
+  247   3                return (FALSE);
+  248   3            }
+  249   2            break;
+  250   2          case REQUEST_TO_INTERFACE:
+  251   2            switch (SetupPacket.wValue.WB.H) {
+  252   3              default:
+  253   3                return (FALSE);
+  254   3            }
+  255   2            break;
+  256   2          default:
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 5   
+
+  257   2            return (FALSE);
+  258   2        }
+  259   1      
+  260   1        if (EP0Data.Count > len) {
+  261   2          EP0Data.Count = len;
+  262   2        }
+  263   1        USB_DataInStage();
+  264   1      
+  265   1        return (TRUE);
+  266   1      }
+  267          
+  268          
+  269          /*
+  270           *  Set Configuration USB Request
+  271           *    Parameters:      None (global SetupPacket)
+  272           *    Return Value:    TRUE - Success, FALSE - Error
+  273           */
+  274          
+  275          __inline BOOL USB_SetConfiguration (void) {
+  276   1        USB_COMMON_DESCRIPTOR *pD;
+  277   1        DWORD                  alt, n, m;
+  278   1      
+  279   1        if (SetupPacket.wValue.WB.L) {
+  280   2          pD = (USB_COMMON_DESCRIPTOR *)USB_ConfigDescriptor;
+  281   2          while (pD->bLength) {
+  282   3            switch (pD->bDescriptorType) {
+  283   4              case USB_CONFIGURATION_DESCRIPTOR_TYPE:
+  284   4                if (((USB_CONFIGURATION_DESCRIPTOR *)pD)->bConfigurationValue == SetupPacket.wValue.WB.L) {
+  285   5                  USB_Configuration = SetupPacket.wValue.WB.L;
+  286   5                  USB_NumInterfaces = ((USB_CONFIGURATION_DESCRIPTOR *)pD)->bNumInterfaces;
+  287   5                  for (n = 0; n < USB_IF_NUM; n++) {
+  288   6                    USB_AltSetting[n] = 0;
+  289   6                  }
+  290   5                  for (n = 1; n < 16; n++) {
+  291   6                    if (USB_EndPointMask & (1 << n)) {
+  292   7                      USB_DisableEP(n);
+  293   7                    }
+  294   6                    if (USB_EndPointMask & ((1 << 16) << n)) {
+  295   7                      USB_DisableEP(n | 0x80);
+  296   7                    }
+  297   6                  }
+  298   5                  USB_EndPointMask = 0x00010001;
+  299   5                  USB_EndPointHalt = 0x00000000;
+  300   5                  USB_Configure(TRUE);
+  301   5                  if (((USB_CONFIGURATION_DESCRIPTOR *)pD)->bmAttributes & USB_CONFIG_SELF_POWERED) {
+  302   6                    USB_DeviceStatus |=  USB_GETSTATUS_SELF_POWERED;
+  303   6                  } else {
+  304   6                    USB_DeviceStatus &= ~USB_GETSTATUS_SELF_POWERED;
+  305   6                  }
+  306   5                } else {
+  307   5                  (BYTE *)pD += ((USB_CONFIGURATION_DESCRIPTOR *)pD)->wTotalLength;
+  308   5                  continue;
+  309   5                }
+  310   4                break;
+  311   4              case USB_INTERFACE_DESCRIPTOR_TYPE:
+  312   4                alt = ((USB_INTERFACE_DESCRIPTOR *)pD)->bAlternateSetting;
+  313   4                break;
+  314   4              case USB_ENDPOINT_DESCRIPTOR_TYPE:
+  315   4                if (alt == 0) {
+  316   5                  n = ((USB_ENDPOINT_DESCRIPTOR *)pD)->bEndpointAddress & 0x8F;
+  317   5                  m = (n & 0x80) ? ((1 << 16) << n) : (1 << n);
+  318   5                  USB_EndPointMask |= m;
+  319   5                  USB_ConfigEP((USB_ENDPOINT_DESCRIPTOR *)pD);
+  320   5                  USB_EnableEP(n);
+  321   5                  USB_ResetEP(n);
+  322   5                }
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 6   
+
+  323   4                break;
+  324   4            }
+  325   3            (BYTE *)pD += pD->bLength;
+  326   3          }
+  327   2        }
+  328   1        else {
+  329   2          USB_Configuration = 0;
+  330   2          for (n = 1; n < 16; n++) {
+  331   3            if (USB_EndPointMask & (1 << n)) {
+  332   4              USB_DisableEP(n);
+  333   4            }
+  334   3            if (USB_EndPointMask & ((1 << 16) << n)) {
+  335   4              USB_DisableEP(n | 0x80);
+  336   4            }
+  337   3          }
+  338   2          USB_EndPointMask  = 0x00010001;
+  339   2          USB_EndPointHalt  = 0x00000000;
+  340   2          USB_Configure(FALSE);
+  341   2        }
+  342   1      
+  343   1        if (USB_Configuration == SetupPacket.wValue.WB.L) {
+  344   2          return (TRUE);
+  345   2        } else {
+  346   2          return (FALSE);
+  347   2        }
+  348   1      }
+  349          
+  350          
+  351          /*
+  352           *  Set Interface USB Request
+  353           *    Parameters:      None (global SetupPacket)
+  354           *    Return Value:    TRUE - Success, FALSE - Error
+  355           */
+  356          
+  357          __inline BOOL USB_SetInterface (void) {
+  358   1        USB_COMMON_DESCRIPTOR *pD;
+  359   1        DWORD                  ifn, alt, old, msk, n, m;
+  360   1        BOOL                   set;
+  361   1      
+  362   1        if (USB_Configuration == 0) return (FALSE);
+  363   1      
+  364   1        set = FALSE;
+  365   1        pD  = (USB_COMMON_DESCRIPTOR *)USB_ConfigDescriptor;
+  366   1        while (pD->bLength) {
+  367   2          switch (pD->bDescriptorType) {
+  368   3            case USB_CONFIGURATION_DESCRIPTOR_TYPE:
+  369   3              if (((USB_CONFIGURATION_DESCRIPTOR *)pD)->bConfigurationValue != USB_Configuration) {
+  370   4                (BYTE *)pD += ((USB_CONFIGURATION_DESCRIPTOR *)pD)->wTotalLength;
+  371   4                continue;
+  372   4              }
+  373   3              break;
+  374   3            case USB_INTERFACE_DESCRIPTOR_TYPE:
+  375   3              ifn = ((USB_INTERFACE_DESCRIPTOR *)pD)->bInterfaceNumber;
+  376   3              alt = ((USB_INTERFACE_DESCRIPTOR *)pD)->bAlternateSetting;
+  377   3              msk = 0;
+  378   3              if ((ifn == SetupPacket.wIndex.WB.L) && (alt == SetupPacket.wValue.WB.L)) {
+  379   4                set = TRUE;
+  380   4                old = USB_AltSetting[ifn];
+  381   4                USB_AltSetting[ifn] = (BYTE)alt;
+  382   4              }
+  383   3              break;
+  384   3            case USB_ENDPOINT_DESCRIPTOR_TYPE:
+  385   3              if (ifn == SetupPacket.wIndex.WB.L) {
+  386   4                n = ((USB_ENDPOINT_DESCRIPTOR *)pD)->bEndpointAddress & 0x8F;
+  387   4                m = (n & 0x80) ? ((1 << 16) << n) : (1 << n);
+  388   4                if (alt == SetupPacket.wValue.WB.L) {
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 7   
+
+  389   5                  USB_EndPointMask |=  m;
+  390   5                  USB_EndPointHalt &= ~m;
+  391   5                  USB_ConfigEP((USB_ENDPOINT_DESCRIPTOR *)pD);
+  392   5                  USB_EnableEP(n);
+  393   5                  USB_ResetEP(n);
+  394   5                  msk |= m;
+  395   5                }
+  396   4                else if ((alt == old) && ((msk & m) == 0)) {
+  397   5                  USB_EndPointMask &= ~m;
+  398   5                  USB_EndPointHalt &= ~m;
+  399   5                  USB_DisableEP(n);
+  400   5                }
+  401   4              }
+  402   3              break;
+  403   3          }
+  404   2          (BYTE *)pD += pD->bLength;
+  405   2        }
+  406   1        return (set);
+  407   1      }
+  408          
+  409          
+  410          /*
+  411           *  USB Endpoint 0 Event Callback
+  412           *    Parameter:       event
+  413           */
+  414          
+  415          void USB_EndPoint0 (DWORD event) {
+  416   1      
+  417   1        BYTE UARTSettingCmd, UARTSettingData;
+  418   1      
+  419   1        switch (event) {
+  420   2          case USB_EVT_SETUP:
+  421   2            USB_SetupStage();
+  422   2            USB_DirCtrlEP(SetupPacket.bmRequestType.BM.Dir);
+  423   2            EP0Data.Count = SetupPacket.wLength;
+  424   2            switch (SetupPacket.bmRequestType.BM.Type) {
+  425   3      
+  426   3              case REQUEST_STANDARD:
+  427   3                switch (SetupPacket.bRequest) {
+  428   4      
+  429   4                  case USB_REQUEST_GET_STATUS:
+  430   4                    if (!USB_GetStatus()) {
+  431   5                      goto stall_i;
+  432   5                    }
+  433   4                    break;
+  434   4      
+  435   4                  case USB_REQUEST_CLEAR_FEATURE:
+  436   4                    if (!USB_SetClrFeature(0)) {
+  437   5                      goto stall_i;
+  438   5                    }
+  439   4                    USB_StatusInStage();
+  440   4      #if USB_FEATURE_EVENT
+                             USB_Feature_Event();
+               #endif
+  443   4                    break;              
+  444   4      
+  445   4                  case USB_REQUEST_SET_FEATURE:
+  446   4                    if (!USB_SetClrFeature(1)) {
+  447   5                      goto stall_i;
+  448   5                    }
+  449   4                    USB_StatusInStage();
+  450   4      #if USB_FEATURE_EVENT
+                             USB_Feature_Event();
+               #endif
+  453   4                    break;              
+  454   4      
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 8   
+
+  455   4                  case USB_REQUEST_SET_ADDRESS:
+  456   4                    switch (SetupPacket.bmRequestType.BM.Recipient) {
+  457   5                      case REQUEST_TO_DEVICE:
+  458   5                        USB_DeviceAddress = 0x80 | SetupPacket.wValue.WB.L;
+  459   5                        USB_StatusInStage();
+  460   5                        break;
+  461   5                      default:
+  462   5                        goto stall_i;
+  463   5                    }
+  464   4                    break;
+  465   4      
+  466   4                  case USB_REQUEST_GET_DESCRIPTOR:
+  467   4                    if (!USB_GetDescriptor()) {
+  468   5                      goto stall_i;
+  469   5                    }                  
+  470   4                    break;              
+  471   4      
+  472   4                  case USB_REQUEST_SET_DESCRIPTOR:
+  473   4      /*stall_o:*/  USB_SetStallEP(0x00);
+  474   4                    EP0Data.Count = 0;
+  475   4                    break;
+  476   4      
+  477   4                  case USB_REQUEST_GET_CONFIGURATION:
+  478   4                    switch (SetupPacket.bmRequestType.BM.Recipient) {
+  479   5                      case REQUEST_TO_DEVICE:
+  480   5                        EP0Data.pData = &USB_Configuration;
+  481   5                        USB_DataInStage();
+  482   5                        break;
+  483   5                      default:
+  484   5                        goto stall_i;
+  485   5                    }
+  486   4                    break;
+  487   4      
+  488   4                  case USB_REQUEST_SET_CONFIGURATION:
+  489   4                    switch (SetupPacket.bmRequestType.BM.Recipient) {
+  490   5                      case REQUEST_TO_DEVICE:
+  491   5                        if (!USB_SetConfiguration()) {
+  492   6                          goto stall_i;
+  493   6                        }
+  494   5                        USB_StatusInStage();
+  495   5      #if USB_CONFIGURE_EVENT
+  496   5                        USB_Configure_Event();
+  497   5      #endif
+  498   5                        break;
+  499   5                      default:
+  500   5                        goto stall_i;
+  501   5                    }
+  502   4                    break;              
+  503   4      
+  504   4                  case USB_REQUEST_GET_INTERFACE:
+  505   4                    switch (SetupPacket.bmRequestType.BM.Recipient) {
+  506   5                      case REQUEST_TO_INTERFACE:
+  507   5                        if ((USB_Configuration != 0) && 
+  508   5                            (SetupPacket.wIndex.WB.L < USB_NumInterfaces)) {
+  509   6                          EP0Data.pData = USB_AltSetting + SetupPacket.wIndex.WB.L;
+  510   6                          USB_DataInStage();
+  511   6                        } else {
+  512   6                          goto stall_i;
+  513   6                        }
+  514   5                        break;
+  515   5                      default:
+  516   5                        goto stall_i;
+  517   5                    }
+  518   4                    break;              
+  519   4      
+  520   4                  case USB_REQUEST_SET_INTERFACE:
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 9   
+
+  521   4                    switch (SetupPacket.bmRequestType.BM.Recipient) {
+  522   5                      case REQUEST_TO_INTERFACE:
+  523   5                        if (!USB_SetInterface()) {
+  524   6                          goto stall_i;
+  525   6                        }
+  526   5                        USB_StatusInStage();
+  527   5      #if USB_INTERFACE_EVENT
+                                 USB_Interface_Event();
+               #endif
+  530   5                        break;
+  531   5                      default:
+  532   5                        goto stall_i;
+  533   5                    }
+  534   4                    break;              
+  535   4      
+  536   4                  default:
+  537   4                    goto stall_i;
+  538   4      
+  539   4                }
+  540   3                break;
+  541   3      
+  542   3              case REQUEST_CLASS:
+  543   3      #if USB_CLASS
+  544   3                switch (SetupPacket.bmRequestType.BM.Recipient) {
+  545   4                  case REQUEST_TO_INTERFACE:
+  546   4      //            break;              
+  547   4                  default:
+  548   4                    goto stall_i;
+  549   4                }              
+  550   3      #else
+                         goto stall_i;
+               #endif  /* USB_CLASS */
+  553   3      
+  554   3              case REQUEST_VENDOR:
+  555   3      #if USB_VCOM
+  556   3                UARTSettingCmd = SetupPacket.bRequest & 0xFF;
+  557   3                UARTSettingData = SetupPacket.wValue.WB.L;
+  558   3                if (!VCOM_SetSIOSetup( UARTSettingCmd, UARTSettingData )) {
+  559   4                  goto stall_i;
+  560   4                }
+  561   3                USB_DataInStage();
+  562   3      #endif      
+  563   3              break;
+  564   3      
+  565   3              default:
+  566   3      stall_i:  USB_SetStallEP(0x80);
+  567   3                EP0Data.Count = 0;
+  568   3                break;
+  569   3      
+  570   3            }
+  571   2            break;
+  572   2      
+  573   2          case USB_EVT_OUT:
+  574   2            if (SetupPacket.bmRequestType.BM.Dir == 0) {
+  575   3              if (EP0Data.Count) {
+  576   4                USB_DataOutStage();
+  577   4                if (EP0Data.Count == 0) {
+  578   5                  switch (*((WORD *)&SetupPacket)) {
+  579   6                    default:
+  580   6                      goto stall_i;
+  581   6                  }
+  582   5                  USB_StatusInStage();
+  583   5                }
+  584   4              }
+  585   3            } else {
+  586   3              USB_StatusOutStage();
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 10  
+
+  587   3            }
+  588   2            break;
+  589   2      
+  590   2          case USB_EVT_IN:
+  591   2            if (SetupPacket.bmRequestType.BM.Dir == 1) {
+  592   3              if (EP0Data.Count) {
+  593   4                USB_DataInStage();
+  594   4              }
+  595   3            } else {
+  596   3              if (USB_DeviceAddress & 0x80) {
+  597   4                USB_DeviceAddress &= 0x7F;
+  598   4                USB_SetAddress(USB_DeviceAddress);
+  599   4              }
+  600   3            }
+  601   2            break;
+  602   2      
+  603   2          case USB_EVT_IN_STALL:
+  604   2            USB_ClrStallEP(0x80);
+  605   2            break;
+  606   2      
+  607   2          case USB_EVT_OUT_STALL:
+  608   2            USB_ClrStallEP(0x00);
+  609   2            break;
+  610   2      
+  611   2        }
+  612   1      }
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 11  
+
+ASSEMBLY LISTING OF GENERATED OBJECT CODE
+
+
+
+*** EXTERNALS:
+ EXTERN CODE16 (USB_WakeUpCfg?T)
+ EXTERN CODE16 (USB_SetAddress?T)
+ EXTERN CODE16 (USB_Configure?T)
+ EXTERN CODE16 (USB_ConfigEP?T)
+ EXTERN CODE16 (USB_DirCtrlEP?T)
+ EXTERN CODE16 (USB_EnableEP?T)
+ EXTERN CODE16 (USB_DisableEP?T)
+ EXTERN CODE16 (USB_ResetEP?T)
+ EXTERN CODE16 (USB_SetStallEP?T)
+ EXTERN CODE16 (USB_ClrStallEP?T)
+ EXTERN CODE16 (USB_ReadEP?T)
+ EXTERN CODE16 (USB_WriteEP?T)
+ EXTERN DATA (USB_DeviceDescriptor)
+ EXTERN DATA (USB_ConfigDescriptor)
+ EXTERN DATA (USB_StringDescriptor)
+ EXTERN CODE16 (USB_Configure_Event?T)
+ EXTERN CODE16 (VCOM_SetSIOSetup?T)
+
+
+
+*** PUBLICS:
+ PUBLIC         USB_ResetCore?T
+ PUBLIC         USB_EndPoint0?T
+ PUBLIC         USB_SetupStage?T
+ PUBLIC         USB_DataInStage?T
+ PUBLIC         USB_DataOutStage?T
+ PUBLIC         USB_StatusInStage?T
+ PUBLIC         USB_StatusOutStage?T
+ PUBLIC         USB_DeviceStatus
+ PUBLIC         USB_DeviceAddress
+ PUBLIC         USB_Configuration
+ PUBLIC         USB_EndPointMask
+ PUBLIC         USB_EndPointHalt
+ PUBLIC         USB_AltSetting
+ PUBLIC         EP0Buf
+ PUBLIC         SetupPacket
+ PUBLIC         USB_NumInterfaces
+ PUBLIC         EP0Data
+
+
+
+*** DATA SEGMENT '?DT0?usbcore':
+ 00000000          USB_EndPointMask:
+ 00000000            DS          4
+ 00000004          USB_EndPointHalt:
+ 00000004            DS          4
+ 00000008          EP0Data:
+ 00000008            DS          8
+ 00000010          USB_DeviceStatus:
+ 00000010            DS          2
+ 00000012          SetupPacket:
+ 00000012            DS          8
+ 0000001A          USB_DeviceAddress:
+ 0000001A            DS          1
+ 0000001B          USB_Configuration:
+ 0000001B            DS          1
+ 0000001C          USB_AltSetting:
+ 0000001C            DS          4
+ 00000020          EP0Buf:
+ 00000020            DS          64
+ 00000060          USB_NumInterfaces:
+ 00000060            DS          1
+
+
+
+*** CODE SEGMENT '?PR?USB_ResetCore?T?usbcore':
+   42:   USB_DeviceStatus  = USB_POWER;
+ 00000000  2100      MOV         R1,#0x0
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 12  
+
+ 00000002  4800      LDR         R0,=USB_DeviceStatus ; USB_DeviceStatus
+ 00000004  8001      STRH        R1,[R0,#0x0] ; USB_DeviceStatus
+   43:   USB_DeviceAddress = 0;
+ 00000006  2100      MOV         R1,#0x0
+ 00000008  4800      LDR         R0,=USB_DeviceAddress ; USB_DeviceAddress
+ 0000000A  7001      STRB        R1,[R0,#0x0] ; USB_DeviceAddress
+   44:   USB_Configuration = 0;
+ 0000000C  4800      LDR         R0,=USB_Configuration ; USB_Configuration
+ 0000000E  7001      STRB        R1,[R0,#0x0] ; USB_Configuration
+   45:   USB_EndPointMask  = 0x00010001;
+ 00000010  4800      LDR         R1,=0x10001
+ 00000012  4800      LDR         R0,=USB_EndPointMask ; USB_EndPointMask
+ 00000014  6001      STR         R1,[R0,#0x0] ; USB_EndPointMask
+   46:   USB_EndPointHalt  = 0x00000000;
+ 00000016  2100      MOV         R1,#0x0
+ 00000018  4800      LDR         R0,=USB_EndPointHalt ; USB_EndPointHalt
+ 0000001A  6001      STR         R1,[R0,#0x0] ; USB_EndPointHalt
+   47: }
+ 0000001C  4770      BX          R14
+ 0000001E          ENDP ; 'USB_ResetCore?T'
+
+
+*** CODE SEGMENT '?PR?USB_SetupStage?T?usbcore':
+   57: void USB_SetupStage (void) {
+ 00000000  B500      PUSH        {LR}
+   58:   USB_ReadEP(0x00, (BYTE *)&SetupPacket);
+ 00000002  4800      LDR         R1,=SetupPacket ; SetupPacket
+ 00000004  2000      MOV         R0,#0x0
+ 00000006  F7FF      BL          USB_ReadEP?T  ; T=0x0001  (1)
+ 00000008  FFFB      BL          USB_ReadEP?T  ; T=0x0001  (2)
+   59: }
+ 0000000A  BC08      POP         {R3}
+ 0000000C  4718      BX          R3
+ 0000000E          ENDP ; 'USB_SetupStage?T'
+
+
+*** CODE SEGMENT '?PR?USB_DataInStage?T?usbcore':
+   68: void USB_DataInStage (void) {
+ 00000000  B510      PUSH        {R4,LR}
+ 00000002  ---- Variable 'cnt' assigned to Register 'R4' ----
+ 00000002            ; SCOPE-START
+   71:   if (EP0Data.Count > USB_MAX_PACKET0) {
+ 00000002  4800      LDR         R0,=EP0Data + 0x4 ; EP0Data+4
+ 00000004  8800      LDRH        R0,[R0,#0x0] ; EP0Data+4
+ 00000006  1C01      MOV         R1,R0
+ 00000008  2940      CMP         R1,#0x40
+ 0000000A  D901      BLS         L_1  ; T=0x00000010
+   72:     cnt = USB_MAX_PACKET0;
+ 0000000C  2440      MOV         R4,#0x40
+   73:   } else {
+ 0000000E  E000      B           L_2  ; T=0x00000012
+ 00000010          L_1:
+   74:     cnt = EP0Data.Count;
+ 00000010  1C04      MOV         R4,R0
+   75:   }
+ 00000012          L_2:
+   76:   cnt = USB_WriteEP(0x80, EP0Data.pData, cnt);
+ 00000012  4800      LDR         R0,=EP0Data ; EP0Data
+ 00000014  6801      LDR         R1,[R0,#0x0] ; EP0Data
+ 00000016  1C22      MOV         R2,R4 ; cnt
+ 00000018  2080      MOV         R0,#0x80
+ 0000001A  F7FF      BL          USB_WriteEP?T  ; T=0x0001  (1)
+ 0000001C  FFF1      BL          USB_WriteEP?T  ; T=0x0001  (2)
+ 0000001E  1C04      MOV         R4,R0 ; cnt
+   77:   EP0Data.pData += cnt;
+ 00000020  1C22      MOV         R2,R4 ; cnt
+ 00000022  4800      LDR         R0,=EP0Data ; EP0Data
+ 00000024  6801      LDR         R1,[R0,#0x0] ; EP0Data
+ 00000026  1889      ADD         R1,R2
+ 00000028  6001      STR         R1,[R0,#0x0] ; EP0Data
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 13  
+
+   78:   EP0Data.Count -= cnt;
+ 0000002A  1C22      MOV         R2,R4 ; cnt
+ 0000002C  0412      LSL         R2,R2,#0x10 ; cnt
+ 0000002E  0C12      LSR         R2,R2,#0x10
+ 00000030  4800      LDR         R0,=EP0Data + 0x4 ; EP0Data+4
+ 00000032  8801      LDRH        R1,[R0,#0x0] ; EP0Data+4
+ 00000034  1A89      SUB         R1,R2
+ 00000036  8001      STRH        R1,[R0,#0x0] ; EP0Data+4
+ 00000038            ; SCOPE-END
+   79: }
+ 00000038  BC10      POP         {R4}
+ 0000003A  BC08      POP         {R3}
+ 0000003C  4718      BX          R3
+ 0000003E          ENDP ; 'USB_DataInStage?T'
+
+
+*** CODE SEGMENT '?PR?USB_DataOutStage?T?usbcore':
+   88: void USB_DataOutStage (void) {
+ 00000000  B500      PUSH        {LR}
+ 00000002            ; SCOPE-START
+   91:   cnt = USB_ReadEP(0x00, EP0Data.pData);
+ 00000002  4800      LDR         R0,=EP0Data ; EP0Data
+ 00000004  6801      LDR         R1,[R0,#0x0] ; EP0Data
+ 00000006  2000      MOV         R0,#0x0
+ 00000008  F7FF      BL          USB_ReadEP?T  ; T=0x0001  (1)
+ 0000000A  FFFA      BL          USB_ReadEP?T  ; T=0x0001  (2)
+ 0000000C  ---- Variable 'cnt' assigned to Register 'R0' ----
+   92:   EP0Data.pData += cnt;
+ 0000000C  1C03      MOV         R3,R0 ; cnt
+ 0000000E  4800      LDR         R1,=EP0Data ; EP0Data
+ 00000010  680A      LDR         R2,[R1,#0x0] ; EP0Data
+ 00000012  18D2      ADD         R2,R3
+ 00000014  600A      STR         R2,[R1,#0x0] ; EP0Data
+   93:   EP0Data.Count -= cnt;
+ 00000016  1C02      MOV         R2,R0 ; cnt
+ 00000018  0412      LSL         R2,R2,#0x10 ; cnt
+ 0000001A  0C12      LSR         R2,R2,#0x10
+ 0000001C  4800      LDR         R0,=EP0Data + 0x4 ; EP0Data+4
+ 0000001E  8801      LDRH        R1,[R0,#0x0] ; EP0Data+4
+ 00000020  1A89      SUB         R1,R2
+ 00000022  8001      STRH        R1,[R0,#0x0] ; EP0Data+4
+ 00000024            ; SCOPE-END
+   94: }
+ 00000024  BC08      POP         {R3}
+ 00000026  4718      BX          R3
+ 00000028          ENDP ; 'USB_DataOutStage?T'
+
+
+*** CODE SEGMENT '?PR?USB_StatusInStage?T?usbcore':
+  103: void USB_StatusInStage (void) {
+ 00000000  B500      PUSH        {LR}
+  104:   USB_WriteEP(0x80, NULL, 0);
+ 00000002  2100      MOV         R1,#0x0
+ 00000004  2080      MOV         R0,#0x80
+ 00000006  2200      MOV         R2,#0x0
+ 00000008  F7FF      BL          USB_WriteEP?T  ; T=0x0001  (1)
+ 0000000A  FFFA      BL          USB_WriteEP?T  ; T=0x0001  (2)
+  105: }
+ 0000000C  BC08      POP         {R3}
+ 0000000E  4718      BX          R3
+ 00000010          ENDP ; 'USB_StatusInStage?T'
+
+
+*** CODE SEGMENT '?PR?USB_StatusOutStage?T?usbcore':
+  114: void USB_StatusOutStage (void) {
+ 00000000  B500      PUSH        {LR}
+  115:   USB_ReadEP(0x00, EP0Buf);
+ 00000002  4800      LDR         R1,=EP0Buf ; EP0Buf
+ 00000004  2000      MOV         R0,#0x0
+ 00000006  F7FF      BL          USB_ReadEP?T  ; T=0x0001  (1)
+ 00000008  FFFB      BL          USB_ReadEP?T  ; T=0x0001  (2)
+  116: }
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 14  
+
+ 0000000A  BC08      POP         {R3}
+ 0000000C  4718      BX          R3
+ 0000000E          ENDP ; 'USB_StatusOutStage?T'
+
+
+*** CODE SEGMENT '?PR?USB_GetStatus?T?usbcore':
+  125: __inline BOOL USB_GetStatus (void) {
+ 00000000  B500      PUSH        {LR}
+ 00000002            ; SCOPE-START
+  128:   switch (SetupPacket.bmRequestType.BM.Recipient) {
+ 00000002  4800      LDR         R0,=SetupPacket ; SetupPacket
+ 00000004  7800      LDRB        R0,[R0,#0x0] ; SetupPacket
+ 00000006  211F      MOV         R1,#0x1F
+ 00000008  4008      AND         R0,R1
+ 0000000A  2801      CMP         R0,#0x1
+ 0000000C  D009      BEQ         L_6  ; T=0x00000022
+ 0000000E  2802      CMP         R0,#0x2
+ 00000010  D01D      BEQ         L_7  ; T=0x0000004E
+ 00000012  2800      CMP         R0,#0x0
+ 00000014  D14C      BNE         L_5  ; T=0x000000B0
+  129:     case REQUEST_TO_DEVICE:
+ 00000016          L_4:
+  130:       EP0Data.pData = (BYTE *)&USB_DeviceStatus;
+ 00000016  4800      LDR         R1,=USB_DeviceStatus ; USB_DeviceStatus
+ 00000018  4800      LDR         R0,=EP0Data ; EP0Data
+ 0000001A  6001      STR         R1,[R0,#0x0] ; EP0Data
+  131:       USB_DataInStage();
+ 0000001C  F7FF      BL          USB_DataInStage?T  ; T=0x0001  (1)
+ 0000001E  FFF0      BL          USB_DataInStage?T  ; T=0x0001  (2)
+  132:       break;
+ 00000020  E048      B           L_3  ; T=0x000000B4
+  133:     case REQUEST_TO_INTERFACE:
+ 00000022          L_6:
+  134:       if ((USB_Configuration != 0) && (SetupPacket.wIndex.WB.L < USB_NumInterfaces)) {
+ 00000022  4800      LDR         R0,=USB_Configuration ; USB_Configuration
+ 00000024  7800      LDRB        R0,[R0,#0x0] ; USB_Configuration
+ 00000026  2800      CMP         R0,#0x0
+ 00000028  D00F      BEQ         L_8  ; T=0x0000004A
+ 0000002A  4800      LDR         R0,=USB_NumInterfaces ; USB_NumInterfaces
+ 0000002C  7800      LDRB        R0,[R0,#0x0] ; USB_NumInterfaces
+ 0000002E  1C01      MOV         R1,R0
+ 00000030  4800      LDR         R0,=SetupPacket + 0x4 ; SetupPacket+4
+ 00000032  7800      LDRB        R0,[R0,#0x0] ; SetupPacket+4
+ 00000034  4288      CMP         R0,R1
+ 00000036  D208      BCS         L_8  ; T=0x0000004A
+  135:         *((WORD *)EP0Buf) = 0;
+ 00000038  2100      MOV         R1,#0x0
+ 0000003A  4800      LDR         R0,=EP0Buf ; EP0Buf
+ 0000003C  8001      STRH        R1,[R0,#0x0] ; EP0Buf
+  136:         EP0Data.pData = EP0Buf;
+ 0000003E  4800      LDR         R1,=EP0Buf ; EP0Buf
+ 00000040  4800      LDR         R0,=EP0Data ; EP0Data
+ 00000042  6001      STR         R1,[R0,#0x0] ; EP0Data
+  137:         USB_DataInStage();
+ 00000044  F7FF      BL          USB_DataInStage?T  ; T=0x0001  (1)
+ 00000046  FFDC      BL          USB_DataInStage?T  ; T=0x0001  (2)
+  138:       } else {
+ 00000048  E034      B           L_3  ; T=0x000000B4
+ 0000004A          L_8:
+  139:         return (FALSE);
+ 0000004A  2000      MOV         R0,#0x0
+ 0000004C  E033      B           L_10  ; T=0x000000B6
+  142:     case REQUEST_TO_ENDPOINT:
+ 0000004E          L_7:
+  143:       n = SetupPacket.wIndex.WB.L & 0x8F;
+ 0000004E  4800      LDR         R0,=SetupPacket + 0x4 ; SetupPacket+4
+ 00000050  7800      LDRB        R0,[R0,#0x0] ; SetupPacket+4
+ 00000052  1C03      MOV         R3,R0
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 15  
+
+ 00000054  208F      MOV         R0,#0x8F
+ 00000056  4003      AND         R3,R0
+ 00000058  ---- Variable 'n' assigned to Register 'R3' ----
+  144:       m = (n & 0x80) ? ((1 << 16) << n) : (1 << n);
+ 00000058  1C18      MOV         R0,R3 ; n
+ 0000005A  2180      MOV         R1,#0x80
+ 0000005C  4208      TST         R0,R1 ; n
+ 0000005E  D003      BEQ         L_11  ; T=0x00000068
+ 00000060  1C18      MOV         R0,R3 ; n
+ 00000062  4800      LDR         R2,=0x10000
+ 00000064  4082      LSL         R2,R0
+ 00000066  E002      B           L_12  ; T=0x0000006E
+ 00000068          L_11:
+ 00000068  1C18      MOV         R0,R3 ; n
+ 0000006A  2201      MOV         R2,#0x1
+ 0000006C  4082      LSL         R2,R0
+ 0000006E          L_12:
+ 0000006E  ---- Variable 'm' assigned to Register 'R2' ----
+  145:       if (((USB_Configuration != 0) || ((n & 0x0F) == 0)) && (USB_EndPointMask & m)) {
+ 0000006E  4800      LDR         R0,=USB_Configuration ; USB_Configuration
+ 00000070  7800      LDRB        R0,[R0,#0x0] ; USB_Configuration
+ 00000072  2800      CMP         R0,#0x0
+ 00000074  D103      BNE         L_14  ; T=0x0000007E
+ 00000076  1C18      MOV         R0,R3 ; n
+ 00000078  210F      MOV         R1,#0xF
+ 0000007A  4208      TST         R0,R1 ; n
+ 0000007C  D116      BNE         L_13  ; T=0x000000AC
+ 0000007E          L_14:
+ 0000007E  1C11      MOV         R1,R2 ; m
+ 00000080  4800      LDR         R0,=USB_EndPointMask ; USB_EndPointMask
+ 00000082  6800      LDR         R0,[R0,#0x0] ; USB_EndPointMask
+ 00000084  4008      AND         R0,R1 ; m
+ 00000086  2800      CMP         R0,#0x0
+ 00000088  D010      BEQ         L_13  ; T=0x000000AC
+  146:         *((WORD *)EP0Buf) = (USB_EndPointHalt & m) ? 1 : 0;
+ 0000008A  1C11      MOV         R1,R2 ; m
+ 0000008C  4800      LDR         R0,=USB_EndPointHalt ; USB_EndPointHalt
+ 0000008E  6800      LDR         R0,[R0,#0x0] ; USB_EndPointHalt
+ 00000090  4008      AND         R0,R1 ; m
+ 00000092  2800      CMP         R0,#0x0
+ 00000094  D001      BEQ         L_15  ; T=0x0000009A
+ 00000096  2101      MOV         R1,#0x1
+ 00000098  E000      B           L_16  ; T=0x0000009C
+ 0000009A          L_15:
+ 0000009A  2100      MOV         R1,#0x0
+ 0000009C          L_16:
+ 0000009C  4800      LDR         R0,=EP0Buf ; EP0Buf
+ 0000009E  8001      STRH        R1,[R0,#0x0] ; EP0Buf
+  147:         EP0Data.pData = EP0Buf;
+ 000000A0  4800      LDR         R1,=EP0Buf ; EP0Buf
+ 000000A2  4800      LDR         R0,=EP0Data ; EP0Data
+ 000000A4  6001      STR         R1,[R0,#0x0] ; EP0Data
+  148:         USB_DataInStage();
+ 000000A6  F7FF      BL          USB_DataInStage?T  ; T=0x0001  (1)
+ 000000A8  FFAB      BL          USB_DataInStage?T  ; T=0x0001  (2)
+  149:       } else {
+ 000000AA  E003      B           L_3  ; T=0x000000B4
+ 000000AC          L_13:
+  150:         return (FALSE);
+ 000000AC  2000      MOV         R0,#0x0
+ 000000AE  E002      B           L_10  ; T=0x000000B6
+  153:     default:
+ 000000B0          L_5:
+  154:       return (FALSE);
+ 000000B0  2000      MOV         R0,#0x0
+ 000000B2  E000      B           L_10  ; T=0x000000B6
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 16  
+
+  155:   }
+ 000000B4          L_3:
+  156:   return (TRUE);
+ 000000B4  2001      MOV         R0,#0x1
+ 000000B6            ; SCOPE-END
+  157: }
+ 000000B6          L_10:
+ 000000B6  BC08      POP         {R3}
+ 000000B8  4718      BX          R3
+ 000000BA          ENDP ; 'USB_GetStatus?T'
+
+
+*** CODE SEGMENT '?PR?USB_SetClrFeature?T?usbcore':
+  167: __inline BOOL USB_SetClrFeature (DWORD sc) {
+ 00000000  B570      PUSH        {R4-R6,LR}
+ 00000002  1C06      MOV         R6,R0 ; sc
+ 00000004  ---- Variable 'sc' assigned to Register 'R6' ----
+ 00000004            ; SCOPE-START
+  170:   switch (SetupPacket.bmRequestType.BM.Recipient) {
+ 00000004  4800      LDR         R0,=SetupPacket ; SetupPacket
+ 00000006  7800      LDRB        R0,[R0,#0x0] ; SetupPacket
+ 00000008  211F      MOV         R1,#0x1F
+ 0000000A  4008      AND         R0,R1
+ 0000000C  2801      CMP         R0,#0x1
+ 0000000E  D023      BEQ         L_21  ; T=0x00000058
+ 00000010  2802      CMP         R0,#0x2
+ 00000012  D023      BEQ         L_22  ; T=0x0000005C
+ 00000014  2800      CMP         R0,#0x0
+ 00000016  D161      BNE         L_20  ; T=0x000000DC
+  171:     case REQUEST_TO_DEVICE:
+ 00000018          L_19:
+  172:       if (SetupPacket.wValue.W == USB_FEATURE_REMOTE_WAKEUP) {
+ 00000018  4800      LDR         R1,=SetupPacket + 0x2 ; SetupPacket+2
+ 0000001A  7808      LDRB        R0,[R1,#0x0] ; SetupPacket+2
+ 0000001C  784A      LDRB        R2,[R1,#0x1] ; SetupPacket+2
+ 0000001E  0212      LSL         R2,R2,#0x8
+ 00000020  4310      ORR         R0,R2
+ 00000022  2801      CMP         R0,#0x1
+ 00000024  D116      BNE         L_23  ; T=0x00000054
+  173:         if (sc) {
+ 00000026  1C30      MOV         R0,R6 ; sc
+ 00000028  2800      CMP         R0,#0x0 ; sc
+ 0000002A  D009      BEQ         L_24  ; T=0x00000040
+  174:           USB_WakeUpCfg(1);
+ 0000002C  2001      MOV         R0,#0x1
+ 0000002E  F7FF      BL          USB_WakeUpCfg?T  ; T=0x0001  (1)
+ 00000030  FFE7      BL          USB_WakeUpCfg?T  ; T=0x0001  (2)
+  175:           USB_DeviceStatus |=  USB_GETSTATUS_REMOTE_WAKEUP;
+ 00000032  4800      LDR         R0,=USB_DeviceStatus ; USB_DeviceStatus
+ 00000034  8801      LDRH        R1,[R0,#0x0] ; USB_DeviceStatus
+ 00000036  2002      MOV         R0,#0x2
+ 00000038  4301      ORR         R1,R0
+ 0000003A  4800      LDR         R0,=USB_DeviceStatus ; USB_DeviceStatus
+ 0000003C  8001      STRH        R1,[R0,#0x0] ; USB_DeviceStatus
+  176:         } else {
+ 0000003E  E04F      B           L_18  ; T=0x000000E0
+ 00000040          L_24:
+  177:           USB_WakeUpCfg(0);
+ 00000040  2000      MOV         R0,#0x0
+ 00000042  F7FF      BL          USB_WakeUpCfg?T  ; T=0x0001  (1)
+ 00000044  FFDD      BL          USB_WakeUpCfg?T  ; T=0x0001  (2)
+  178:           USB_DeviceStatus &= ~USB_GETSTATUS_REMOTE_WAKEUP;
+ 00000046  4800      LDR         R0,=USB_DeviceStatus ; USB_DeviceStatus
+ 00000048  8801      LDRH        R1,[R0,#0x0] ; USB_DeviceStatus
+ 0000004A  4800      LDRH        R0,=0xFFFD
+ 0000004C  4001      AND         R1,R0
+ 0000004E  4800      LDR         R0,=USB_DeviceStatus ; USB_DeviceStatus
+ 00000050  8001      STRH        R1,[R0,#0x0] ; USB_DeviceStatus
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 17  
+
+  180:       } else {
+ 00000052  E045      B           L_18  ; T=0x000000E0
+ 00000054          L_23:
+  181:         return (FALSE);
+ 00000054  2000      MOV         R0,#0x0
+ 00000056  E044      B           L_27  ; T=0x000000E2
+  184:     case REQUEST_TO_INTERFACE:
+ 00000058          L_21:
+  185:       return (FALSE);
+ 00000058  2000      MOV         R0,#0x0
+ 0000005A  E042      B           L_27  ; T=0x000000E2
+  186:     case REQUEST_TO_ENDPOINT:
+ 0000005C          L_22:
+  187:       n = SetupPacket.wIndex.WB.L & 0x8F;
+ 0000005C  4800      LDR         R0,=SetupPacket + 0x4 ; SetupPacket+4
+ 0000005E  7800      LDRB        R0,[R0,#0x0] ; SetupPacket+4
+ 00000060  1C05      MOV         R5,R0
+ 00000062  208F      MOV         R0,#0x8F
+ 00000064  4005      AND         R5,R0
+ 00000066  ---- Variable 'n' assigned to Register 'R5' ----
+  188:       m = (n & 0x80) ? ((1 << 16) << n) : (1 << n);
+ 00000066  1C28      MOV         R0,R5 ; n
+ 00000068  2180      MOV         R1,#0x80
+ 0000006A  4208      TST         R0,R1 ; n
+ 0000006C  D003      BEQ         L_28  ; T=0x00000076
+ 0000006E  1C28      MOV         R0,R5 ; n
+ 00000070  4800      LDR         R4,=0x10000
+ 00000072  4084      LSL         R4,R0
+ 00000074  E002      B           L_29  ; T=0x0000007C
+ 00000076          L_28:
+ 00000076  1C28      MOV         R0,R5 ; n
+ 00000078  2401      MOV         R4,#0x1
+ 0000007A  4084      LSL         R4,R0
+ 0000007C          L_29:
+ 0000007C  ---- Variable 'm' assigned to Register 'R4' ----
+  189:       if ((USB_Configuration != 0) && ((n & 0x0F) != 0) && (USB_EndPointMask & m)) {
+ 0000007C  4800      LDR         R0,=USB_Configuration ; USB_Configuration
+ 0000007E  7800      LDRB        R0,[R0,#0x0] ; USB_Configuration
+ 00000080  2800      CMP         R0,#0x0
+ 00000082  D029      BEQ         L_30  ; T=0x000000D8
+ 00000084  1C28      MOV         R0,R5 ; n
+ 00000086  210F      MOV         R1,#0xF
+ 00000088  4208      TST         R0,R1 ; n
+ 0000008A  D025      BEQ         L_30  ; T=0x000000D8
+ 0000008C  1C21      MOV         R1,R4 ; m
+ 0000008E  4800      LDR         R0,=USB_EndPointMask ; USB_EndPointMask
+ 00000090  6800      LDR         R0,[R0,#0x0] ; USB_EndPointMask
+ 00000092  4008      AND         R0,R1 ; m
+ 00000094  2800      CMP         R0,#0x0
+ 00000096  D01F      BEQ         L_30  ; T=0x000000D8
+  190:         if (SetupPacket.wValue.W == USB_FEATURE_ENDPOINT_STALL) {
+ 00000098  4800      LDR         R1,=SetupPacket + 0x2 ; SetupPacket+2
+ 0000009A  7808      LDRB        R0,[R1,#0x0] ; SetupPacket+2
+ 0000009C  784A      LDRB        R2,[R1,#0x1] ; SetupPacket+2
+ 0000009E  0212      LSL         R2,R2,#0x8
+ 000000A0  4310      ORR         R0,R2
+ 000000A2  2800      CMP         R0,#0x0
+ 000000A4  D116      BNE         L_31  ; T=0x000000D4
+  191:           if (sc) {
+ 000000A6  1C30      MOV         R0,R6 ; sc
+ 000000A8  2800      CMP         R0,#0x0 ; sc
+ 000000AA  D009      BEQ         L_32  ; T=0x000000C0
+  192:             USB_SetStallEP(n);
+ 000000AC  1C28      MOV         R0,R5 ; n
+ 000000AE  F7FF      BL          USB_SetStallEP?T  ; T=0x0001  (1)
+ 000000B0  FFA7      BL          USB_SetStallEP?T  ; T=0x0001  (2)
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 18  
+
+  193:             USB_EndPointHalt |=  m;
+ 000000B2  1C20      MOV         R0,R4 ; m
+ 000000B4  4800      LDR         R1,=USB_EndPointHalt ; USB_EndPointHalt
+ 000000B6  6809      LDR         R1,[R1,#0x0] ; USB_EndPointHalt
+ 000000B8  4301      ORR         R1,R0 ; m
+ 000000BA  4800      LDR         R0,=USB_EndPointHalt ; USB_EndPointHalt
+ 000000BC  6001      STR         R1,[R0,#0x0] ; USB_EndPointHalt
+  194:           } else {
+ 000000BE  E00F      B           L_18  ; T=0x000000E0
+ 000000C0          L_32:
+  195:             USB_ClrStallEP(n);
+ 000000C0  1C28      MOV         R0,R5 ; n
+ 000000C2  F7FF      BL          USB_ClrStallEP?T  ; T=0x0001  (1)
+ 000000C4  FF9D      BL          USB_ClrStallEP?T  ; T=0x0001  (2)
+  196:             USB_EndPointHalt &= ~m;
+ 000000C6  1C20      MOV         R0,R4 ; m
+ 000000C8  4800      LDR         R1,=USB_EndPointHalt ; USB_EndPointHalt
+ 000000CA  6809      LDR         R1,[R1,#0x0] ; USB_EndPointHalt
+ 000000CC  4381      BIC         R1,R0 ; m
+ 000000CE  4800      LDR         R0,=USB_EndPointHalt ; USB_EndPointHalt
+ 000000D0  6001      STR         R1,[R0,#0x0] ; USB_EndPointHalt
+  198:         } else {
+ 000000D2  E005      B           L_18  ; T=0x000000E0
+ 000000D4          L_31:
+  199:           return (FALSE);
+ 000000D4  2000      MOV         R0,#0x0
+ 000000D6  E004      B           L_27  ; T=0x000000E2
+  201:       } else {
+ 000000D8          L_30:
+  202:         return (FALSE);
+ 000000D8  2000      MOV         R0,#0x0
+ 000000DA  E002      B           L_27  ; T=0x000000E2
+  205:     default:
+ 000000DC          L_20:
+  206:       return (FALSE);
+ 000000DC  2000      MOV         R0,#0x0
+ 000000DE  E000      B           L_27  ; T=0x000000E2
+  207:   }
+ 000000E0          L_18:
+  208:   return (TRUE);
+ 000000E0  2001      MOV         R0,#0x1
+ 000000E2            ; SCOPE-END
+  209: }
+ 000000E2          L_27:
+ 000000E2  BC70      POP         {R4-R6}
+ 000000E4  BC08      POP         {R3}
+ 000000E6  4718      BX          R3
+ 000000E8          ENDP ; 'USB_SetClrFeature?T'
+
+
+*** CODE SEGMENT '?PR?USB_GetDescriptor?T?usbcore':
+  218: __inline BOOL USB_GetDescriptor (void) {
+ 00000000  B530      PUSH        {R4-R5,LR}
+ 00000002  ---- Variable 'pD' assigned to Register 'R5' ----
+ 00000002  ---- Variable 'len' assigned to Register 'R4' ----
+ 00000002            ; SCOPE-START
+  222:   switch (SetupPacket.bmRequestType.BM.Recipient) {
+ 00000002  4800      LDR         R0,=SetupPacket ; SetupPacket
+ 00000004  7800      LDRB        R0,[R0,#0x0] ; SetupPacket
+ 00000006  211F      MOV         R1,#0x1F
+ 00000008  4008      AND         R0,R1
+ 0000000A  2801      CMP         R0,#0x1
+ 0000000C  D040      BEQ         L_39  ; T=0x00000090
+ 0000000E  2800      CMP         R0,#0x0
+ 00000010  D140      BNE         L_38  ; T=0x00000094
+  223:     case REQUEST_TO_DEVICE:
+ 00000012          L_37:
+  224:       switch (SetupPacket.wValue.WB.H) {
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 19  
+
+ 00000012  4800      LDR         R0,=SetupPacket + 0x3 ; SetupPacket+3
+ 00000014  7800      LDRB        R0,[R0,#0x0] ; SetupPacket+3
+ 00000016  2802      CMP         R0,#0x2
+ 00000018  D008      BEQ         L_43  ; T=0x0000002C
+ 0000001A  2803      CMP         R0,#0x3
+ 0000001C  D02C      BEQ         L_44  ; T=0x00000078
+ 0000001E  2801      CMP         R0,#0x1
+ 00000020  D134      BNE         L_42  ; T=0x0000008C
+  225:         case USB_DEVICE_DESCRIPTOR_TYPE:
+ 00000022          L_41:
+  226:           EP0Data.pData = (BYTE *)USB_DeviceDescriptor;
+ 00000022  4800      LDR         R1,=USB_DeviceDescriptor ; USB_DeviceDescriptor
+ 00000024  4800      LDR         R0,=EP0Data ; EP0Data
+ 00000026  6001      STR         R1,[R0,#0x0] ; EP0Data
+  227:           len = USB_DEVICE_DESC_SIZE;
+ 00000028  2412      MOV         R4,#0x12
+  228:           break;
+ 0000002A  E035      B           L_36  ; T=0x00000098
+  229:         case USB_CONFIGURATION_DESCRIPTOR_TYPE:
+ 0000002C          L_43:
+  230:           pD = (BYTE *)USB_ConfigDescriptor;
+ 0000002C  4800      LDR         R5,=USB_ConfigDescriptor ; USB_ConfigDescriptor
+  231:           for (n = 0; n != SetupPacket.wValue.WB.L; n++) {
+ 0000002E  2000      MOV         R0,#0x0
+ 00000030  ---- Variable 'n' assigned to Register 'R0' ----
+ 00000030  E00B      B           L_47  ; T=0x0000004A
+ 00000032          L_48:
+  232:             if (((USB_CONFIGURATION_DESCRIPTOR *)pD)->bLength != 0) {
+ 00000032  1C2A      MOV         R2,R5 ; pD
+ 00000034  7811      LDRB        R1,[R2,#0x0] ; pD
+ 00000036  2900      CMP         R1,#0x0
+ 00000038  D006      BEQ         L_45  ; T=0x00000048
+  233:               pD += ((USB_CONFIGURATION_DESCRIPTOR *)pD)->wTotalLength;
+ 0000003A  1C2A      MOV         R2,R5 ; pD
+ 0000003C  3202      ADD         R2,#0x2
+ 0000003E  7811      LDRB        R1,[R2,#0x0]
+ 00000040  7853      LDRB        R3,[R2,#0x1]
+ 00000042  021B      LSL         R3,R3,#0x8
+ 00000044  4319      ORR         R1,R3
+ 00000046  186D      ADD         R5,R1 ; pD
+  235:           }
+ 00000048          L_45:
+ 00000048  3001      ADD         R0,#0x1
+ 0000004A          L_47:
+ 0000004A  4800      LDR         R1,=SetupPacket + 0x2 ; SetupPacket+2
+ 0000004C  7809      LDRB        R1,[R1,#0x0] ; SetupPacket+2
+ 0000004E  1C0A      MOV         R2,R1
+ 00000050  1C01      MOV         R1,R0 ; n
+ 00000052  4291      CMP         R1,R2 ; n
+ 00000054  D1ED      BNE         L_48  ; T=0x00000032
+  236:           if (((USB_CONFIGURATION_DESCRIPTOR *)pD)->bLength == 0) {
+ 00000056  1C29      MOV         R1,R5 ; pD
+ 00000058  7808      LDRB        R0,[R1,#0x0] ; pD
+ 0000005A  2800      CMP         R0,#0x0
+ 0000005C  D101      BNE         L_51  ; T=0x00000062
+  237:             return (FALSE);
+ 0000005E  2000      MOV         R0,#0x0
+ 00000060  E027      B           L_52  ; T=0x000000B2
+  238:           }
+ 00000062          L_51:
+  239:           EP0Data.pData = pD;
+ 00000062  1C29      MOV         R1,R5 ; pD
+ 00000064  4800      LDR         R0,=EP0Data ; EP0Data
+ 00000066  6001      STR         R1,[R0,#0x0] ; EP0Data
+  240:           len = ((USB_CONFIGURATION_DESCRIPTOR *)pD)->wTotalLength;
+ 00000068  1C29      MOV         R1,R5 ; pD
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 20  
+
+ 0000006A  3102      ADD         R1,#0x2
+ 0000006C  7808      LDRB        R0,[R1,#0x0]
+ 0000006E  784A      LDRB        R2,[R1,#0x1]
+ 00000070  0212      LSL         R2,R2,#0x8
+ 00000072  4310      ORR         R0,R2
+ 00000074  1C04      MOV         R4,R0
+  241:           break;
+ 00000076  E00F      B           L_36  ; T=0x00000098
+  242:         case USB_STRING_DESCRIPTOR_TYPE:
+ 00000078          L_44:
+  243:           EP0Data.pData = (BYTE *)USB_StringDescriptor + SetupPacket.wValue.WB.L;
+ 00000078  4800      LDR         R0,=SetupPacket + 0x2 ; SetupPacket+2
+ 0000007A  7800      LDRB        R0,[R0,#0x0] ; SetupPacket+2
+ 0000007C  4800      LDR         R1,=USB_StringDescriptor ; USB_StringDescriptor
+ 0000007E  1809      ADD         R1,R0 ; USB_StringDescriptor
+ 00000080  4800      LDR         R0,=EP0Data ; EP0Data
+ 00000082  6001      STR         R1,[R0,#0x0] ; EP0Data
+  244:           len = ((USB_STRING_DESCRIPTOR *)EP0Data.pData)->bLength;
+ 00000084  4800      LDR         R0,=EP0Data ; EP0Data
+ 00000086  6800      LDR         R0,[R0,#0x0] ; EP0Data
+ 00000088  7804      LDRB        R4,[R0,#0x0]
+  245:           break;
+ 0000008A  E005      B           L_36  ; T=0x00000098
+  246:         default:
+ 0000008C          L_42:
+  247:           return (FALSE);
+ 0000008C  2000      MOV         R0,#0x0
+ 0000008E  E010      B           L_52  ; T=0x000000B2
+  250:     case REQUEST_TO_INTERFACE:
+ 00000090          L_39:
+  253:           return (FALSE);
+ 00000090  2000      MOV         R0,#0x0
+ 00000092  E00E      B           L_52  ; T=0x000000B2
+  256:     default:
+ 00000094          L_38:
+  257:       return (FALSE);
+ 00000094  2000      MOV         R0,#0x0
+ 00000096  E00C      B           L_52  ; T=0x000000B2
+  258:   }
+ 00000098          L_36:
+  260:   if (EP0Data.Count > len) {
+ 00000098  4800      LDR         R0,=EP0Data + 0x4 ; EP0Data+4
+ 0000009A  8800      LDRH        R0,[R0,#0x0] ; EP0Data+4
+ 0000009C  1C21      MOV         R1,R4 ; len
+ 0000009E  4288      CMP         R0,R1 ; len
+ 000000A0  D904      BLS         L_56  ; T=0x000000AC
+  261:     EP0Data.Count = len;
+ 000000A2  1C21      MOV         R1,R4 ; len
+ 000000A4  0409      LSL         R1,R1,#0x10 ; len
+ 000000A6  0C09      LSR         R1,R1,#0x10
+ 000000A8  4800      LDR         R0,=EP0Data + 0x4 ; EP0Data+4
+ 000000AA  8001      STRH        R1,[R0,#0x0] ; EP0Data+4
+  262:   }
+ 000000AC          L_56:
+  263:   USB_DataInStage();
+ 000000AC  F7FF      BL          USB_DataInStage?T  ; T=0x0001  (1)
+ 000000AE  FFA8      BL          USB_DataInStage?T  ; T=0x0001  (2)
+  265:   return (TRUE);
+ 000000B0  2001      MOV         R0,#0x1
+ 000000B2            ; SCOPE-END
+  266: }
+ 000000B2          L_52:
+ 000000B2  BC30      POP         {R4-R5}
+ 000000B4  BC08      POP         {R3}
+ 000000B6  4718      BX          R3
+ 000000B8          ENDP ; 'USB_GetDescriptor?T'
+
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 21  
+
+
+*** CODE SEGMENT '?PR?USB_SetConfiguration?T?usbcore':
+  275: __inline BOOL USB_SetConfiguration (void) {
+ 00000000  B5F0      PUSH        {R4-R7,LR}
+ 00000002  ---- Variable 'n' assigned to Register 'R5' ----
+ 00000002  ---- Variable 'alt' assigned to Register 'R4' ----
+ 00000002            ; SCOPE-START
+  279:   if (SetupPacket.wValue.WB.L) {
+ 00000002  4800      LDR         R0,=SetupPacket + 0x2 ; SetupPacket+2
+ 00000004  7800      LDRB        R0,[R0,#0x0] ; SetupPacket+2
+ 00000006  2800      CMP         R0,#0x0
+ 00000008  D100      BEQ         $+4
+ 0000000A  E090      B           L_57  ; T=0x0000012E
+  280:     pD = (USB_COMMON_DESCRIPTOR *)USB_ConfigDescriptor;
+ 0000000E  4800      LDR         R6,=USB_ConfigDescriptor ; USB_ConfigDescriptor
+ 00000010  ---- Variable 'pD' assigned to Register 'R6' ----
+  281:     while (pD->bLength) {
+ 00000010  E087      B           L_58  ; T=0x00000122
+ 00000012          L_60:
+  282:       switch (pD->bDescriptorType) {
+ 00000012  1C30      MOV         R0,R6 ; pD
+ 00000014  7840      LDRB        R0,[R0,#0x1]
+ 00000016  2804      CMP         R0,#0x4
+ 00000018  D05A      BEQ         L_64  ; T=0x000000D0
+ 0000001A  2805      CMP         R0,#0x5
+ 0000001C  D05C      BEQ         L_65  ; T=0x000000D8
+ 0000001E  2802      CMP         R0,#0x2
+ 00000020  D17C      BNE         L_62  ; T=0x0000011C
+  283:         case USB_CONFIGURATION_DESCRIPTOR_TYPE:
+ 00000022          L_63:
+  284:           if (((USB_CONFIGURATION_DESCRIPTOR *)pD)->bConfigurationValue == SetupPacket.wValue.WB.L) {
+ 00000022  1C30      MOV         R0,R6 ; pD
+ 00000024  7940      LDRB        R0,[R0,#0x5]
+ 00000026  4800      LDR         R1,=SetupPacket + 0x2 ; SetupPacket+2
+ 00000028  7809      LDRB        R1,[R1,#0x0] ; SetupPacket+2
+ 0000002A  4288      CMP         R0,R1
+ 0000002C  D148      BNE         L_66  ; T=0x000000C0
+  285:             USB_Configuration = SetupPacket.wValue.WB.L;
+ 0000002E  4800      LDR         R0,=SetupPacket + 0x2 ; SetupPacket+2
+ 00000030  7801      LDRB        R1,[R0,#0x0] ; SetupPacket+2
+ 00000032  4800      LDR         R0,=USB_Configuration ; USB_Configuration
+ 00000034  7001      STRB        R1,[R0,#0x0] ; USB_Configuration
+  286:             USB_NumInterfaces = ((USB_CONFIGURATION_DESCRIPTOR *)pD)->bNumInterfaces;
+ 00000036  1C30      MOV         R0,R6 ; pD
+ 00000038  7901      LDRB        R1,[R0,#0x4]
+ 0000003A  4800      LDR         R0,=USB_NumInterfaces ; USB_NumInterfaces
+ 0000003C  7001      STRB        R1,[R0,#0x0] ; USB_NumInterfaces
+  287:             for (n = 0; n < USB_IF_NUM; n++) {
+ 0000003E  2500      MOV         R5,#0x0
+ 00000040          L_70:
+  288:               USB_AltSetting[n] = 0;
+ 00000040  2000      MOV         R0,#0x0
+ 00000042  1C2A      MOV         R2,R5 ; n
+ 00000044  4800      LDR         R1,=USB_AltSetting ; USB_AltSetting
+ 00000046  5488      STRB        R0,[R1,R2]
+  289:             }
+ 00000048  3501      ADD         R5,#0x1
+ 0000004A  1C28      MOV         R0,R5 ; n
+ 0000004C  2804      CMP         R0,#0x4 ; n
+ 0000004E  D3F7      BCC         L_70  ; T=0x00000040
+  290:             for (n = 1; n < 16; n++) {
+ 00000050  2501      MOV         R5,#0x1
+ 00000052          L_75:
+  291:               if (USB_EndPointMask & (1 << n)) {
+ 00000052  1C28      MOV         R0,R5 ; n
+ 00000054  2101      MOV         R1,#0x1
+ 00000056  4081      LSL         R1,R0
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 22  
+
+ 00000058  4800      LDR         R0,=USB_EndPointMask ; USB_EndPointMask
+ 0000005A  6800      LDR         R0,[R0,#0x0] ; USB_EndPointMask
+ 0000005C  4008      AND         R0,R1
+ 0000005E  2800      CMP         R0,#0x0
+ 00000060  D001      BEQ         L_77  ; T=0x00000066
+  292:                 USB_DisableEP(n);
+ 00000062  1C28      MOV         R0,R5 ; n
+ 00000064  F7FF      BL          USB_DisableEP?T  ; T=0x0001  (1)
+ 00000066  FFCC      BL          USB_DisableEP?T  ; T=0x0001  (2)
+  293:               }
+ 00000068          L_77:
+  294:               if (USB_EndPointMask & ((1 << 16) << n)) {
+ 00000068  1C28      MOV         R0,R5 ; n
+ 0000006A  4800      LDR         R1,=0x10000
+ 0000006C  4081      LSL         R1,R0
+ 0000006E  4800      LDR         R0,=USB_EndPointMask ; USB_EndPointMask
+ 00000070  6800      LDR         R0,[R0,#0x0] ; USB_EndPointMask
+ 00000072  4008      AND         R0,R1
+ 00000074  2800      CMP         R0,#0x0
+ 00000076  D003      BEQ         L_72  ; T=0x00000080
+  295:                 USB_DisableEP(n | 0x80);
+ 00000078  1C28      MOV         R0,R5 ; n
+ 0000007A  2180      MOV         R1,#0x80
+ 0000007C  4308      ORR         R0,R1
+ 0000007E  F7FF      BL          USB_DisableEP?T  ; T=0x0001  (1)
+ 00000080  FFBF      BL          USB_DisableEP?T  ; T=0x0001  (2)
+  297:             }
+ 00000082          L_72:
+ 00000082  3501      ADD         R5,#0x1
+ 00000084  1C28      MOV         R0,R5 ; n
+ 00000086  2810      CMP         R0,#0x10 ; n
+ 00000088  D3E3      BCC         L_75  ; T=0x00000052
+  298:             USB_EndPointMask = 0x00010001;
+ 0000008A  4800      LDR         R1,=0x10001
+ 0000008C  4800      LDR         R0,=USB_EndPointMask ; USB_EndPointMask
+ 0000008E  6001      STR         R1,[R0,#0x0] ; USB_EndPointMask
+  299:             USB_EndPointHalt = 0x00000000;
+ 00000090  2100      MOV         R1,#0x0
+ 00000092  4800      LDR         R0,=USB_EndPointHalt ; USB_EndPointHalt
+ 00000094  6001      STR         R1,[R0,#0x0] ; USB_EndPointHalt
+  300:             USB_Configure(TRUE);
+ 00000096  2001      MOV         R0,#0x1
+ 00000098  F7FF      BL          USB_Configure?T  ; T=0x0001  (1)
+ 0000009A  FFB2      BL          USB_Configure?T  ; T=0x0001  (2)
+  301:             if (((USB_CONFIGURATION_DESCRIPTOR *)pD)->bmAttributes & USB_CONFIG_SELF_POWERED) {
+ 0000009C  1C30      MOV         R0,R6 ; pD
+ 0000009E  79C0      LDRB        R0,[R0,#0x7]
+ 000000A0  2140      MOV         R1,#0x40
+ 000000A2  4208      TST         R0,R1
+ 000000A4  D005      BEQ         L_79  ; T=0x000000B2
+  302:               USB_DeviceStatus |=  USB_GETSTATUS_SELF_POWERED;
+ 000000A6  4800      LDR         R0,=USB_DeviceStatus ; USB_DeviceStatus
+ 000000A8  8801      LDRH        R1,[R0,#0x0] ; USB_DeviceStatus
+ 000000AA  2001      MOV         R0,#0x1
+ 000000AC  4301      ORR         R1,R0
+ 000000AE  4800      LDR         R0,=USB_DeviceStatus ; USB_DeviceStatus
+ 000000B0  8001      STRH        R1,[R0,#0x0] ; USB_DeviceStatus
+  303:             } else {
+ 000000B2  E033      B           L_62  ; T=0x0000011C
+ 000000B4          L_79:
+  304:               USB_DeviceStatus &= ~USB_GETSTATUS_SELF_POWERED;
+ 000000B4  4800      LDR         R0,=USB_DeviceStatus ; USB_DeviceStatus
+ 000000B6  8801      LDRH        R1,[R0,#0x0] ; USB_DeviceStatus
+ 000000B8  4800      LDRH        R0,=0xFFFE
+ 000000BA  4001      AND         R1,R0
+ 000000BC  4800      LDR         R0,=USB_DeviceStatus ; USB_DeviceStatus
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 23  
+
+ 000000BE  8001      STRH        R1,[R0,#0x0] ; USB_DeviceStatus
+  306:           } else {
+ 000000C0  E02C      B           L_62  ; T=0x0000011C
+ 000000C2          L_66:
+  307:             (BYTE *)pD += ((USB_CONFIGURATION_DESCRIPTOR *)pD)->wTotalLength;
+ 000000C2  1C31      MOV         R1,R6 ; pD
+ 000000C4  3102      ADD         R1,#0x2
+ 000000C6  7808      LDRB        R0,[R1,#0x0]
+ 000000C8  784A      LDRB        R2,[R1,#0x1]
+ 000000CA  0212      LSL         R2,R2,#0x8
+ 000000CC  4310      ORR         R0,R2
+ 000000CE  1836      ADD         R6,R0 ; pD
+  308:             continue;
+ 000000D0  E027      B           L_58  ; T=0x00000122
+  311:         case USB_INTERFACE_DESCRIPTOR_TYPE:
+ 000000D2          L_64:
+  312:           alt = ((USB_INTERFACE_DESCRIPTOR *)pD)->bAlternateSetting;
+ 000000D2  1C30      MOV         R0,R6 ; pD
+ 000000D4  78C0      LDRB        R0,[R0,#0x3]
+ 000000D6  1C04      MOV         R4,R0
+  313:           break;
+ 000000D8  E020      B           L_62  ; T=0x0000011C
+  314:         case USB_ENDPOINT_DESCRIPTOR_TYPE:
+ 000000DA          L_65:
+  315:           if (alt == 0) {
+ 000000DA  1C20      MOV         R0,R4 ; alt
+ 000000DC  2800      CMP         R0,#0x0 ; alt
+ 000000DE  D11D      BNE         L_62  ; T=0x0000011C
+  316:             n = ((USB_ENDPOINT_DESCRIPTOR *)pD)->bEndpointAddress & 0x8F;
+ 000000E0  1C30      MOV         R0,R6 ; pD
+ 000000E2  7880      LDRB        R0,[R0,#0x2]
+ 000000E4  1C05      MOV         R5,R0
+ 000000E6  208F      MOV         R0,#0x8F
+ 000000E8  4005      AND         R5,R0
+  317:             m = (n & 0x80) ? ((1 << 16) << n) : (1 << n);
+ 000000EA  1C28      MOV         R0,R5 ; n
+ 000000EC  2180      MOV         R1,#0x80
+ 000000EE  4208      TST         R0,R1 ; n
+ 000000F0  D002      BEQ         L_83  ; T=0x000000F8
+ 000000F2  1C28      MOV         R0,R5 ; n
+ 000000F4  4800      LDR         R7,=0x10000
+ 000000F6  4087      LSL         R7,R0
+ 000000F8  E001      B           L_84  ; T=0x000000FE
+ 000000FA          L_83:
+ 000000FA  1C28      MOV         R0,R5 ; n
+ 000000FC  2701      MOV         R7,#0x1
+ 000000FE  4087      LSL         R7,R0
+ 00000100          L_84:
+ 00000100  ---- Variable 'm' assigned to Register 'R7' ----
+  318:             USB_EndPointMask |= m;
+ 00000100  1C38      MOV         R0,R7 ; m
+ 00000102  4800      LDR         R1,=USB_EndPointMask ; USB_EndPointMask
+ 00000104  6809      LDR         R1,[R1,#0x0] ; USB_EndPointMask
+ 00000106  4301      ORR         R1,R0 ; m
+ 00000108  4800      LDR         R0,=USB_EndPointMask ; USB_EndPointMask
+ 0000010A  6001      STR         R1,[R0,#0x0] ; USB_EndPointMask
+  319:             USB_ConfigEP((USB_ENDPOINT_DESCRIPTOR *)pD);
+ 0000010C  1C30      MOV         R0,R6 ; pD
+ 0000010E  F7FF      BL          USB_ConfigEP?T  ; T=0x0001  (1)
+ 00000110  FF77      BL          USB_ConfigEP?T  ; T=0x0001  (2)
+  320:             USB_EnableEP(n);
+ 00000112  1C28      MOV         R0,R5 ; n
+ 00000114  F7FF      BL          USB_EnableEP?T  ; T=0x0001  (1)
+ 00000116  FF74      BL          USB_EnableEP?T  ; T=0x0001  (2)
+  321:             USB_ResetEP(n);
+ 00000118  1C28      MOV         R0,R5 ; n
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 24  
+
+ 0000011A  F7FF      BL          USB_ResetEP?T  ; T=0x0001  (1)
+ 0000011C  FF71      BL          USB_ResetEP?T  ; T=0x0001  (2)
+  324:       }
+ 0000011E          L_62:
+  325:       (BYTE *)pD += pD->bLength;
+ 0000011E  1C31      MOV         R1,R6 ; pD
+ 00000120  7808      LDRB        R0,[R1,#0x0] ; pD
+ 00000122  1836      ADD         R6,R0 ; pD
+  326:     }
+ 00000124          L_58:
+ 00000124  1C30      MOV         R0,R6 ; pD
+ 00000126  7800      LDRB        R0,[R0,#0x0] ; pD
+ 00000128  2800      CMP         R0,#0x0
+ 0000012A  D000      BNE         $+4
+ 0000012C  E771      B           L_60  ; T=0x00000012
+  327:   }
+ 00000130  E026      B           L_85  ; T=0x00000180
+ 00000132          L_57:
+  329:     USB_Configuration = 0;
+ 00000132  2100      MOV         R1,#0x0
+ 00000134  4800      LDR         R0,=USB_Configuration ; USB_Configuration
+ 00000136  7001      STRB        R1,[R0,#0x0] ; USB_Configuration
+  330:     for (n = 1; n < 16; n++) {
+ 00000138  2501      MOV         R5,#0x1
+ 0000013A          L_89:
+  331:       if (USB_EndPointMask & (1 << n)) {
+ 0000013A  1C28      MOV         R0,R5 ; n
+ 0000013C  2101      MOV         R1,#0x1
+ 0000013E  4081      LSL         R1,R0
+ 00000140  4800      LDR         R0,=USB_EndPointMask ; USB_EndPointMask
+ 00000142  6800      LDR         R0,[R0,#0x0] ; USB_EndPointMask
+ 00000144  4008      AND         R0,R1
+ 00000146  2800      CMP         R0,#0x0
+ 00000148  D000      BEQ         L_91  ; T=0x0000014C
+  332:         USB_DisableEP(n);
+ 0000014A  1C28      MOV         R0,R5 ; n
+ 0000014C  F7FF      BL          USB_DisableEP?T  ; T=0x0001  (1)
+ 0000014E  FF58      BL          USB_DisableEP?T  ; T=0x0001  (2)
+  333:       }
+ 00000150          L_91:
+  334:       if (USB_EndPointMask & ((1 << 16) << n)) {
+ 00000150  1C28      MOV         R0,R5 ; n
+ 00000152  4800      LDR         R1,=0x10000
+ 00000154  4081      LSL         R1,R0
+ 00000156  4800      LDR         R0,=USB_EndPointMask ; USB_EndPointMask
+ 00000158  6800      LDR         R0,[R0,#0x0] ; USB_EndPointMask
+ 0000015A  4008      AND         R0,R1
+ 0000015C  2800      CMP         R0,#0x0
+ 0000015E  D002      BEQ         L_86  ; T=0x00000166
+  335:         USB_DisableEP(n | 0x80);
+ 00000160  1C28      MOV         R0,R5 ; n
+ 00000162  2180      MOV         R1,#0x80
+ 00000164  4308      ORR         R0,R1
+ 00000166  F7FF      BL          USB_DisableEP?T  ; T=0x0001  (1)
+ 00000168  FF4B      BL          USB_DisableEP?T  ; T=0x0001  (2)
+  337:     }
+ 0000016A          L_86:
+ 0000016A  3501      ADD         R5,#0x1
+ 0000016C  1C28      MOV         R0,R5 ; n
+ 0000016E  2810      CMP         R0,#0x10 ; n
+ 00000170  D3E3      BCC         L_89  ; T=0x0000013A
+  338:     USB_EndPointMask  = 0x00010001;
+ 00000172  4800      LDR         R1,=0x10001
+ 00000174  4800      LDR         R0,=USB_EndPointMask ; USB_EndPointMask
+ 00000176  6001      STR         R1,[R0,#0x0] ; USB_EndPointMask
+  339:     USB_EndPointHalt  = 0x00000000;
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 25  
+
+ 00000178  2100      MOV         R1,#0x0
+ 0000017A  4800      LDR         R0,=USB_EndPointHalt ; USB_EndPointHalt
+ 0000017C  6001      STR         R1,[R0,#0x0] ; USB_EndPointHalt
+  340:     USB_Configure(FALSE);
+ 0000017E  2000      MOV         R0,#0x0
+ 00000180  F7FF      BL          USB_Configure?T  ; T=0x0001  (1)
+ 00000182  FF3E      BL          USB_Configure?T  ; T=0x0001  (2)
+  341:   }
+ 00000184          L_85:
+  343:   if (USB_Configuration == SetupPacket.wValue.WB.L) {
+ 00000184  4800      LDR         R0,=SetupPacket + 0x2 ; SetupPacket+2
+ 00000186  7800      LDRB        R0,[R0,#0x0] ; SetupPacket+2
+ 00000188  1C01      MOV         R1,R0
+ 0000018A  4800      LDR         R0,=USB_Configuration ; USB_Configuration
+ 0000018C  7800      LDRB        R0,[R0,#0x0] ; USB_Configuration
+ 0000018E  4288      CMP         R0,R1
+ 00000190  D1FF      BNE         L_93  ; T=0x00000192
+  344:     return (TRUE);
+ 00000192  2001      MOV         R0,#0x1
+ 00000194  E7FE      B           L_94  ; T=0x00000194
+  345:   } else {
+ 00000196          L_93:
+  346:     return (FALSE);
+ 00000196  2000      MOV         R0,#0x0
+  347:   }
+ 00000198            ; SCOPE-END
+  348: }
+ 00000198          L_94:
+ 00000198  BCF0      POP         {R4-R7}
+ 0000019A  BC08      POP         {R3}
+ 0000019C  4718      BX          R3
+ 0000019E          ENDP ; 'USB_SetConfiguration?T'
+
+
+*** CODE SEGMENT '?PR?USB_SetInterface?T?usbcore':
+  357: __inline BOOL USB_SetInterface (void) {
+ 00000000  B5F0      PUSH        {R4-R7,LR}
+ 00000002  B084      SUB         R13,#0x10
+ 00000004  ---- Variable 'alt' assigned to Register 'R4' ----
+ 00000004            ; SCOPE-START
+  362:   if (USB_Configuration == 0) return (FALSE);
+ 00000004  4800      LDR         R0,=USB_Configuration ; USB_Configuration
+ 00000006  7800      LDRB        R0,[R0,#0x0] ; USB_Configuration
+ 00000008  2800      CMP         R0,#0x0
+ 0000000A  D101      BNE         L_96  ; T=0x00000010
+ 0000000C  2000      MOV         R0,#0x0
+ 0000000E  E08E      B           L_97  ; T=0x0000012E
+ 00000010          L_96:
+  364:   set = FALSE;
+ 00000010  2000      MOV         R0,#0x0
+ 00000012  9003      STR         R0,[R13,#0xC] ; set
+  365:   pD  = (USB_COMMON_DESCRIPTOR *)USB_ConfigDescriptor;
+ 00000014  4800      LDR         R5,=USB_ConfigDescriptor ; USB_ConfigDescriptor
+ 00000016  ---- Variable 'pD' assigned to Register 'R5' ----
+  366:   while (pD->bLength) {
+ 00000016  E084      B           L_98  ; T=0x00000122
+ 00000018          L_100:
+  367:     switch (pD->bDescriptorType) {
+ 00000018  1C28      MOV         R0,R5 ; pD
+ 0000001A  7840      LDRB        R0,[R0,#0x1]
+ 0000001C  2804      CMP         R0,#0x4
+ 0000001E  D011      BEQ         L_104  ; T=0x00000044
+ 00000020  2805      CMP         R0,#0x5
+ 00000022  D02D      BEQ         L_105  ; T=0x00000080
+ 00000024  2802      CMP         R0,#0x2
+ 00000026  D179      BNE         L_102  ; T=0x0000011C
+  368:       case USB_CONFIGURATION_DESCRIPTOR_TYPE:
+ 00000028          L_103:
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 26  
+
+  369:         if (((USB_CONFIGURATION_DESCRIPTOR *)pD)->bConfigurationValue != USB_Configuration) {
+ 00000028  1C28      MOV         R0,R5 ; pD
+ 0000002A  7940      LDRB        R0,[R0,#0x5]
+ 0000002C  4800      LDR         R1,=USB_Configuration ; USB_Configuration
+ 0000002E  7809      LDRB        R1,[R1,#0x0] ; USB_Configuration
+ 00000030  4288      CMP         R0,R1
+ 00000032  D073      BEQ         L_102  ; T=0x0000011C
+  370:           (BYTE *)pD += ((USB_CONFIGURATION_DESCRIPTOR *)pD)->wTotalLength;
+ 00000034  1C29      MOV         R1,R5 ; pD
+ 00000036  3102      ADD         R1,#0x2
+ 00000038  7808      LDRB        R0,[R1,#0x0]
+ 0000003A  784A      LDRB        R2,[R1,#0x1]
+ 0000003C  0212      LSL         R2,R2,#0x8
+ 0000003E  4310      ORR         R0,R2
+ 00000040  182D      ADD         R5,R0 ; pD
+  371:           continue;
+ 00000042  E06E      B           L_98  ; T=0x00000122
+  374:       case USB_INTERFACE_DESCRIPTOR_TYPE:
+ 00000044          L_104:
+  375:         ifn = ((USB_INTERFACE_DESCRIPTOR *)pD)->bInterfaceNumber;
+ 00000044  1C28      MOV         R0,R5 ; pD
+ 00000046  7880      LDRB        R0,[R0,#0x2]
+ 00000048  9000      STR         R0,[R13,#0x0] ; ifn
+  376:         alt = ((USB_INTERFACE_DESCRIPTOR *)pD)->bAlternateSetting;
+ 0000004A  1C28      MOV         R0,R5 ; pD
+ 0000004C  78C0      LDRB        R0,[R0,#0x3]
+ 0000004E  1C04      MOV         R4,R0
+  377:         msk = 0;
+ 00000050  2000      MOV         R0,#0x0
+ 00000052  9002      STR         R0,[R13,#0x8] ; msk
+  378:         if ((ifn == SetupPacket.wIndex.WB.L) && (alt == SetupPacket.wValue.WB.L)) {
+ 00000054  4800      LDR         R0,=SetupPacket + 0x4 ; SetupPacket+4
+ 00000056  7800      LDRB        R0,[R0,#0x0] ; SetupPacket+4
+ 00000058  9A00      LDR         R2,[R13,#0x0] ; ifn
+ 0000005A  4282      CMP         R2,R0
+ 0000005C  D15E      BNE         L_102  ; T=0x0000011C
+ 0000005E  4800      LDR         R0,=SetupPacket + 0x2 ; SetupPacket+2
+ 00000060  7800      LDRB        R0,[R0,#0x0] ; SetupPacket+2
+ 00000062  1C01      MOV         R1,R0
+ 00000064  1C20      MOV         R0,R4 ; alt
+ 00000066  4288      CMP         R0,R1 ; alt
+ 00000068  D158      BNE         L_102  ; T=0x0000011C
+  379:           set = TRUE;
+ 0000006A  2001      MOV         R0,#0x1
+ 0000006C  9003      STR         R0,[R13,#0xC] ; set
+  380:           old = USB_AltSetting[ifn];
+ 0000006E  4800      LDR         R0,=USB_AltSetting ; USB_AltSetting
+ 00000070  5C80      LDRB        R0,[R0,R2]
+ 00000072  9001      STR         R0,[R13,#0x4] ; old
+  381:           USB_AltSetting[ifn] = (BYTE)alt;
+ 00000074  1C20      MOV         R0,R4 ; alt
+ 00000076  0600      LSL         R0,R0,#0x18 ; alt
+ 00000078  0E00      LSR         R0,R0,#0x18
+ 0000007A  4800      LDR         R1,=USB_AltSetting ; USB_AltSetting
+ 0000007C  5488      STRB        R0,[R1,R2]
+  383:         break;
+ 0000007E  E04D      B           L_102  ; T=0x0000011C
+  384:       case USB_ENDPOINT_DESCRIPTOR_TYPE:
+ 00000080          L_105:
+  385:         if (ifn == SetupPacket.wIndex.WB.L) {
+ 00000080  4800      LDR         R0,=SetupPacket + 0x4 ; SetupPacket+4
+ 00000082  7800      LDRB        R0,[R0,#0x0] ; SetupPacket+4
+ 00000084  1C01      MOV         R1,R0
+ 00000086  9800      LDR         R0,[R13,#0x0] ; ifn
+ 00000088  4288      CMP         R0,R1
+ 0000008A  D147      BNE         L_102  ; T=0x0000011C
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 27  
+
+  386:           n = ((USB_ENDPOINT_DESCRIPTOR *)pD)->bEndpointAddress & 0x8F;
+ 0000008C  1C28      MOV         R0,R5 ; pD
+ 0000008E  7880      LDRB        R0,[R0,#0x2]
+ 00000090  1C06      MOV         R6,R0
+ 00000092  208F      MOV         R0,#0x8F
+ 00000094  4006      AND         R6,R0
+ 00000096  ---- Variable 'n' assigned to Register 'R6' ----
+  387:           m = (n & 0x80) ? ((1 << 16) << n) : (1 << n);
+ 00000096  1C30      MOV         R0,R6 ; n
+ 00000098  2180      MOV         R1,#0x80
+ 0000009A  4208      TST         R0,R1 ; n
+ 0000009C  D003      BEQ         L_109  ; T=0x000000A6
+ 0000009E  1C30      MOV         R0,R6 ; n
+ 000000A0  4800      LDR         R7,=0x10000
+ 000000A2  4087      LSL         R7,R0
+ 000000A4  E002      B           L_110  ; T=0x000000AC
+ 000000A6          L_109:
+ 000000A6  1C30      MOV         R0,R6 ; n
+ 000000A8  2701      MOV         R7,#0x1
+ 000000AA  4087      LSL         R7,R0
+ 000000AC          L_110:
+ 000000AC  ---- Variable 'm' assigned to Register 'R7' ----
+  388:           if (alt == SetupPacket.wValue.WB.L) {
+ 000000AC  4800      LDR         R0,=SetupPacket + 0x2 ; SetupPacket+2
+ 000000AE  7800      LDRB        R0,[R0,#0x0] ; SetupPacket+2
+ 000000B0  1C01      MOV         R1,R0
+ 000000B2  1C20      MOV         R0,R4 ; alt
+ 000000B4  4288      CMP         R0,R1 ; alt
+ 000000B6  D119      BNE         L_111  ; T=0x000000EC
+  389:             USB_EndPointMask |=  m;
+ 000000B8  1C38      MOV         R0,R7 ; m
+ 000000BA  4800      LDR         R1,=USB_EndPointMask ; USB_EndPointMask
+ 000000BC  6809      LDR         R1,[R1,#0x0] ; USB_EndPointMask
+ 000000BE  4301      ORR         R1,R0 ; m
+ 000000C0  4800      LDR         R0,=USB_EndPointMask ; USB_EndPointMask
+ 000000C2  6001      STR         R1,[R0,#0x0] ; USB_EndPointMask
+  390:             USB_EndPointHalt &= ~m;
+ 000000C4  1C38      MOV         R0,R7 ; m
+ 000000C6  4800      LDR         R1,=USB_EndPointHalt ; USB_EndPointHalt
+ 000000C8  6809      LDR         R1,[R1,#0x0] ; USB_EndPointHalt
+ 000000CA  4381      BIC         R1,R0 ; m
+ 000000CC  4800      LDR         R0,=USB_EndPointHalt ; USB_EndPointHalt
+ 000000CE  6001      STR         R1,[R0,#0x0] ; USB_EndPointHalt
+  391:             USB_ConfigEP((USB_ENDPOINT_DESCRIPTOR *)pD);
+ 000000D0  1C28      MOV         R0,R5 ; pD
+ 000000D2  F7FF      BL          USB_ConfigEP?T  ; T=0x0001  (1)
+ 000000D4  FF95      BL          USB_ConfigEP?T  ; T=0x0001  (2)
+  392:             USB_EnableEP(n);
+ 000000D6  1C30      MOV         R0,R6 ; n
+ 000000D8  F7FF      BL          USB_EnableEP?T  ; T=0x0001  (1)
+ 000000DA  FF92      BL          USB_EnableEP?T  ; T=0x0001  (2)
+  393:             USB_ResetEP(n);
+ 000000DC  1C30      MOV         R0,R6 ; n
+ 000000DE  F7FF      BL          USB_ResetEP?T  ; T=0x0001  (1)
+ 000000E0  FF8F      BL          USB_ResetEP?T  ; T=0x0001  (2)
+  394:             msk |= m;
+ 000000E2  1C39      MOV         R1,R7 ; m
+ 000000E4  9802      LDR         R0,[R13,#0x8] ; msk
+ 000000E6  4308      ORR         R0,R1 ; m
+ 000000E8  9002      STR         R0,[R13,#0x8] ; msk
+  395:           }
+ 000000EA  E017      B           L_102  ; T=0x0000011C
+ 000000EC          L_111:
+  396:           else if ((alt == old) && ((msk & m) == 0)) {
+ 000000EC  9901      LDR         R1,[R13,#0x4] ; old
+ 000000EE  1C20      MOV         R0,R4 ; alt
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 28  
+
+ 000000F0  4288      CMP         R0,R1 ; alt
+ 000000F2  D113      BNE         L_102  ; T=0x0000011C
+ 000000F4  1C39      MOV         R1,R7 ; m
+ 000000F6  9802      LDR         R0,[R13,#0x8] ; msk
+ 000000F8  4008      AND         R0,R1 ; m
+ 000000FA  2800      CMP         R0,#0x0
+ 000000FC  D10E      BNE         L_102  ; T=0x0000011C
+  397:             USB_EndPointMask &= ~m;
+ 000000FE  1C38      MOV         R0,R7 ; m
+ 00000100  4800      LDR         R1,=USB_EndPointMask ; USB_EndPointMask
+ 00000102  6809      LDR         R1,[R1,#0x0] ; USB_EndPointMask
+ 00000104  4381      BIC         R1,R0 ; m
+ 00000106  4800      LDR         R0,=USB_EndPointMask ; USB_EndPointMask
+ 00000108  6001      STR         R1,[R0,#0x0] ; USB_EndPointMask
+  398:             USB_EndPointHalt &= ~m;
+ 0000010A  1C38      MOV         R0,R7 ; m
+ 0000010C  4800      LDR         R1,=USB_EndPointHalt ; USB_EndPointHalt
+ 0000010E  6809      LDR         R1,[R1,#0x0] ; USB_EndPointHalt
+ 00000110  4381      BIC         R1,R0 ; m
+ 00000112  4800      LDR         R0,=USB_EndPointHalt ; USB_EndPointHalt
+ 00000114  6001      STR         R1,[R0,#0x0] ; USB_EndPointHalt
+  399:             USB_DisableEP(n);
+ 00000116  1C30      MOV         R0,R6 ; n
+ 00000118  F7FF      BL          USB_DisableEP?T  ; T=0x0001  (1)
+ 0000011A  FF72      BL          USB_DisableEP?T  ; T=0x0001  (2)
+  403:     }
+ 0000011C          L_102:
+  404:     (BYTE *)pD += pD->bLength;
+ 0000011C  1C29      MOV         R1,R5 ; pD
+ 0000011E  7808      LDRB        R0,[R1,#0x0] ; pD
+ 00000120  182D      ADD         R5,R0 ; pD
+  405:   }
+ 00000122          L_98:
+ 00000122  1C28      MOV         R0,R5 ; pD
+ 00000124  7800      LDRB        R0,[R0,#0x0] ; pD
+ 00000126  2800      CMP         R0,#0x0
+ 00000128  D000      BNE         $+4
+ 0000012A  E775      B           L_100  ; T=0x00000018
+  406:   return (set);
+ 0000012E  9803      LDR         R0,[R13,#0xC] ; set
+ 00000130            ; SCOPE-END
+  407: }
+ 00000130          L_97:
+ 00000130  B004      ADD         R13,#0x10
+ 00000132  BCF0      POP         {R4-R7}
+ 00000134  BC08      POP         {R3}
+ 00000136  4718      BX          R3
+ 00000138          ENDP ; 'USB_SetInterface?T'
+
+
+*** CODE SEGMENT '?PR?USB_EndPoint0?T?usbcore':
+  415: void USB_EndPoint0 (DWORD event) {
+ 00000000  B500      PUSH        {LR}
+ 00000002  1C01      MOV         R1,R0 ; event
+ 00000004  ---- Variable 'event' assigned to Register 'R1' ----
+ 00000004            ; SCOPE-START
+  419:   switch (event) {
+ 00000004  1C08      MOV         R0,R1 ; event
+ 00000006  2802      CMP         R0,#0x2 ; event
+ 00000008  D100      BEQ         $+4
+ 0000000A  E0F3      B           L_116  ; T=0x000001F4
+ 0000000E  2803      CMP         R0,#0x3 ; event
+ 00000010  D100      BEQ         $+4
+ 00000012  E106      B           L_117  ; T=0x00000222
+ 00000016  2806      CMP         R0,#0x6 ; event
+ 00000018  D100      BEQ         $+4
+ 0000001A  E125      B           L_118  ; T=0x00000268
+ 0000001E  2807      CMP         R0,#0x7 ; event
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 29  
+
+ 00000020  D100      BEQ         $+4
+ 00000022  E11D      B           L_119  ; T=0x00000260
+ 00000026  2801      CMP         R0,#0x1 ; event
+ 00000028  D000      BNE         $+4
+ 0000002A  E120      B           L_114  ; T=0x0000026E
+  420:     case USB_EVT_SETUP:
+ 0000002E          L_115:
+  421:       USB_SetupStage();
+ 0000002E  F7FF      BL          USB_SetupStage?T  ; T=0x0001  (1)
+ 00000030  FFE7      BL          USB_SetupStage?T  ; T=0x0001  (2)
+  422:       USB_DirCtrlEP(SetupPacket.bmRequestType.BM.Dir);
+ 00000032  4800      LDR         R0,=SetupPacket ; SetupPacket
+ 00000034  7800      LDRB        R0,[R0,#0x0] ; SetupPacket
+ 00000036  09C0      LSR         R0,R0,#0x7
+ 00000038  2101      MOV         R1,#0x1
+ 0000003A  4008      AND         R0,R1
+ 0000003C  0600      LSL         R0,R0,#0x18
+ 0000003E  0E00      LSR         R0,R0,#0x18
+ 00000040  F7FF      BL          USB_DirCtrlEP?T  ; T=0x0001  (1)
+ 00000042  FFDE      BL          USB_DirCtrlEP?T  ; T=0x0001  (2)
+  423:       EP0Data.Count = SetupPacket.wLength;
+ 00000044  4800      LDR         R2,=SetupPacket + 0x6 ; SetupPacket+6
+ 00000046  7811      LDRB        R1,[R2,#0x0] ; SetupPacket+6
+ 00000048  7850      LDRB        R0,[R2,#0x1] ; SetupPacket+6
+ 0000004A  0200      LSL         R0,R0,#0x8
+ 0000004C  4301      ORR         R1,R0
+ 0000004E  4800      LDR         R0,=EP0Data + 0x4 ; EP0Data+4
+ 00000050  8001      STRH        R1,[R0,#0x0] ; EP0Data+4
+  424:       switch (SetupPacket.bmRequestType.BM.Type) {
+ 00000052  4800      LDR         R0,=SetupPacket ; SetupPacket
+ 00000054  7800      LDRB        R0,[R0,#0x0] ; SetupPacket
+ 00000056  0940      LSR         R0,R0,#0x5
+ 00000058  2103      MOV         R1,#0x3
+ 0000005A  4008      AND         R0,R1
+ 0000005C  2801      CMP         R0,#0x1
+ 0000005E  D101      BNE         $ + 0x6  ; T=0x00000064
+ 00000060  F7FF      BL          stall_i  ; T=0x7FFFFFFF  (1)
+ 00000062  FFCD      BL          stall_i  ; T=0x7FFFFFFF  (2)
+ 00000068  2802      CMP         R0,#0x2
+ 0000006A  D100      BEQ         $+4
+ 0000006C  E0A3      B           L_124  ; T=0x000001B6
+ 00000070  2800      CMP         R0,#0x0
+ 00000072  D001      BEQ         $ + 0x6  ; T=0x00000078
+ 00000074  F7FF      BL          stall_i  ; T=0x7FFFFFFF  (1)
+ 00000076  FFC3      BL          stall_i  ; T=0x7FFFFFFF  (2)
+  426:         case REQUEST_STANDARD:
+ 0000007C          L_121:
+  427:           switch (SetupPacket.bRequest) {
+ 0000007C  4800      LDR         R0,=SetupPacket + 0x1 ; SetupPacket+1
+ 0000007E  7800      LDRB        R0,[R0,#0x0] ; SetupPacket+1
+ 00000080  2801      CMP         R0,#0x1
+ 00000082  D010      BEQ         L_128  ; T=0x000000A6
+ 00000084  2803      CMP         R0,#0x3
+ 00000086  D018      BEQ         L_129  ; T=0x000000BA
+ 00000088  2805      CMP         R0,#0x5
+ 0000008A  D020      BEQ         L_130  ; T=0x000000CE
+ 0000008C  2806      CMP         R0,#0x6
+ 0000008E  D032      BEQ         L_131  ; T=0x000000F6
+ 00000090  2807      CMP         R0,#0x7
+ 00000092  D037      BEQ         L_132  ; T=0x00000104
+ 00000094  2808      CMP         R0,#0x8
+ 00000096  D03C      BEQ         L_133  ; T=0x00000112
+ 00000098  2809      CMP         R0,#0x9
+ 0000009A  D048      BEQ         L_134  ; T=0x0000012E
+ 0000009C  280A      CMP         R0,#0xA
+ 0000009E  D059      BEQ         L_135  ; T=0x00000154
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 30  
+
+ 000000A0  280B      CMP         R0,#0xB
+ 000000A2  D077      BEQ         L_136  ; T=0x00000194
+ 000000A4  2800      CMP         R0,#0x0
+ 000000A6  D001      BEQ         $ + 0x6  ; T=0x000000AC
+ 000000A8  F7FF      BL          stall_i  ; T=0x7FFFFFFF  (1)
+ 000000AA  FFA9      BL          stall_i  ; T=0x7FFFFFFF  (2)
+  429:             case USB_REQUEST_GET_STATUS:
+ 000000B0          L_126:
+  430:               if (!USB_GetStatus()) {
+ 000000B0  F7FF      BL          USB_GetStatus?T  ; T=0x0001  (1)
+ 000000B2  FFA6      BL          USB_GetStatus?T  ; T=0x0001  (2)
+ 000000B4  2800      CMP         R0,#0x0 ; USB_GetStatus?T
+ 000000B6  D101      BNE         $ + 0x6  ; T=0x000000BC
+ 000000B8  F7FF      BL          stall_i  ; T=0x7FFFFFFF  (1)
+ 000000BA  FFA1      BL          stall_i  ; T=0x7FFFFFFF  (2)
+  433:               break;
+ 000000C0  E0D5      B           L_114  ; T=0x0000026E
+  435:             case USB_REQUEST_CLEAR_FEATURE:
+ 000000C2          L_128:
+  436:               if (!USB_SetClrFeature(0)) {
+ 000000C2  2000      MOV         R0,#0x0
+ 000000C4  F7FF      BL          USB_SetClrFeature?T  ; T=0x0001  (1)
+ 000000C6  FF9C      BL          USB_SetClrFeature?T  ; T=0x0001  (2)
+ 000000C8  2800      CMP         R0,#0x0 ; USB_SetClrFeature?T
+ 000000CA  D101      BNE         $ + 0x6  ; T=0x000000D0
+ 000000CC  F7FF      BL          stall_i  ; T=0x7FFFFFFF  (1)
+ 000000CE  FF97      BL          stall_i  ; T=0x7FFFFFFF  (2)
+  439:               USB_StatusInStage();
+ 000000D4  F7FF      BL          USB_StatusInStage?T  ; T=0x0001  (1)
+ 000000D6  FF94      BL          USB_StatusInStage?T  ; T=0x0001  (2)
+  443:               break;              
+ 000000D8  E0C9      B           L_114  ; T=0x0000026E
+  445:             case USB_REQUEST_SET_FEATURE:
+ 000000DA          L_129:
+  446:               if (!USB_SetClrFeature(1)) {
+ 000000DA  2001      MOV         R0,#0x1
+ 000000DC  F7FF      BL          USB_SetClrFeature?T  ; T=0x0001  (1)
+ 000000DE  FF90      BL          USB_SetClrFeature?T  ; T=0x0001  (2)
+ 000000E0  2800      CMP         R0,#0x0 ; USB_SetClrFeature?T
+ 000000E2  D101      BNE         $ + 0x6  ; T=0x000000E8
+ 000000E4  F7FF      BL          stall_i  ; T=0x7FFFFFFF  (1)
+ 000000E6  FF8B      BL          stall_i  ; T=0x7FFFFFFF  (2)
+  449:               USB_StatusInStage();
+ 000000EC  F7FF      BL          USB_StatusInStage?T  ; T=0x0001  (1)
+ 000000EE  FF88      BL          USB_StatusInStage?T  ; T=0x0001  (2)
+  453:               break;              
+ 000000F0  E0BD      B           L_114  ; T=0x0000026E
+  455:             case USB_REQUEST_SET_ADDRESS:
+ 000000F2          L_130:
+  456:               switch (SetupPacket.bmRequestType.BM.Recipient) {
+ 000000F2  4800      LDR         R0,=SetupPacket ; SetupPacket
+ 000000F4  7800      LDRB        R0,[R0,#0x0] ; SetupPacket
+ 000000F6  211F      MOV         R1,#0x1F
+ 000000F8  4008      AND         R0,R1
+ 000000FA  2800      CMP         R0,#0x0
+ 000000FC  D001      BEQ         $ + 0x6  ; T=0x00000102
+ 000000FE  F7FF      BL          stall_i  ; T=0x7FFFFFFF  (1)
+ 00000100  FF7E      BL          stall_i  ; T=0x7FFFFFFF  (2)
+  457:                 case REQUEST_TO_DEVICE:
+ 00000106          L_142:
+  458:                   USB_DeviceAddress = 0x80 | SetupPacket.wValue.WB.L;
+ 00000106  4800      LDR         R0,=SetupPacket + 0x2 ; SetupPacket+2
+ 00000108  7800      LDRB        R0,[R0,#0x0] ; SetupPacket+2
+ 0000010A  1C01      MOV         R1,R0
+ 0000010C  2080      MOV         R0,#0x80
+ 0000010E  4301      ORR         R1,R0
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 31  
+
+ 00000110  0609      LSL         R1,R1,#0x18
+ 00000112  0E09      LSR         R1,R1,#0x18
+ 00000114  4800      LDR         R0,=USB_DeviceAddress ; USB_DeviceAddress
+ 00000116  7001      STRB        R1,[R0,#0x0] ; USB_DeviceAddress
+  459:                   USB_StatusInStage();
+ 00000118  F7FF      BL          USB_StatusInStage?T  ; T=0x0001  (1)
+ 0000011A  FF72      BL          USB_StatusInStage?T  ; T=0x0001  (2)
+  460:                   break;
+ 0000011C  E0A7      B           L_114  ; T=0x0000026E
+  466:             case USB_REQUEST_GET_DESCRIPTOR:
+ 0000011E          L_131:
+  467:               if (!USB_GetDescriptor()) {
+ 0000011E  F7FF      BL          USB_GetDescriptor?T  ; T=0x0001  (1)
+ 00000120  FF6F      BL          USB_GetDescriptor?T  ; T=0x0001  (2)
+ 00000122  2800      CMP         R0,#0x0 ; USB_GetDescriptor?T
+ 00000124  D101      BNE         $ + 0x6  ; T=0x0000012A
+ 00000126  F7FF      BL          stall_i  ; T=0x7FFFFFFF  (1)
+ 00000128  FF6A      BL          stall_i  ; T=0x7FFFFFFF  (2)
+  470:               break;              
+ 0000012E  E09E      B           L_114  ; T=0x0000026E
+  472:             case USB_REQUEST_SET_DESCRIPTOR:
+ 00000130          L_132:
+  473: /*stall_o:*/  USB_SetStallEP(0x00);
+ 00000130  2000      MOV         R0,#0x0
+ 00000132  F7FF      BL          USB_SetStallEP?T  ; T=0x0001  (1)
+ 00000134  FF65      BL          USB_SetStallEP?T  ; T=0x0001  (2)
+  474:               EP0Data.Count = 0;
+ 00000136  2100      MOV         R1,#0x0
+ 00000138  4800      LDR         R0,=EP0Data + 0x4 ; EP0Data+4
+ 0000013A  8001      STRH        R1,[R0,#0x0] ; EP0Data+4
+  475:               break;
+ 0000013C  E097      B           L_114  ; T=0x0000026E
+  477:             case USB_REQUEST_GET_CONFIGURATION:
+ 0000013E          L_133:
+  478:               switch (SetupPacket.bmRequestType.BM.Recipient) {
+ 0000013E  4800      LDR         R0,=SetupPacket ; SetupPacket
+ 00000140  7800      LDRB        R0,[R0,#0x0] ; SetupPacket
+ 00000142  211F      MOV         R1,#0x1F
+ 00000144  4008      AND         R0,R1
+ 00000146  2800      CMP         R0,#0x0
+ 00000148  D001      BEQ         $ + 0x6  ; T=0x0000014E
+ 0000014A  F7FF      BL          stall_i  ; T=0x7FFFFFFF  (1)
+ 0000014C  FF58      BL          stall_i  ; T=0x7FFFFFFF  (2)
+  479:                 case REQUEST_TO_DEVICE:
+ 00000152          L_146:
+  480:                   EP0Data.pData = &USB_Configuration;
+ 00000152  4800      LDR         R1,=USB_Configuration ; USB_Configuration
+ 00000154  4800      LDR         R0,=EP0Data ; EP0Data
+ 00000156  6001      STR         R1,[R0,#0x0] ; EP0Data
+  481:                   USB_DataInStage();
+ 00000158  F7FF      BL          USB_DataInStage?T  ; T=0x0001  (1)
+ 0000015A  FF52      BL          USB_DataInStage?T  ; T=0x0001  (2)
+  482:                   break;
+ 0000015C  E087      B           L_114  ; T=0x0000026E
+  488:             case USB_REQUEST_SET_CONFIGURATION:
+ 0000015E          L_134:
+  489:               switch (SetupPacket.bmRequestType.BM.Recipient) {
+ 0000015E  4800      LDR         R0,=SetupPacket ; SetupPacket
+ 00000160  7800      LDRB        R0,[R0,#0x0] ; SetupPacket
+ 00000162  211F      MOV         R1,#0x1F
+ 00000164  4008      AND         R0,R1
+ 00000166  2800      CMP         R0,#0x0
+ 00000168  D001      BEQ         $ + 0x6  ; T=0x0000016E
+ 0000016A  F7FF      BL          stall_i  ; T=0x7FFFFFFF  (1)
+ 0000016C  FF48      BL          stall_i  ; T=0x7FFFFFFF  (2)
+  490:                 case REQUEST_TO_DEVICE:
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 32  
+
+ 00000172          L_149:
+  491:                   if (!USB_SetConfiguration()) {
+ 00000172  F7FF      BL          USB_SetConfiguration?T  ; T=0x0001  (1)
+ 00000174  FF45      BL          USB_SetConfiguration?T  ; T=0x0001  (2)
+ 00000176  2800      CMP         R0,#0x0 ; USB_SetConfiguration?T
+ 00000178  D101      BNE         $ + 0x6  ; T=0x0000017E
+ 0000017A  F7FF      BL          stall_i  ; T=0x7FFFFFFF  (1)
+ 0000017C  FF40      BL          stall_i  ; T=0x7FFFFFFF  (2)
+  494:                   USB_StatusInStage();
+ 00000182  F7FF      BL          USB_StatusInStage?T  ; T=0x0001  (1)
+ 00000184  FF3D      BL          USB_StatusInStage?T  ; T=0x0001  (2)
+  496:                   USB_Configure_Event();
+ 00000186  F7FF      BL          USB_Configure_Event?T  ; T=0x0001  (1)
+ 00000188  FF3B      BL          USB_Configure_Event?T  ; T=0x0001  (2)
+  498:                   break;
+ 0000018A  E070      B           L_114  ; T=0x0000026E
+  504:             case USB_REQUEST_GET_INTERFACE:
+ 0000018C          L_135:
+  505:               switch (SetupPacket.bmRequestType.BM.Recipient) {
+ 0000018C  4800      LDR         R0,=SetupPacket ; SetupPacket
+ 0000018E  7800      LDRB        R0,[R0,#0x0] ; SetupPacket
+ 00000190  211F      MOV         R1,#0x1F
+ 00000192  4008      AND         R0,R1
+ 00000194  2801      CMP         R0,#0x1
+ 00000196  D001      BEQ         $ + 0x6  ; T=0x0000019C
+ 00000198  F7FF      BL          stall_i  ; T=0x7FFFFFFF  (1)
+ 0000019A  FF31      BL          stall_i  ; T=0x7FFFFFFF  (2)
+  506:                 case REQUEST_TO_INTERFACE:
+ 000001A0          L_153:
+  507:                   if ((USB_Configuration != 0) && 
+ 000001A0  4800      LDR         R0,=USB_Configuration ; USB_Configuration
+ 000001A2  7800      LDRB        R0,[R0,#0x0] ; USB_Configuration
+ 000001A4  2800      CMP         R0,#0x0
+ 000001A6  D101      BNE         $ + 0x6  ; T=0x000001AC
+ 000001A8  F7FF      BL          stall_i  ; T=0x7FFFFFFF  (1)
+ 000001AA  FF29      BL          stall_i  ; T=0x7FFFFFFF  (2)
+ 000001B0  4800      LDR         R0,=USB_NumInterfaces ; USB_NumInterfaces
+ 000001B2  7800      LDRB        R0,[R0,#0x0] ; USB_NumInterfaces
+ 000001B4  1C01      MOV         R1,R0
+ 000001B6  4800      LDR         R0,=SetupPacket + 0x4 ; SetupPacket+4
+ 000001B8  7800      LDRB        R0,[R0,#0x0] ; SetupPacket+4
+ 000001BA  4288      CMP         R0,R1
+ 000001BC  D301      BCC         $ + 0x6  ; T=0x000001C2
+ 000001BE  F7FF      BL          stall_i  ; T=0x7FFFFFFF  (1)
+ 000001C0  FF1E      BL          stall_i  ; T=0x7FFFFFFF  (2)
+  509:                     EP0Data.pData = USB_AltSetting + SetupPacket.wIndex.WB.L;
+ 000001C6  4800      LDR         R0,=SetupPacket + 0x4 ; SetupPacket+4
+ 000001C8  7800      LDRB        R0,[R0,#0x0] ; SetupPacket+4
+ 000001CA  4800      LDR         R1,=USB_AltSetting ; USB_AltSetting
+ 000001CC  1809      ADD         R1,R0 ; USB_AltSetting
+ 000001CE  4800      LDR         R0,=EP0Data ; EP0Data
+ 000001D0  6001      STR         R1,[R0,#0x0] ; EP0Data
+  510:                     USB_DataInStage();
+ 000001D2  F7FF      BL          USB_DataInStage?T  ; T=0x0001  (1)
+ 000001D4  FF15      BL          USB_DataInStage?T  ; T=0x0001  (2)
+  511:                   } else {
+ 000001D6  E04A      B           L_114  ; T=0x0000026E
+  520:             case USB_REQUEST_SET_INTERFACE:
+ 000001D8          L_136:
+  521:               switch (SetupPacket.bmRequestType.BM.Recipient) {
+ 000001D8  4800      LDR         R0,=SetupPacket ; SetupPacket
+ 000001DA  7800      LDRB        R0,[R0,#0x0] ; SetupPacket
+ 000001DC  211F      MOV         R1,#0x1F
+ 000001DE  4008      AND         R0,R1
+ 000001E0  2801      CMP         R0,#0x1
+ 000001E2  D001      BEQ         $ + 0x6  ; T=0x000001E8
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 33  
+
+ 000001E4  F7FF      BL          stall_i  ; T=0x7FFFFFFF  (1)
+ 000001E6  FF0B      BL          stall_i  ; T=0x7FFFFFFF  (2)
+  522:                 case REQUEST_TO_INTERFACE:
+ 000001EC          L_158:
+  523:                   if (!USB_SetInterface()) {
+ 000001EC  F7FF      BL          USB_SetInterface?T  ; T=0x0001  (1)
+ 000001EE  FF08      BL          USB_SetInterface?T  ; T=0x0001  (2)
+ 000001F0  2800      CMP         R0,#0x0 ; USB_SetInterface?T
+ 000001F2  D101      BNE         $ + 0x6  ; T=0x000001F8
+ 000001F4  F7FF      BL          stall_i  ; T=0x7FFFFFFF  (1)
+ 000001F6  FF03      BL          stall_i  ; T=0x7FFFFFFF  (2)
+  526:                   USB_StatusInStage();
+ 000001FC  F7FF      BL          USB_StatusInStage?T  ; T=0x0001  (1)
+ 000001FE  FF00      BL          USB_StatusInStage?T  ; T=0x0001  (2)
+  530:                   break;
+ 00000200  E035      B           L_114  ; T=0x0000026E
+  554:         case REQUEST_VENDOR:
+ 00000202          L_124:
+  556:           UARTSettingCmd = SetupPacket.bRequest & 0xFF;
+ 00000202  4800      LDR         R0,=SetupPacket + 0x1 ; SetupPacket+1
+ 00000204  7800      LDRB        R0,[R0,#0x0] ; SetupPacket+1
+ 00000206  1C01      MOV         R1,R0
+ 00000208  20FF      MOV         R0,#0xFF
+ 0000020A  4001      AND         R1,R0
+ 0000020C  0609      LSL         R1,R1,#0x18
+ 0000020E  0E09      LSR         R1,R1,#0x18
+ 00000210  ---- Variable 'UARTSettingCmd' assigned to Register 'R1' ----
+  557:           UARTSettingData = SetupPacket.wValue.WB.L;
+ 00000210  4800      LDR         R0,=SetupPacket + 0x2 ; SetupPacket+2
+ 00000212  7802      LDRB        R2,[R0,#0x0] ; SetupPacket+2
+ 00000214  ---- Variable 'UARTSettingData' assigned to Register 'R2' ----
+  558:           if (!VCOM_SetSIOSetup( UARTSettingCmd, UARTSettingData )) {
+ 00000214  1C08      MOV         R0,R1 ; UARTSettingCmd
+ 00000216  0600      LSL         R0,R0,#0x18 ; UARTSettingCmd
+ 00000218  0E00      LSR         R0,R0,#0x18
+ 0000021A  1C11      MOV         R1,R2 ; UARTSettingData
+ 0000021C  0609      LSL         R1,R1,#0x18 ; UARTSettingData
+ 0000021E  0E09      LSR         R1,R1,#0x18
+ 00000220  F7FF      BL          VCOM_SetSIOSetup?T  ; T=0x0001  (1)
+ 00000222  FEEE      BL          VCOM_SetSIOSetup?T  ; T=0x0001  (2)
+ 00000224  2800      CMP         R0,#0x0 ; VCOM_SetSIOSetup?T
+ 00000226  D101      BNE         $ + 0x6  ; T=0x0000022C
+ 00000228  F7FF      BL          stall_i  ; T=0x7FFFFFFF  (1)
+ 0000022A  FEE9      BL          stall_i  ; T=0x7FFFFFFF  (2)
+  561:           USB_DataInStage();
+ 00000230  F7FF      BL          USB_DataInStage?T  ; T=0x0001  (1)
+ 00000232  FEE6      BL          USB_DataInStage?T  ; T=0x0001  (2)
+  563:         break;
+ 00000234  E01B      B           L_114  ; T=0x0000026E
+  566: stall_i:  USB_SetStallEP(0x80);
+ 00000236          stall_i:
+ 00000236  2080      MOV         R0,#0x80
+ 00000238  F7FF      BL          USB_SetStallEP?T  ; T=0x0001  (1)
+ 0000023A  FEE2      BL          USB_SetStallEP?T  ; T=0x0001  (2)
+  567:           EP0Data.Count = 0;
+ 0000023C  2100      MOV         R1,#0x0
+ 0000023E  4800      LDR         R0,=EP0Data + 0x4 ; EP0Data+4
+ 00000240  8001      STRH        R1,[R0,#0x0] ; EP0Data+4
+  571:       break;
+ 00000242  E014      B           L_114  ; T=0x0000026E
+  573:     case USB_EVT_OUT:
+ 00000244          L_116:
+  574:       if (SetupPacket.bmRequestType.BM.Dir == 0) {
+ 00000244  4800      LDR         R0,=SetupPacket ; SetupPacket
+ 00000246  7800      LDRB        R0,[R0,#0x0] ; SetupPacket
+ 00000248  09C0      LSR         R0,R0,#0x7
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 34  
+
+ 0000024A  2101      MOV         R1,#0x1
+ 0000024C  4008      AND         R0,R1
+ 0000024E  0600      LSL         R0,R0,#0x18
+ 00000250  0E00      LSR         R0,R0,#0x18
+ 00000252  2800      CMP         R0,#0x0
+ 00000254  D1E2      BNE         L_165  ; T=0x0000021C
+  575:         if (EP0Data.Count) {
+ 00000256  4800      LDR         R0,=EP0Data + 0x4 ; EP0Data+4
+ 00000258  8800      LDRH        R0,[R0,#0x0] ; EP0Data+4
+ 0000025A  2800      CMP         R0,#0x0
+ 0000025C  D007      BEQ         L_114  ; T=0x0000026E
+  576:           USB_DataOutStage();
+ 0000025E  F7FF      BL          USB_DataOutStage?T  ; T=0x0001  (1)
+ 00000260  FECF      BL          USB_DataOutStage?T  ; T=0x0001  (2)
+  577:           if (EP0Data.Count == 0) {
+ 00000262  4800      LDR         R0,=EP0Data + 0x4 ; EP0Data+4
+ 00000264  8800      LDRH        R0,[R0,#0x0] ; EP0Data+4
+ 00000266  2800      CMP         R0,#0x0
+ 00000268  D101      BNE         L_114  ; T=0x0000026E
+  580:                 goto stall_i;
+ 0000026A  E6C8      B           stall_i  ; T=0xFFFFFFFE
+  585:       } else {
+ 0000026C          L_165:
+  586:         USB_StatusOutStage();
+ 0000026C  F7FF      BL          USB_StatusOutStage?T  ; T=0x0001  (1)
+ 0000026E  FEC8      BL          USB_StatusOutStage?T  ; T=0x0001  (2)
+  588:       break;
+ 00000270  E7FD      B           L_114  ; T=0x0000026E
+  590:     case USB_EVT_IN:
+ 00000272          L_117:
+  591:       if (SetupPacket.bmRequestType.BM.Dir == 1) {
+ 00000272  4800      LDR         R0,=SetupPacket ; SetupPacket
+ 00000274  7800      LDRB        R0,[R0,#0x0] ; SetupPacket
+ 00000276  09C0      LSR         R0,R0,#0x7
+ 00000278  2101      MOV         R1,#0x1
+ 0000027A  4008      AND         R0,R1
+ 0000027C  0600      LSL         R0,R0,#0x18
+ 0000027E  0E00      LSR         R0,R0,#0x18
+ 00000280  2801      CMP         R0,#0x1
+ 00000282  D1DE      BNE         L_172  ; T=0x00000242
+  592:         if (EP0Data.Count) {
+ 00000284  4800      LDR         R0,=EP0Data + 0x4 ; EP0Data+4
+ 00000286  8800      LDRH        R0,[R0,#0x0] ; EP0Data+4
+ 00000288  2800      CMP         R0,#0x0
+ 0000028A  D0F0      BEQ         L_114  ; T=0x0000026E
+  593:           USB_DataInStage();
+ 0000028C  F7FF      BL          USB_DataInStage?T  ; T=0x0001  (1)
+ 0000028E  FEB8      BL          USB_DataInStage?T  ; T=0x0001  (2)
+  595:       } else {
+ 00000290  E7ED      B           L_114  ; T=0x0000026E
+ 00000292          L_172:
+  596:         if (USB_DeviceAddress & 0x80) {
+ 00000292  4800      LDR         R0,=USB_DeviceAddress ; USB_DeviceAddress
+ 00000294  7801      LDRB        R1,[R0,#0x0] ; USB_DeviceAddress
+ 00000296  1C08      MOV         R0,R1
+ 00000298  2280      MOV         R2,#0x80
+ 0000029A  4210      TST         R0,R2
+ 0000029C  D0E7      BEQ         L_114  ; T=0x0000026E
+  597:           USB_DeviceAddress &= 0x7F;
+ 0000029E  207F      MOV         R0,#0x7F
+ 000002A0  4001      AND         R1,R0
+ 000002A2  4800      LDR         R0,=USB_DeviceAddress ; USB_DeviceAddress
+ 000002A4  7001      STRB        R1,[R0,#0x0] ; USB_DeviceAddress
+  598:           USB_SetAddress(USB_DeviceAddress);
+ 000002A6  4800      LDR         R0,=USB_DeviceAddress ; USB_DeviceAddress
+ 000002A8  7800      LDRB        R0,[R0,#0x0] ; USB_DeviceAddress
+ARM COMPILER V2.53,  usbcore                                                               28/09/11  15:10:05  PAGE 35  
+
+ 000002AA  F7FF      BL          USB_SetAddress?T  ; T=0x0001  (1)
+ 000002AC  FEA9      BL          USB_SetAddress?T  ; T=0x0001  (2)
+  601:       break;
+ 000002AE  E7DE      B           L_114  ; T=0x0000026E
+  603:     case USB_EVT_IN_STALL:
+ 000002B0          L_119:
+  604:       USB_ClrStallEP(0x80);
+ 000002B0  2080      MOV         R0,#0x80
+ 000002B2  F7FF      BL          USB_ClrStallEP?T  ; T=0x0001  (1)
+ 000002B4  FEA5      BL          USB_ClrStallEP?T  ; T=0x0001  (2)
+  605:       break;
+ 000002B6  E7DA      B           L_114  ; T=0x0000026E
+  607:     case USB_EVT_OUT_STALL:
+ 000002B8          L_118:
+  608:       USB_ClrStallEP(0x00);
+ 000002B8  2000      MOV         R0,#0x0
+ 000002BA  F7FF      BL          USB_ClrStallEP?T  ; T=0x0001  (1)
+ 000002BC  FEA1      BL          USB_ClrStallEP?T  ; T=0x0001  (2)
+  611:   }
+ 000002BE          L_114:
+ 000002BE            ; SCOPE-END
+  612: }
+ 000002BE  BC08      POP         {R3}
+ 000002C0  4718      BX          R3
+ 000002C2          ENDP ; 'USB_EndPoint0?T'
+
+
+
+Module Information          Static
+----------------------------------
+  code size            =    ------
+  data size            =        97
+  const size           =    ------
+End of Module Information.
+
+
+ARM COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

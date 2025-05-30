@@ -1,0 +1,1547 @@
+ARM COMPILER V2.53,  usbhw                                                                 28/09/11  15:10:05  PAGE 1   
+
+
+ARM COMPILER V2.53, COMPILATION OF MODULE usbhw
+OBJECT MODULE PLACED IN .\Obj\usbhw.obj
+COMPILER INVOKED BY: C:\Keil\ARM\BIN\CA.exe usbhw.c THUMB DEFINE(MCB2140) DEBUG PRINT(.\LST\USBHW.LST) TABS(4) OBJECT(.\
+                    -Obj\usbhw.obj) 
+
+stmt  level    source
+
+    1          /*----------------------------------------------------------------------------
+    2           *      U S B  -  K e r n e l
+    3           *----------------------------------------------------------------------------
+    4           *      Name:    usbhw.c
+    5           *      Purpose: USB Hardware layer module file for Philips LPC214x Family 
+    6           *      Microprocessors
+    7           *      Version: V1.04
+    8           *----------------------------------------------------------------------------*/
+    9          #include <LPC214x.h>                        /* LPC214x definitions */
+   10          
+   11          #include "type.h"
+   12          #include "usb.h"
+   13          #include "usbcfg.h"
+   14          #include "usbreg.h"
+   15          #include "usbhw.h"
+   16          #include "usbcore.h"
+   17          #include "vcomuser.h"
+   18          
+   19          /*
+   20           *  Get Endpoint Address
+   21           *    Parameters:      EPNum: Endpoint Number
+   22           *                       EPNum.0..3: Address
+   23           *                       EPNum.7:    Dir
+   24           *    Return Value:    Endpoint Physical Address
+   25           */
+   26          
+   27          DWORD EPAdr (DWORD EPNum) {
+   28   1        DWORD val;
+   29   1      
+   30   1        val = (EPNum & 0x0F) << 1;
+   31   1        if (EPNum & 0x80) {
+   32   2          val += 1;
+   33   2        }
+   34   1        return (val);
+   35   1      }
+   36          
+   37          
+   38          /*
+   39           *  Write Command
+   40           *    Parameters:      cmd:   Command
+   41           *    Return Value:    None
+   42           */
+   43          
+   44          void WrCmd (DWORD cmd) {
+   45   1          
+   46   1        CMD_CODE = cmd;
+   47   1        while ((DEV_INT_STAT & CCEMTY_INT) == 0);    
+   48   1        DEV_INT_CLR = CCEMTY_INT;
+   49   1      }
+   50          
+   51          
+   52          /*
+   53           *  Write Command Data
+   54           *    Parameters:      cmd:   Command
+   55           *                     val:   Data
+   56           *    Return Value:    None
+   57           */
+   58          
+ARM COMPILER V2.53,  usbhw                                                                 28/09/11  15:10:05  PAGE 2   
+
+   59          void WrCmdDat (DWORD cmd, DWORD val) {
+   60   1          
+   61   1        CMD_CODE = cmd;
+   62   1        while ((DEV_INT_STAT & CCEMTY_INT) == 0);    
+   63   1        DEV_INT_CLR = CCEMTY_INT;
+   64   1        CMD_CODE = val;
+   65   1        while ((DEV_INT_STAT & CCEMTY_INT) == 0);    
+   66   1        DEV_INT_CLR = CCEMTY_INT;
+   67   1      }
+   68          
+   69          
+   70          /*
+   71           *  Read Command Data
+   72           *    Parameters:      cmd:   Command
+   73           *    Return Value:    Data Value
+   74           */
+   75          
+   76          DWORD RdCmdDat (DWORD cmd) {
+   77   1        DWORD val;
+   78   1      
+   79   1        DEV_INT_CLR = CDFULL_INT; 
+   80   1        CMD_CODE = cmd;
+   81   1        while ((DEV_INT_STAT & CCEMTY_INT) == 0);    
+   82   1        DEV_INT_CLR = CCEMTY_INT; 
+   83   1        while ((DEV_INT_STAT & CDFULL_INT) == 0);    
+   84   1        val = CMD_DATA;
+   85   1        DEV_INT_CLR = CDFULL_INT;
+   86   1        return (val);
+   87   1      }
+   88          
+   89          
+   90          /*
+   91           *  USB Initialize Function
+   92           *    Return Value:    None
+   93           */
+   94          
+   95          void USB_Init (void) {
+   96   1      
+   97   1        PINSEL1 &= ~0xC000C000;
+   98   1        PINSEL1 |=  0x80004000;                   /* Select USB Link, VBUS */
+   99   1        PCONP |= 0x80000000;                      /* Turn On USB PCLK */
+  100   1      
+  101   1        // Configure 48MHz USB Clock;  FOsc = 12MHz, M = 4, P = 2
+  102   1        PLL48CFG  = 0x23;                         /* M = 4, P = 2 */
+  103   1        PLL48CON  = PLLCON_PLLE;                  /* PLL Enable */
+  104   1        PLL48FEED = 0xAA;                         /* Feed Sequence 1 */
+  105   1        PLL48FEED = 0x55;                         /* Feed Sequence 2 */
+  106   1          
+  107   1        while ((PLL48STAT & PLLSTAT_PLOCK) == 0); /* Wait for PLL Lock */
+  108   1      
+  109   1        PLL48CON  = PLLCON_PLLE | PLLCON_PLLC;    /* PLL Enable & Connect */
+  110   1        PLL48FEED = 0xAA;                         /* Feed Sequence 1 */
+  111   1        PLL48FEED = 0x55;                         /* Feed Sequence 2 */
+  112   1      
+  113   1        VICVectAddr0 = (unsigned long)USB_ISR;    /* USB Interrupt -> Vector 0 */
+  114   1        VICVectCntl0 = 0x20 | 22;                 /* USB Interrupt -> IRQ Slot 0 */
+  115   1        VICIntEnable = 1 << 22;                   /* Enable USB Interrupt */
+  116   1      
+  117   1        DEV_INT_EN = DEV_STAT_INT;                /* Enable Device Status Interrupt */
+  118   1      
+  119   1      #if 1 /* Partial Manual Reset */
+  120   1        USB_Reset();
+  121   1        USB_SetAddress(0);
+  122   1      #endif
+  123   1      }
+  124          
+ARM COMPILER V2.53,  usbhw                                                                 28/09/11  15:10:05  PAGE 3   
+
+  125          
+  126          /*
+  127           *  USB Connect Function
+  128           *    Parameters:      con:   Connect/Disconnect
+  129           *    Return Value:    None
+  130           */
+  131          
+  132          void USB_Connect (BOOL con) {
+  133   1        WrCmdDat(CMD_SET_DEV_STAT, DAT_WR_BYTE(con ? DEV_CON : 0));
+  134   1      }
+  135          
+  136          
+  137          /*
+  138           *  USB Reset Function
+  139           *    Return Value:    None
+  140           */
+  141          
+  142          void USB_Reset (void) {
+  143   1      
+  144   1        EP_INDEX = 0;
+  145   1        MAXPACKET_SIZE = USB_MAX_PACKET0;
+  146   1        EP_INDEX = 1;
+  147   1        MAXPACKET_SIZE = USB_MAX_PACKET0;
+  148   1        while ((DEV_INT_STAT & EP_RLZED_INT) == 0);
+  149   1      
+  150   1        EP_INT_CLR  = 0xFFFFFFFF;
+  151   1        EP_INT_EN   = 0xFFFFFFFF;
+  152   1        DEV_INT_CLR = 0xFFFFFFFF;
+  153   1        DEV_INT_EN  = DEV_STAT_INT    | EP_SLOW_INT    | 
+  154   1                     (USB_SOF_EVENT   ? FRAME_INT : 0) |
+  155   1                     (USB_ERROR_EVENT ? ERR_INT   : 0);
+  156   1      }
+  157          
+  158          
+  159          /*
+  160           *  USB Suspend Function
+  161           *    Return Value:    None
+  162           */
+  163          
+  164          void USB_Suspend (void) {
+  165   1        // Performed by Hardware
+  166   1      }
+  167          
+  168          
+  169          /*
+  170           *  USB Resume Function
+  171           *    Return Value:    None
+  172           */
+  173          
+  174          void USB_Resume (void) {
+  175   1        // Performed by Hardware
+  176   1      }
+  177          
+  178          
+  179          /*
+  180           *  USB Remote Wakeup Function
+  181           *    Return Value:    None
+  182           */
+  183          
+  184          void USB_WakeUp (void) {
+  185   1      
+  186   1        if (USB_DeviceStatus & USB_GETSTATUS_REMOTE_WAKEUP) {
+  187   2          WrCmdDat(CMD_SET_DEV_STAT, DAT_WR_BYTE(DEV_CON));
+  188   2        }
+  189   1      }
+  190          
+ARM COMPILER V2.53,  usbhw                                                                 28/09/11  15:10:05  PAGE 4   
+
+  191          
+  192          /*
+  193           *  USB Remote Wakeup Configuration Function
+  194           *    Parameters:      cfg:   Enable/Disable
+  195           *    Return Value:    None
+  196           */
+  197          
+  198          void USB_WakeUpCfg (BOOL cfg) {
+  199   1        cfg;  // Not needed
+  200   1      }
+  201          
+  202          
+  203          /*
+  204           *  USB Set Address Function
+  205           *    Parameters:      adr:   USB Address
+  206           *    Return Value:    None
+  207           */
+  208          
+  209          void USB_SetAddress (BYTE adr) {
+  210   1        WrCmdDat(CMD_SET_ADDR, DAT_WR_BYTE(DEV_EN | adr)); /* Don't wait for next */
+  211   1        WrCmdDat(CMD_SET_ADDR, DAT_WR_BYTE(DEV_EN | adr)); /*  Setup Status Phase */
+  212   1      }
+  213          
+  214          
+  215          /*
+  216           *  USB Configure Function
+  217           *    Parameters:      cfg:   Configure/Deconfigure
+  218           *    Return Value:    None
+  219           */
+  220          
+  221          void USB_Configure (BOOL cfg) {
+  222   1      
+  223   1        WrCmdDat(CMD_CFG_DEV, DAT_WR_BYTE(cfg ? CONF_DVICE : 0));
+  224   1      
+  225   1        REALIZE_EP = 0x00000003;
+  226   1        while ((DEV_INT_STAT & EP_RLZED_INT) == 0);
+  227   1        DEV_INT_CLR = EP_RLZED_INT;
+  228   1      }
+  229          
+  230          
+  231          /*
+  232           *  Configure USB Endpoint
+  233           *    Parameters:      pEPD:  Pointer to Endpoint Descriptor
+  234           *    Return Value:    None
+  235           */
+  236          
+  237          void USB_ConfigEP (USB_ENDPOINT_DESCRIPTOR *pEPD) {
+  238   1        DWORD num;
+  239   1      
+  240   1        num = EPAdr(pEPD->bEndpointAddress);
+  241   1        REALIZE_EP |= (1 << num);
+  242   1        EP_INDEX = num;
+  243   1        MAXPACKET_SIZE = pEPD->wMaxPacketSize;
+  244   1        while ((DEV_INT_STAT & EP_RLZED_INT) == 0);
+  245   1        DEV_INT_CLR = EP_RLZED_INT;
+  246   1      }
+  247          
+  248          
+  249          /*
+  250           *  Set Direction for USB Control Endpoint
+  251           *    Parameters:      dir:   Out (dir == 0), In (dir <> 0)
+  252           *    Return Value:    None
+  253           */
+  254          
+  255          void USB_DirCtrlEP (BYTE dir) {
+  256   1        dir;  // Not needed
+ARM COMPILER V2.53,  usbhw                                                                 28/09/11  15:10:05  PAGE 5   
+
+  257   1      }
+  258          
+  259          
+  260          /*
+  261           *  Enable USB Endpoint
+  262           *    Parameters:      EPNum: Endpoint Number
+  263           *                       EPNum.0..3: Address
+  264           *                       EPNum.7:    Dir
+  265           *    Return Value:    None
+  266           */
+  267          
+  268          void USB_EnableEP (BYTE EPNum) {
+  269   1        WrCmdDat(CMD_SET_EP_STAT(EPAdr(EPNum)), DAT_WR_BYTE(0));
+  270   1      }
+  271          
+  272          
+  273          /*
+  274           *  Disable USB Endpoint
+  275           *    Parameters:      EPNum: Endpoint Number
+  276           *                       EPNum.0..3: Address
+  277           *                       EPNum.7:    Dir
+  278           *    Return Value:    None
+  279           */
+  280          
+  281          void USB_DisableEP (BYTE EPNum) {
+  282   1        WrCmdDat(CMD_SET_EP_STAT(EPAdr(EPNum)), DAT_WR_BYTE(EP_STAT_DA));
+  283   1      }
+  284          
+  285          
+  286          /*
+  287           *  Reset USB Endpoint
+  288           *    Parameters:      EPNum: Endpoint Number
+  289           *                       EPNum.0..3: Address
+  290           *                       EPNum.7:    Dir
+  291           *    Return Value:    None
+  292           */
+  293          
+  294          void USB_ResetEP (BYTE EPNum) {
+  295   1        WrCmdDat(CMD_SET_EP_STAT(EPAdr(EPNum)), DAT_WR_BYTE(0));
+  296   1      }
+  297          
+  298          
+  299          /*
+  300           *  Set Stall for USB Endpoint
+  301           *    Parameters:      EPNum: Endpoint Number
+  302           *                       EPNum.0..3: Address
+  303           *                       EPNum.7:    Dir
+  304           *    Return Value:    None
+  305           */
+  306          
+  307          void USB_SetStallEP (BYTE EPNum) {
+  308   1        WrCmdDat(CMD_SET_EP_STAT(EPAdr(EPNum)), DAT_WR_BYTE(EP_STAT_ST));
+  309   1      }
+  310          
+  311          
+  312          /*
+  313           *  Clear Stall for USB Endpoint
+  314           *    Parameters:      EPNum: Endpoint Number
+  315           *                       EPNum.0..3: Address
+  316           *                       EPNum.7:    Dir
+  317           *    Return Value:    None
+  318           */
+  319          
+  320          void USB_ClrStallEP (BYTE EPNum) {
+  321   1        WrCmdDat(CMD_SET_EP_STAT(EPAdr(EPNum)), DAT_WR_BYTE(0));
+  322   1      }
+ARM COMPILER V2.53,  usbhw                                                                 28/09/11  15:10:05  PAGE 6   
+
+  323          
+  324          
+  325          /*
+  326           *  Read USB Endpoint Data
+  327           *    Parameters:      EPNum: Endpoint Number
+  328           *                       EPNum.0..3: Address
+  329           *                       EPNum.7:    Dir
+  330           *                     pData: Pointer to Data Buffer
+  331           *    Return Value:    Number of bytes read
+  332           */
+  333          
+  334          DWORD USB_ReadEP (BYTE EPNum, BYTE *pData) {
+  335   1        DWORD cnt, n;
+  336   1      
+  337   1        USB_CTRL = ((EPNum & 0x0F) << 2) | CTRL_RD_EN;
+  338   1      
+  339   1        do {
+  340   2          cnt = RX_PLENGTH;
+  341   2        } while ((cnt & PKT_RDY) == 0);
+  342   1        cnt &= PKT_LNGTH_MASK;
+  343   1      
+  344   1        for (n = 0; n < (cnt + 3) / 4; n++) {
+  345   2          *((__packed DWORD *)pData) = RX_DATA;
+  346   2          pData += 4;
+  347   2        }
+  348   1      
+  349   1        USB_CTRL = 0;
+  350   1      
+  351   1        WrCmd(CMD_SEL_EP(EPAdr(EPNum)));
+  352   1        WrCmd(CMD_CLR_BUF);
+  353   1      
+  354   1        return (cnt);
+  355   1      }
+  356          
+  357          
+  358          /*
+  359           *  Write USB Endpoint Data
+  360           *    Parameters:      EPNum: Endpoint Number
+  361           *                       EPNum.0..3: Address
+  362           *                       EPNum.7:    Dir
+  363           *                     pData: Pointer to Data Buffer
+  364           *                     cnt:   Number of bytes to write
+  365           *    Return Value:    Number of bytes written
+  366           */
+  367          
+  368          DWORD USB_WriteEP (BYTE EPNum, BYTE *pData, DWORD cnt) {
+  369   1        DWORD n;
+  370   1      
+  371   1        USB_CTRL = ((EPNum & 0x0F) << 2) | CTRL_WR_EN;
+  372   1      
+  373   1        TX_PLENGTH = cnt;
+  374   1      
+  375   1        for (n = 0; n < (cnt + 3) / 4; n++) {
+  376   2          TX_DATA = *((__packed DWORD *)pData);
+  377   2          pData += 4;
+  378   2        }
+  379   1      
+  380   1        USB_CTRL = 0;
+  381   1      
+  382   1        WrCmd(CMD_SEL_EP(EPAdr(EPNum)));
+  383   1        WrCmd(CMD_VALID_BUF);
+  384   1      
+  385   1        return (cnt);
+  386   1      }
+  387          
+  388          
+ARM COMPILER V2.53,  usbhw                                                                 28/09/11  15:10:05  PAGE 7   
+
+  389          /*
+  390           *  USB Interrupt Service Routine
+  391           */
+  392          
+  393          void USB_ISR (void) __irq {
+  394   1        DWORD disr, eisr, val, n, m;
+  395   1      
+  396   1        disr = DEV_INT_STAT;                      /* Device Interrupt Status */
+  397   1          
+  398   1        // Device Status Interrupt (Reset, Suspend/Resume, Connect change)
+  399   1        if (disr & DEV_STAT_INT) {
+  400   2          WrCmd(CMD_GET_DEV_STAT);
+  401   2          val = RdCmdDat(DAT_GET_DEV_STAT);       /* Device Status */
+  402   2          if (val & DEV_RST) {                    /* Reset */
+  403   3            USB_Reset();
+  404   3      #if   USB_RESET_EVENT
+  405   3            USB_Reset_Event();
+  406   3      #endif
+  407   3            goto isr_end;
+  408   3          }
+  409   2          if (val & DEV_SUS_CH) {                 /* Suspend/Resume */
+  410   3            if (val & DEV_SUS) {                  /* Suspend */
+  411   4              USB_Suspend();
+  412   4      #if     USB_SUSPEND_EVENT
+                       USB_Suspend_Event();
+               #endif
+  415   4            } else {                              /* Resume */
+  416   4              USB_Resume();
+  417   4      #if     USB_RESUME_EVENT
+                       USB_Resume_Event();
+               #endif
+  420   4            }
+  421   3            goto isr_end;
+  422   3          }
+  423   2          if (val & DEV_CON_CH) {                 /* Connect change */
+  424   3      #if   USB_POWER_EVENT
+                     USB_Power_Event(val & DEV_CON);
+               #endif
+  427   3            goto isr_end;
+  428   3          }
+  429   2        }
+  430   1      
+  431   1      #if USB_SOF_EVENT
+                 // Start of Frame Interrupt
+                 if (disr & FRAME_INT) {
+                   WrCmd(CMD_RD_FRAME);
+                   val = RdCmdDat(DAT_RD_FRAME);
+                   val = val | (RdCmdDat(DAT_RD_FRAME) << 8);
+                   USB_SOF_Event(val);
+                 }
+               #endif
+  440   1      
+  441   1      #if USB_ERROR_EVENT
+                 // Error Interrupt
+                 if (disr & ERR_INT) {
+                   WrCmd(CMD_RD_ERR_STAT);
+                   val = RdCmdDat(DAT_RD_ERR_STAT);
+                   if        (val & 0x01) {
+                     val = USB_ERR_PID;
+                   } else if (val & 0x02) {
+                     val = 0x100;  // Unexpected Error
+                   } else if (val & 0x04) {
+                     val = USB_ERR_CRC;
+                   } else if (val & 0x08) {
+                     val = USB_ERR_TIMEOUT;
+                   } else if (val & 0x10) {
+ARM COMPILER V2.53,  usbhw                                                                 28/09/11  15:10:05  PAGE 8   
+
+                     val = USB_ERR_EOP;
+                   } else if (val & 0x20) {
+                     val = 0x101;  // Buffer Overrun
+                   } else if (val & 0x40) {
+                     val = USB_ERR_BIT_STUFF;
+                   } else if (val & 0x80) {
+                     val = USB_ERR_DATA_TOGGLE;
+                   }
+                   USB_Error_Event(val);
+                 }
+               #endif
+  466   1      
+  467   1        // Ednpoint's Slow Interrupt
+  468   1        if (disr & EP_SLOW_INT) {
+  469   2          
+  470   2          while ( eisr = EP_INT_STAT ) {           /* Endpoint Interrupt Status */
+  471   3            // Check All Endpoints
+  472   3            for (n = 0; n < USB_EP_NUM; n++) {
+  473   4              if (eisr & (1 << n)) {
+  474   5                m = n >> 1;
+  475   5                  
+  476   5                EP_INT_CLR = 1 << n;
+  477   5                while ((DEV_INT_STAT & CDFULL_INT) == 0);
+  478   5                val = CMD_DATA;
+  479   5                DEV_INT_CLR = CDFULL_INT;
+  480   5      
+  481   5                if ((n & 1) == 0) {
+  482   6                  // OUT Endpoint
+  483   6                  if (n == 0) {                     /* Control OUT Endpoint */
+  484   7                    if (val & EP_SEL_STP) {         /* Setup Packet */
+  485   8                      if (USB_P_EP[0]) {
+  486   9                        USB_P_EP[0](USB_EVT_SETUP);
+  487   9                        continue;
+  488   9                      }
+  489   8                    }
+  490   7                  }
+  491   6                  if (USB_P_EP[m]) {
+  492   7                    USB_P_EP[m](USB_EVT_OUT);
+  493   7                  }
+  494   6                } else {
+  495   6                  // IN Endpoint
+  496   6                  if (USB_P_EP[m]) {
+  497   7                    USB_P_EP[m](USB_EVT_IN);
+  498   7                  }
+  499   6                }
+  500   5              }
+  501   4            }
+  502   3          }
+  503   2        }
+  504   1      
+  505   1      isr_end:
+  506   1        DEV_INT_CLR = disr;
+  507   1        VICVectAddr = 0;                          /* Acknowledge Interrupt */
+  508   1      }
+ARM COMPILER V2.53,  usbhw                                                                 28/09/11  15:10:05  PAGE 9   
+
+ASSEMBLY LISTING OF GENERATED OBJECT CODE
+
+
+
+*** EXTERNALS:
+ EXTERN DATA (USB_DeviceStatus)
+ EXTERN CODE16 (USB_Reset_Event?T)
+ EXTERN DATA (USB_P_EP)
+ EXTERN CODE32 (USB_Reset_Event?A)
+
+
+
+*** PUBLICS:
+ PUBLIC         USB_Init?T
+ PUBLIC         USB_Connect?T
+ PUBLIC         USB_Reset?T
+ PUBLIC         USB_Reset?A
+ PUBLIC         USB_Suspend?T
+ PUBLIC         USB_Suspend?A
+ PUBLIC         USB_Resume?T
+ PUBLIC         USB_Resume?A
+ PUBLIC         USB_WakeUp?T
+ PUBLIC         USB_WakeUpCfg?T
+ PUBLIC         USB_SetAddress?T
+ PUBLIC         USB_Configure?T
+ PUBLIC         USB_ConfigEP?T
+ PUBLIC         USB_DirCtrlEP?T
+ PUBLIC         USB_EnableEP?T
+ PUBLIC         USB_DisableEP?T
+ PUBLIC         USB_ResetEP?T
+ PUBLIC         USB_SetStallEP?T
+ PUBLIC         USB_ClrStallEP?T
+ PUBLIC         USB_ReadEP?T
+ PUBLIC         USB_WriteEP?T
+ PUBLIC         USB_ISR?A
+ PUBLIC         EPAdr?T
+ PUBLIC         WrCmd?T
+ PUBLIC         WrCmd?A
+ PUBLIC         WrCmdDat?T
+ PUBLIC         RdCmdDat?T
+ PUBLIC         RdCmdDat?A
+
+
+
+*** CODE SEGMENT '?PR?EPAdr?T?usbhw':
+   27: DWORD EPAdr (DWORD EPNum) {
+ 00000000  1C03      MOV         R3,R0 ; EPNum
+ 00000002  ---- Variable 'EPNum' assigned to Register 'R3' ----
+ 00000002            ; SCOPE-START
+   30:   val = (EPNum & 0x0F) << 1;
+ 00000002  1C19      MOV         R1,R3 ; EPNum
+ 00000004  200F      MOV         R0,#0xF
+ 00000006  4001      AND         R1,R0
+ 00000008  0049      LSL         R1,R1,#0x1
+ 0000000A  ---- Variable 'val' assigned to Register 'R1' ----
+   31:   if (EPNum & 0x80) {
+ 0000000A  1C18      MOV         R0,R3 ; EPNum
+ 0000000C  2280      MOV         R2,#0x80
+ 0000000E  4210      TST         R0,R2 ; EPNum
+ 00000010  D000      BEQ         L_1  ; T=0x00000014
+   32:     val += 1;
+ 00000012  3101      ADD         R1,#0x1
+   33:   }
+ 00000014          L_1:
+   34:   return (val);
+ 00000014  1C08      MOV         R0,R1 ; val
+ 00000016            ; SCOPE-END
+   35: }
+ 00000016  4770      BX          R14
+ 00000018          ENDP ; 'EPAdr?T'
+
+
+*** CODE SEGMENT '?PR?WrCmd?T?usbhw':
+ARM COMPILER V2.53,  usbhw                                                                 28/09/11  15:10:05  PAGE 10  
+
+   44: void WrCmd (DWORD cmd) {
+ 00000000  ---- Variable 'cmd' assigned to Register 'R0' ----
+   46:   CMD_CODE = cmd;
+ 00000000  1C01      MOV         R1,R0 ; cmd
+ 00000002  4800      LDR         R0,=0xE0090010
+ 00000004  6001      STR         R1,[R0,#0x0]
+   47:   while ((DEV_INT_STAT & CCEMTY_INT) == 0);    
+ 00000006          L_3:
+ 00000006  4800      LDR         R0,=0xE0090000
+ 00000008  6800      LDR         R0,[R0,#0x0]
+ 0000000A  2110      MOV         R1,#0x10
+ 0000000C  4208      TST         R0,R1
+ 0000000E  D0FA      BEQ         L_3  ; T=0x00000006
+   48:   DEV_INT_CLR = CCEMTY_INT;
+ 00000010  4800      LDR         R0,=0xE0090008
+ 00000012  6001      STR         R1,[R0,#0x0]
+   49: }
+ 00000014  4770      BX          R14
+ 00000016          ENDP ; 'WrCmd?T'
+
+
+*** CODE SEGMENT '?PR?WrCmdDat?T?usbhw':
+   59: void WrCmdDat (DWORD cmd, DWORD val) {
+ 00000000  1C0A      MOV         R2,R1 ; val
+ 00000002  ---- Variable 'val' assigned to Register 'R2' ----
+ 00000002  ---- Variable 'cmd' assigned to Register 'R0' ----
+   61:   CMD_CODE = cmd;
+ 00000002  1C01      MOV         R1,R0 ; cmd
+ 00000004  4800      LDR         R0,=0xE0090010
+ 00000006  6001      STR         R1,[R0,#0x0]
+   62:   while ((DEV_INT_STAT & CCEMTY_INT) == 0);    
+ 00000008          L_7:
+ 00000008  4800      LDR         R0,=0xE0090000
+ 0000000A  6800      LDR         R0,[R0,#0x0]
+ 0000000C  2110      MOV         R1,#0x10
+ 0000000E  4208      TST         R0,R1
+ 00000010  D0FA      BEQ         L_7  ; T=0x00000008
+   63:   DEV_INT_CLR = CCEMTY_INT;
+ 00000012  4800      LDR         R0,=0xE0090008
+ 00000014  6001      STR         R1,[R0,#0x0]
+   64:   CMD_CODE = val;
+ 00000016  1C11      MOV         R1,R2 ; val
+ 00000018  4800      LDR         R0,=0xE0090010
+ 0000001A  6001      STR         R1,[R0,#0x0]
+   65:   while ((DEV_INT_STAT & CCEMTY_INT) == 0);    
+ 0000001C          L_11:
+ 0000001C  4800      LDR         R0,=0xE0090000
+ 0000001E  6800      LDR         R0,[R0,#0x0]
+ 00000020  2110      MOV         R1,#0x10
+ 00000022  4208      TST         R0,R1
+ 00000024  D0FA      BEQ         L_11  ; T=0x0000001C
+   66:   DEV_INT_CLR = CCEMTY_INT;
+ 00000026  4800      LDR         R0,=0xE0090008
+ 00000028  6001      STR         R1,[R0,#0x0]
+   67: }
+ 0000002A  4770      BX          R14
+ 0000002C          ENDP ; 'WrCmdDat?T'
+
+
+*** CODE SEGMENT '?PR?RdCmdDat?T?usbhw':
+   76: DWORD RdCmdDat (DWORD cmd) {
+ 00000000  ---- Variable 'cmd' assigned to Register 'R0' ----
+ 00000000            ; SCOPE-START
+   79:   DEV_INT_CLR = CDFULL_INT; 
+ 00000000  2220      MOV         R2,#0x20
+ 00000002  4800      LDR         R1,=0xE0090008
+ 00000004  600A      STR         R2,[R1,#0x0]
+   80:   CMD_CODE = cmd;
+ 00000006  1C01      MOV         R1,R0 ; cmd
+ 00000008  4800      LDR         R0,=0xE0090010
+ARM COMPILER V2.53,  usbhw                                                                 28/09/11  15:10:05  PAGE 11  
+
+ 0000000A  6001      STR         R1,[R0,#0x0]
+   81:   while ((DEV_INT_STAT & CCEMTY_INT) == 0);    
+ 0000000C          L_15:
+ 0000000C  4800      LDR         R0,=0xE0090000
+ 0000000E  6800      LDR         R0,[R0,#0x0]
+ 00000010  2110      MOV         R1,#0x10
+ 00000012  4208      TST         R0,R1
+ 00000014  D0FA      BEQ         L_15  ; T=0x0000000C
+   82:   DEV_INT_CLR = CCEMTY_INT; 
+ 00000016  4800      LDR         R0,=0xE0090008
+ 00000018  6001      STR         R1,[R0,#0x0]
+   83:   while ((DEV_INT_STAT & CDFULL_INT) == 0);    
+ 0000001A          L_19:
+ 0000001A  4800      LDR         R0,=0xE0090000
+ 0000001C  6800      LDR         R0,[R0,#0x0]
+ 0000001E  2220      MOV         R2,#0x20
+ 00000020  4210      TST         R0,R2
+ 00000022  D0FA      BEQ         L_19  ; T=0x0000001A
+   84:   val = CMD_DATA;
+ 00000024  4800      LDR         R0,=0xE0090014
+ 00000026  6801      LDR         R1,[R0,#0x0]
+ 00000028  ---- Variable 'val' assigned to Register 'R1' ----
+   85:   DEV_INT_CLR = CDFULL_INT;
+ 00000028  4800      LDR         R0,=0xE0090008
+ 0000002A  6002      STR         R2,[R0,#0x0]
+   86:   return (val);
+ 0000002C  1C08      MOV         R0,R1 ; val
+ 0000002E            ; SCOPE-END
+   87: }
+ 0000002E  4770      BX          R14
+ 00000030          ENDP ; 'RdCmdDat?T'
+
+
+*** CODE SEGMENT '?PR?USB_Init?T?usbhw':
+   95: void USB_Init (void) {
+ 00000000  B500      PUSH        {LR}
+   97:   PINSEL1 &= ~0xC000C000;
+ 00000002  4800      LDR         R2,=0x3FFF3FFF
+ 00000004  4800      LDR         R0,=0xE002C004
+ 00000006  6801      LDR         R1,[R0,#0x0]
+ 00000008  4011      AND         R1,R2
+ 0000000A  6001      STR         R1,[R0,#0x0]
+   98:   PINSEL1 |=  0x80004000;                   /* Select USB Link, VBUS */
+ 0000000C  4800      LDR         R2,=0x80004000
+ 0000000E  4800      LDR         R0,=0xE002C004
+ 00000010  6801      LDR         R1,[R0,#0x0]
+ 00000012  4311      ORR         R1,R2
+ 00000014  6001      STR         R1,[R0,#0x0]
+   99:   PCONP |= 0x80000000;                      /* Turn On USB PCLK */
+ 00000016  4800      LDR         R2,=0x80000000
+ 00000018  4800      LDR         R0,=0xE01FC0C4
+ 0000001A  6801      LDR         R1,[R0,#0x0]
+ 0000001C  4311      ORR         R1,R2
+ 0000001E  6001      STR         R1,[R0,#0x0]
+  102:   PLL48CFG  = 0x23;                         /* M = 4, P = 2 */
+ 00000020  2123      MOV         R1,#0x23
+ 00000022  4800      LDR         R0,=0xE01FC0A4
+ 00000024  6001      STR         R1,[R0,#0x0]
+  103:   PLL48CON  = PLLCON_PLLE;                  /* PLL Enable */
+ 00000026  2101      MOV         R1,#0x1
+ 00000028  4800      LDR         R0,=0xE01FC0A0
+ 0000002A  6001      STR         R1,[R0,#0x0]
+  104:   PLL48FEED = 0xAA;                         /* Feed Sequence 1 */
+ 0000002C  21AA      MOV         R1,#0xAA
+ 0000002E  4800      LDR         R0,=0xE01FC0AC
+ 00000030  6001      STR         R1,[R0,#0x0]
+  105:   PLL48FEED = 0x55;                         /* Feed Sequence 2 */
+ 00000032  2155      MOV         R1,#0x55
+ARM COMPILER V2.53,  usbhw                                                                 28/09/11  15:10:05  PAGE 12  
+
+ 00000034  4800      LDR         R0,=0xE01FC0AC
+ 00000036  6001      STR         R1,[R0,#0x0]
+  107:   while ((PLL48STAT & PLLSTAT_PLOCK) == 0); /* Wait for PLL Lock */
+ 00000038          L_24:
+ 00000038  4800      LDR         R0,=0xE01FC0A8
+ 0000003A  6800      LDR         R0,[R0,#0x0]
+ 0000003C  4800      LDR         R1,=0x400
+ 0000003E  4208      TST         R0,R1
+ 00000040  D0FA      BEQ         L_24  ; T=0x00000038
+  109:   PLL48CON  = PLLCON_PLLE | PLLCON_PLLC;    /* PLL Enable & Connect */
+ 00000042  2103      MOV         R1,#0x3
+ 00000044  4800      LDR         R0,=0xE01FC0A0
+ 00000046  6001      STR         R1,[R0,#0x0]
+  110:   PLL48FEED = 0xAA;                         /* Feed Sequence 1 */
+ 00000048  21AA      MOV         R1,#0xAA
+ 0000004A  4800      LDR         R0,=0xE01FC0AC
+ 0000004C  6001      STR         R1,[R0,#0x0]
+  111:   PLL48FEED = 0x55;                         /* Feed Sequence 2 */
+ 0000004E  2155      MOV         R1,#0x55
+ 00000050  4800      LDR         R0,=0xE01FC0AC
+ 00000052  6001      STR         R1,[R0,#0x0]
+  113:   VICVectAddr0 = (unsigned long)USB_ISR;    /* USB Interrupt -> Vector 0 */
+ 00000054  4900      LDR         R1,=USB_ISR?A ; USB_ISR?A
+ 00000056  4800      LDR         R0,=0xFFFFF100
+ 00000058  6001      STR         R1,[R0,#0x0]
+  114:   VICVectCntl0 = 0x20 | 22;                 /* USB Interrupt -> IRQ Slot 0 */
+ 0000005A  2136      MOV         R1,#0x36
+ 0000005C  4800      LDR         R0,=0xFFFFF200
+ 0000005E  6001      STR         R1,[R0,#0x0]
+  115:   VICIntEnable = 1 << 22;                   /* Enable USB Interrupt */
+ 00000060  4800      LDR         R1,=0x400000
+ 00000062  4800      LDR         R0,=0xFFFFF010
+ 00000064  6001      STR         R1,[R0,#0x0]
+  117:   DEV_INT_EN = DEV_STAT_INT;                /* Enable Device Status Interrupt */
+ 00000066  2108      MOV         R1,#0x8
+ 00000068  4800      LDR         R0,=0xE0090004
+ 0000006A  6001      STR         R1,[R0,#0x0]
+  120:   USB_Reset();
+ 0000006C  F7FF      BL          USB_Reset?T  ; T=0x0001  (1)
+ 0000006E  FFC8      BL          USB_Reset?T  ; T=0x0001  (2)
+  121:   USB_SetAddress(0);
+ 00000070  2000      MOV         R0,#0x0
+ 00000072  F7FF      BL          USB_SetAddress?T  ; T=0x0001  (1)
+ 00000074  FFC5      BL          USB_SetAddress?T  ; T=0x0001  (2)
+  123: }
+ 00000076  BC08      POP         {R3}
+ 00000078  4718      BX          R3
+ 0000007A          ENDP ; 'USB_Init?T'
+
+
+*** CODE SEGMENT '?PR?USB_Connect?T?usbhw':
+  132: void USB_Connect (BOOL con) {
+ 00000000  B500      PUSH        {LR}
+ 00000002  1C01      MOV         R1,R0 ; con
+ 00000004  ---- Variable 'con' assigned to Register 'R1' ----
+  133:   WrCmdDat(CMD_SET_DEV_STAT, DAT_WR_BYTE(con ? DEV_CON : 0));
+ 00000004  1C08      MOV         R0,R1 ; con
+ 00000006  2800      CMP         R0,#0x0 ; con
+ 00000008  D001      BEQ         L_28  ; T=0x0000000E
+ 0000000A  2101      MOV         R1,#0x1
+ 0000000C  E000      B           L_29  ; T=0x00000010
+ 0000000E          L_28:
+ 0000000E  2100      MOV         R1,#0x0
+ 00000010          L_29:
+ 00000010  0409      LSL         R1,R1,#0x10
+ 00000012  4840      LDR         R0,=0x100
+ 00000014  4301      ORR         R1,R0
+ 00000016  4800      LDR         R0,=0xFE0500
+ARM COMPILER V2.53,  usbhw                                                                 28/09/11  15:10:05  PAGE 13  
+
+ 00000018  F7FF      BL          WrCmdDat?T  ; T=0x0001  (1)
+ 0000001A  FFF2      BL          WrCmdDat?T  ; T=0x0001  (2)
+  134: }
+ 0000001C  BC08      POP         {R3}
+ 0000001E  4718      BX          R3
+ 00000020          ENDP ; 'USB_Connect?T'
+
+
+*** CODE SEGMENT '?PR?USB_Reset?T?usbhw':
+  144:   EP_INDEX = 0;
+ 00000000  2100      MOV         R1,#0x0
+ 00000002  4800      LDR         R0,=0xE0090048
+ 00000004  6001      STR         R1,[R0,#0x0]
+  145:   MAXPACKET_SIZE = USB_MAX_PACKET0;
+ 00000006  2140      MOV         R1,#0x40
+ 00000008  4800      LDR         R0,=0xE009004C
+ 0000000A  6001      STR         R1,[R0,#0x0]
+  146:   EP_INDEX = 1;
+ 0000000C  2201      MOV         R2,#0x1
+ 0000000E  4800      LDR         R0,=0xE0090048
+ 00000010  6002      STR         R2,[R0,#0x0]
+  147:   MAXPACKET_SIZE = USB_MAX_PACKET0;
+ 00000012  4800      LDR         R0,=0xE009004C
+ 00000014  6001      STR         R1,[R0,#0x0]
+  148:   while ((DEV_INT_STAT & EP_RLZED_INT) == 0);
+ 00000016          L_30:
+ 00000016  4800      LDR         R0,=0xE0090000
+ 00000018  6800      LDR         R0,[R0,#0x0]
+ 0000001A  4940      LDR         R1,=0x100
+ 0000001C  4208      TST         R0,R1
+ 0000001E  D0FA      BEQ         L_30  ; T=0x00000016
+  150:   EP_INT_CLR  = 0xFFFFFFFF;
+ 00000020  4800      LDR         R1,=0xFFFFFFFF
+ 00000022  4800      LDR         R0,=0xE0090038
+ 00000024  6001      STR         R1,[R0,#0x0]
+  151:   EP_INT_EN   = 0xFFFFFFFF;
+ 00000026  4800      LDR         R0,=0xE0090034
+ 00000028  6001      STR         R1,[R0,#0x0]
+  152:   DEV_INT_CLR = 0xFFFFFFFF;
+ 0000002A  4800      LDR         R0,=0xE0090008
+ 0000002C  6001      STR         R1,[R0,#0x0]
+  153:   DEV_INT_EN  = DEV_STAT_INT    | EP_SLOW_INT    | 
+ 0000002E  210C      MOV         R1,#0xC
+ 00000030  4800      LDR         R0,=0xE0090004
+ 00000032  6001      STR         R1,[R0,#0x0]
+  156: }
+ 00000034  4770      BX          R14
+ 00000036          ENDP ; 'USB_Reset?T'
+
+
+*** CODE SEGMENT '?PR?USB_Suspend?T?usbhw':
+  166: }
+ 00000000  4770      BX          R14
+ 00000002          ENDP ; 'USB_Suspend?T'
+
+
+*** CODE SEGMENT '?PR?USB_Resume?T?usbhw':
+  176: }
+ 00000000  4770      BX          R14
+ 00000002          ENDP ; 'USB_Resume?T'
+
+
+*** CODE SEGMENT '?PR?USB_WakeUp?T?usbhw':
+  184: void USB_WakeUp (void) {
+ 00000000  B500      PUSH        {LR}
+  186:   if (USB_DeviceStatus & USB_GETSTATUS_REMOTE_WAKEUP) {
+ 00000002  4800      LDR         R0,=USB_DeviceStatus ; USB_DeviceStatus
+ 00000004  8800      LDRH        R0,[R0,#0x0] ; USB_DeviceStatus
+ 00000006  2102      MOV         R1,#0x2
+ 00000008  4208      TST         R0,R1
+ 0000000A  D003      BEQ         L_34  ; T=0x00000014
+  187:     WrCmdDat(CMD_SET_DEV_STAT, DAT_WR_BYTE(DEV_CON));
+ 0000000C  4800      LDR         R0,=0xFE0500
+ 0000000E  4800      LDR         R1,=0x10100
+ARM COMPILER V2.53,  usbhw                                                                 28/09/11  15:10:05  PAGE 14  
+
+ 00000010  F7FF      BL          WrCmdDat?T  ; T=0x0001  (1)
+ 00000012  FFF6      BL          WrCmdDat?T  ; T=0x0001  (2)
+  188:   }
+ 00000014          L_34:
+  189: }
+ 00000014  BC08      POP         {R3}
+ 00000016  4718      BX          R3
+ 00000018          ENDP ; 'USB_WakeUp?T'
+
+
+*** CODE SEGMENT '?PR?USB_WakeUpCfg?T?usbhw':
+  200: }
+ 00000000  4770      BX          R14
+ 00000002          ENDP ; 'USB_WakeUpCfg?T'
+
+
+*** CODE SEGMENT '?PR?USB_SetAddress?T?usbhw':
+  209: void USB_SetAddress (BYTE adr) {
+ 00000000  B500      PUSH        {LR}
+ 00000002  1C03      MOV         R3,R0 ; adr
+ 00000004  ---- Variable 'adr' assigned to Register 'R3' ----
+  210:   WrCmdDat(CMD_SET_ADDR, DAT_WR_BYTE(DEV_EN | adr)); /* Don't wait for next */
+ 00000004  1C18      MOV         R0,R3 ; adr
+ 00000006  0601      LSL         R1,R0,#0x18 ; adr
+ 00000008  0E09      LSR         R1,R1,#0x18
+ 0000000A  2080      MOV         R0,#0x80
+ 0000000C  4301      ORR         R1,R0
+ 0000000E  0409      LSL         R1,R1,#0x10
+ 00000010  4840      LDR         R0,=0x100
+ 00000012  4301      ORR         R1,R0
+ 00000014  4800      LDR         R0,=0xD00500
+ 00000016  F7FF      BL          WrCmdDat?T  ; T=0x0001  (1)
+ 00000018  FFF3      BL          WrCmdDat?T  ; T=0x0001  (2)
+  211:   WrCmdDat(CMD_SET_ADDR, DAT_WR_BYTE(DEV_EN | adr)); /*  Setup Status Phase */
+ 0000001A  1C18      MOV         R0,R3 ; adr
+ 0000001C  0601      LSL         R1,R0,#0x18 ; adr
+ 0000001E  0E09      LSR         R1,R1,#0x18
+ 00000020  2080      MOV         R0,#0x80
+ 00000022  4301      ORR         R1,R0
+ 00000024  0409      LSL         R1,R1,#0x10
+ 00000026  4840      LDR         R0,=0x100
+ 00000028  4301      ORR         R1,R0
+ 0000002A  4800      LDR         R0,=0xD00500
+ 0000002C  F7FF      BL          WrCmdDat?T  ; T=0x0001  (1)
+ 0000002E  FFE8      BL          WrCmdDat?T  ; T=0x0001  (2)
+  212: }
+ 00000030  BC08      POP         {R3}
+ 00000032  4718      BX          R3
+ 00000034          ENDP ; 'USB_SetAddress?T'
+
+
+*** CODE SEGMENT '?PR?USB_Configure?T?usbhw':
+  221: void USB_Configure (BOOL cfg) {
+ 00000000  B500      PUSH        {LR}
+ 00000002  1C01      MOV         R1,R0 ; cfg
+ 00000004  ---- Variable 'cfg' assigned to Register 'R1' ----
+  223:   WrCmdDat(CMD_CFG_DEV, DAT_WR_BYTE(cfg ? CONF_DVICE : 0));
+ 00000004  1C08      MOV         R0,R1 ; cfg
+ 00000006  2800      CMP         R0,#0x0 ; cfg
+ 00000008  D001      BEQ         L_35  ; T=0x0000000E
+ 0000000A  2101      MOV         R1,#0x1
+ 0000000C  E000      B           L_36  ; T=0x00000010
+ 0000000E          L_35:
+ 0000000E  2100      MOV         R1,#0x0
+ 00000010          L_36:
+ 00000010  0409      LSL         R1,R1,#0x10
+ 00000012  4840      LDR         R0,=0x100
+ 00000014  4301      ORR         R1,R0
+ 00000016  4800      LDR         R0,=0xD80500
+ 00000018  F7FF      BL          WrCmdDat?T  ; T=0x0001  (1)
+ 0000001A  FFF2      BL          WrCmdDat?T  ; T=0x0001  (2)
+  225:   REALIZE_EP = 0x00000003;
+ARM COMPILER V2.53,  usbhw                                                                 28/09/11  15:10:05  PAGE 15  
+
+ 0000001C  2103      MOV         R1,#0x3
+ 0000001E  4800      LDR         R0,=0xE0090044
+ 00000020  6001      STR         R1,[R0,#0x0]
+  226:   while ((DEV_INT_STAT & EP_RLZED_INT) == 0);
+ 00000022          L_37:
+ 00000022  4800      LDR         R0,=0xE0090000
+ 00000024  6800      LDR         R0,[R0,#0x0]
+ 00000026  4940      LDR         R1,=0x100
+ 00000028  4208      TST         R0,R1
+ 0000002A  D0FA      BEQ         L_37  ; T=0x00000022
+  227:   DEV_INT_CLR = EP_RLZED_INT;
+ 0000002C  4800      LDR         R0,=0xE0090008
+ 0000002E  6001      STR         R1,[R0,#0x0]
+  228: }
+ 00000030  BC08      POP         {R3}
+ 00000032  4718      BX          R3
+ 00000034          ENDP ; 'USB_Configure?T'
+
+
+*** CODE SEGMENT '?PR?USB_ConfigEP?T?usbhw':
+  237: void USB_ConfigEP (USB_ENDPOINT_DESCRIPTOR *pEPD) {
+ 00000000  B510      PUSH        {R4,LR}
+ 00000002  1C04      MOV         R4,R0 ; pEPD
+ 00000004  ---- Variable 'pEPD' assigned to Register 'R4' ----
+ 00000004            ; SCOPE-START
+  240:   num = EPAdr(pEPD->bEndpointAddress);
+ 00000004  1C20      MOV         R0,R4 ; pEPD
+ 00000006  7880      LDRB        R0,[R0,#0x2]
+ 00000008  F7FF      BL          EPAdr?T  ; T=0x0001  (1)
+ 0000000A  FFFA      BL          EPAdr?T  ; T=0x0001  (2)
+ 0000000C  ---- Variable 'num' assigned to Register 'R0' ----
+  241:   REALIZE_EP |= (1 << num);
+ 0000000C  1C01      MOV         R1,R0 ; num
+ 0000000E  2301      MOV         R3,#0x1
+ 00000010  408B      LSL         R3,R1
+ 00000012  4800      LDR         R1,=0xE0090044
+ 00000014  680A      LDR         R2,[R1,#0x0]
+ 00000016  431A      ORR         R2,R3
+ 00000018  600A      STR         R2,[R1,#0x0]
+  242:   EP_INDEX = num;
+ 0000001A  1C01      MOV         R1,R0 ; num
+ 0000001C  4800      LDR         R0,=0xE0090048
+ 0000001E  6001      STR         R1,[R0,#0x0]
+  243:   MAXPACKET_SIZE = pEPD->wMaxPacketSize;
+ 00000020  1C21      MOV         R1,R4 ; pEPD
+ 00000022  3104      ADD         R1,#0x4
+ 00000024  7808      LDRB        R0,[R1,#0x0]
+ 00000026  784A      LDRB        R2,[R1,#0x1]
+ 00000028  0212      LSL         R2,R2,#0x8
+ 0000002A  4310      ORR         R0,R2
+ 0000002C  1C01      MOV         R1,R0
+ 0000002E  4800      LDR         R0,=0xE009004C
+ 00000030  6001      STR         R1,[R0,#0x0]
+  244:   while ((DEV_INT_STAT & EP_RLZED_INT) == 0);
+ 00000032          L_41:
+ 00000032  4800      LDR         R0,=0xE0090000
+ 00000034  6800      LDR         R0,[R0,#0x0]
+ 00000036  4940      LDR         R1,=0x100
+ 00000038  4208      TST         R0,R1
+ 0000003A  D0FA      BEQ         L_41  ; T=0x00000032
+  245:   DEV_INT_CLR = EP_RLZED_INT;
+ 0000003C  4800      LDR         R0,=0xE0090008
+ 0000003E  6001      STR         R1,[R0,#0x0]
+ 00000040            ; SCOPE-END
+  246: }
+ 00000040  BC10      POP         {R4}
+ 00000042  BC08      POP         {R3}
+ 00000044  4718      BX          R3
+ARM COMPILER V2.53,  usbhw                                                                 28/09/11  15:10:05  PAGE 16  
+
+ 00000046          ENDP ; 'USB_ConfigEP?T'
+
+
+*** CODE SEGMENT '?PR?USB_DirCtrlEP?T?usbhw':
+  257: }
+ 00000000  4770      BX          R14
+ 00000002          ENDP ; 'USB_DirCtrlEP?T'
+
+
+*** CODE SEGMENT '?PR?USB_EnableEP?T?usbhw':
+  268: void USB_EnableEP (BYTE EPNum) {
+ 00000000  B500      PUSH        {LR}
+ 00000002  1C01      MOV         R1,R0 ; EPNum
+ 00000004  ---- Variable 'EPNum' assigned to Register 'R1' ----
+  269:   WrCmdDat(CMD_SET_EP_STAT(EPAdr(EPNum)), DAT_WR_BYTE(0));
+ 00000004  1C08      MOV         R0,R1 ; EPNum
+ 00000006  0600      LSL         R0,R0,#0x18 ; EPNum
+ 00000008  0E00      LSR         R0,R0,#0x18
+ 0000000A  F7FF      BL          EPAdr?T  ; T=0x0001  (1)
+ 0000000C  FFF9      BL          EPAdr?T  ; T=0x0001  (2)
+ 0000000E  0400      LSL         R0,R0,#0x10 ; EPAdr?T
+ 00000010  4800      LDR         R1,=0x400500
+ 00000012  4308      ORR         R0,R1
+ 00000014  4940      LDR         R1,=0x100
+ 00000016  F7FF      BL          WrCmdDat?T  ; T=0x0001  (1)
+ 00000018  FFF3      BL          WrCmdDat?T  ; T=0x0001  (2)
+  270: }
+ 0000001A  BC08      POP         {R3}
+ 0000001C  4718      BX          R3
+ 0000001E          ENDP ; 'USB_EnableEP?T'
+
+
+*** CODE SEGMENT '?PR?USB_DisableEP?T?usbhw':
+  281: void USB_DisableEP (BYTE EPNum) {
+ 00000000  B500      PUSH        {LR}
+ 00000002  1C01      MOV         R1,R0 ; EPNum
+ 00000004  ---- Variable 'EPNum' assigned to Register 'R1' ----
+  282:   WrCmdDat(CMD_SET_EP_STAT(EPAdr(EPNum)), DAT_WR_BYTE(EP_STAT_DA));
+ 00000004  1C08      MOV         R0,R1 ; EPNum
+ 00000006  0600      LSL         R0,R0,#0x18 ; EPNum
+ 00000008  0E00      LSR         R0,R0,#0x18
+ 0000000A  F7FF      BL          EPAdr?T  ; T=0x0001  (1)
+ 0000000C  FFF9      BL          EPAdr?T  ; T=0x0001  (2)
+ 0000000E  0400      LSL         R0,R0,#0x10 ; EPAdr?T
+ 00000010  4800      LDR         R1,=0x400500
+ 00000012  4308      ORR         R0,R1
+ 00000014  4800      LDR         R1,=0x200100
+ 00000016  F7FF      BL          WrCmdDat?T  ; T=0x0001  (1)
+ 00000018  FFF3      BL          WrCmdDat?T  ; T=0x0001  (2)
+  283: }
+ 0000001A  BC08      POP         {R3}
+ 0000001C  4718      BX          R3
+ 0000001E          ENDP ; 'USB_DisableEP?T'
+
+
+*** CODE SEGMENT '?PR?USB_ResetEP?T?usbhw':
+  294: void USB_ResetEP (BYTE EPNum) {
+ 00000000  B500      PUSH        {LR}
+ 00000002  1C01      MOV         R1,R0 ; EPNum
+ 00000004  ---- Variable 'EPNum' assigned to Register 'R1' ----
+  295:   WrCmdDat(CMD_SET_EP_STAT(EPAdr(EPNum)), DAT_WR_BYTE(0));
+ 00000004  1C08      MOV         R0,R1 ; EPNum
+ 00000006  0600      LSL         R0,R0,#0x18 ; EPNum
+ 00000008  0E00      LSR         R0,R0,#0x18
+ 0000000A  F7FF      BL          EPAdr?T  ; T=0x0001  (1)
+ 0000000C  FFF9      BL          EPAdr?T  ; T=0x0001  (2)
+ 0000000E  0400      LSL         R0,R0,#0x10 ; EPAdr?T
+ 00000010  4800      LDR         R1,=0x400500
+ 00000012  4308      ORR         R0,R1
+ 00000014  4940      LDR         R1,=0x100
+ 00000016  F7FF      BL          WrCmdDat?T  ; T=0x0001  (1)
+ 00000018  FFF3      BL          WrCmdDat?T  ; T=0x0001  (2)
+  296: }
+ 0000001A  BC08      POP         {R3}
+ARM COMPILER V2.53,  usbhw                                                                 28/09/11  15:10:05  PAGE 17  
+
+ 0000001C  4718      BX          R3
+ 0000001E          ENDP ; 'USB_ResetEP?T'
+
+
+*** CODE SEGMENT '?PR?USB_SetStallEP?T?usbhw':
+  307: void USB_SetStallEP (BYTE EPNum) {
+ 00000000  B500      PUSH        {LR}
+ 00000002  1C01      MOV         R1,R0 ; EPNum
+ 00000004  ---- Variable 'EPNum' assigned to Register 'R1' ----
+  308:   WrCmdDat(CMD_SET_EP_STAT(EPAdr(EPNum)), DAT_WR_BYTE(EP_STAT_ST));
+ 00000004  1C08      MOV         R0,R1 ; EPNum
+ 00000006  0600      LSL         R0,R0,#0x18 ; EPNum
+ 00000008  0E00      LSR         R0,R0,#0x18
+ 0000000A  F7FF      BL          EPAdr?T  ; T=0x0001  (1)
+ 0000000C  FFF9      BL          EPAdr?T  ; T=0x0001  (2)
+ 0000000E  0400      LSL         R0,R0,#0x10 ; EPAdr?T
+ 00000010  4800      LDR         R1,=0x400500
+ 00000012  4308      ORR         R0,R1
+ 00000014  4800      LDR         R1,=0x10100
+ 00000016  F7FF      BL          WrCmdDat?T  ; T=0x0001  (1)
+ 00000018  FFF3      BL          WrCmdDat?T  ; T=0x0001  (2)
+  309: }
+ 0000001A  BC08      POP         {R3}
+ 0000001C  4718      BX          R3
+ 0000001E          ENDP ; 'USB_SetStallEP?T'
+
+
+*** CODE SEGMENT '?PR?USB_ClrStallEP?T?usbhw':
+  320: void USB_ClrStallEP (BYTE EPNum) {
+ 00000000  B500      PUSH        {LR}
+ 00000002  1C01      MOV         R1,R0 ; EPNum
+ 00000004  ---- Variable 'EPNum' assigned to Register 'R1' ----
+  321:   WrCmdDat(CMD_SET_EP_STAT(EPAdr(EPNum)), DAT_WR_BYTE(0));
+ 00000004  1C08      MOV         R0,R1 ; EPNum
+ 00000006  0600      LSL         R0,R0,#0x18 ; EPNum
+ 00000008  0E00      LSR         R0,R0,#0x18
+ 0000000A  F7FF      BL          EPAdr?T  ; T=0x0001  (1)
+ 0000000C  FFF9      BL          EPAdr?T  ; T=0x0001  (2)
+ 0000000E  0400      LSL         R0,R0,#0x10 ; EPAdr?T
+ 00000010  4800      LDR         R1,=0x400500
+ 00000012  4308      ORR         R0,R1
+ 00000014  4940      LDR         R1,=0x100
+ 00000016  F7FF      BL          WrCmdDat?T  ; T=0x0001  (1)
+ 00000018  FFF3      BL          WrCmdDat?T  ; T=0x0001  (2)
+  322: }
+ 0000001A  BC08      POP         {R3}
+ 0000001C  4718      BX          R3
+ 0000001E          ENDP ; 'USB_ClrStallEP?T'
+
+
+*** CODE SEGMENT '?PR?USB_ReadEP?T?usbhw':
+  334: DWORD USB_ReadEP (BYTE EPNum, BYTE *pData) {
+ 00000000  B570      PUSH        {R4-R6,LR}
+ 00000002  ---- Variable 'pData' assigned to Register 'R1' ----
+ 00000002  1C03      MOV         R3,R0 ; EPNum
+ 00000004  ---- Variable 'EPNum' assigned to Register 'R3' ----
+ 00000004            ; SCOPE-START
+  337:   USB_CTRL = ((EPNum & 0x0F) << 2) | CTRL_RD_EN;
+ 00000004  1C18      MOV         R0,R3 ; EPNum
+ 00000006  0602      LSL         R2,R0,#0x18 ; EPNum
+ 00000008  0E12      LSR         R2,R2,#0x18
+ 0000000A  200F      MOV         R0,#0xF
+ 0000000C  4002      AND         R2,R0
+ 0000000E  0092      LSL         R2,R2,#0x2
+ 00000010  2001      MOV         R0,#0x1
+ 00000012  4302      ORR         R2,R0
+ 00000014  4800      LDR         R0,=0xE0090028
+ 00000016  6002      STR         R2,[R0,#0x0]
+  339:   do {
+ 00000018          L_45:
+  340:     cnt = RX_PLENGTH;
+ 00000018  4800      LDR         R0,=0xE0090020
+ARM COMPILER V2.53,  usbhw                                                                 28/09/11  15:10:05  PAGE 18  
+
+ 0000001A  6804      LDR         R4,[R0,#0x0]
+ 0000001C  ---- Variable 'cnt' assigned to Register 'R4' ----
+  341:   } while ((cnt & PKT_RDY) == 0);
+ 0000001C  1C20      MOV         R0,R4 ; cnt
+ 0000001E  4800      LDR         R2,=0x800
+ 00000020  4210      TST         R0,R2 ; cnt
+ 00000022  D0F9      BEQ         L_45  ; T=0x00000018
+  342:   cnt &= PKT_LNGTH_MASK;
+ 00000024  4800      LDR         R0,=0x3FF
+ 00000026  4004      AND         R4,R0
+  344:   for (n = 0; n < (cnt + 3) / 4; n++) {
+ 00000028  2000      MOV         R0,#0x0
+ 0000002A  ---- Variable 'n' assigned to Register 'R0' ----
+ 0000002A  E00B      B           L_51  ; T=0x00000044
+ 0000002C          L_52:
+  345:     *((__packed DWORD *)pData) = RX_DATA;
+ 0000002C  4800      LDR         R2,=0xE0090018
+ 0000002E  6816      LDR         R6,[R2,#0x0]
+ 00000030  1C0D      MOV         R5,R1 ; pData
+ 00000032  702E      STRB        R6,[R5,#0x0] ; pData
+ 00000034  0A36      LSR         R6,R6,#0x8
+ 00000036  706E      STRB        R6,[R5,#0x1] ; pData
+ 00000038  0A36      LSR         R6,R6,#0x8
+ 0000003A  70AE      STRB        R6,[R5,#0x2] ; pData
+ 0000003C  0A36      LSR         R6,R6,#0x8
+ 0000003E  70EE      STRB        R6,[R5,#0x3] ; pData
+  346:     pData += 4;
+ 00000040  3104      ADD         R1,#0x4
+  347:   }
+ 00000042  3001      ADD         R0,#0x1
+ 00000044          L_51:
+ 00000044  1C25      MOV         R5,R4 ; cnt
+ 00000046  3503      ADD         R5,#0x3
+ 00000048  08AD      LSR         R5,R5,#0x2
+ 0000004A  1C02      MOV         R2,R0 ; n
+ 0000004C  42AA      CMP         R2,R5 ; n
+ 0000004E  D3ED      BCC         L_52  ; T=0x0000002C
+  349:   USB_CTRL = 0;
+ 00000050  2100      MOV         R1,#0x0
+ 00000052  4800      LDR         R0,=0xE0090028
+ 00000054  6001      STR         R1,[R0,#0x0]
+  351:   WrCmd(CMD_SEL_EP(EPAdr(EPNum)));
+ 00000056  1C18      MOV         R0,R3 ; EPNum
+ 00000058  0600      LSL         R0,R0,#0x18 ; EPNum
+ 0000005A  0E00      LSR         R0,R0,#0x18
+ 0000005C  F7FF      BL          EPAdr?T  ; T=0x0001  (1)
+ 0000005E  FFD0      BL          EPAdr?T  ; T=0x0001  (2)
+ 00000060  0400      LSL         R0,R0,#0x10 ; EPAdr?T
+ 00000062  4800      LDR         R1,=0x500
+ 00000064  4308      ORR         R0,R1
+ 00000066  F7FF      BL          WrCmd?T  ; T=0x0001  (1)
+ 00000068  FFCB      BL          WrCmd?T  ; T=0x0001  (2)
+  352:   WrCmd(CMD_CLR_BUF);
+ 0000006A  4800      LDR         R0,=0xF20500
+ 0000006C  F7FF      BL          WrCmd?T  ; T=0x0001  (1)
+ 0000006E  FFC8      BL          WrCmd?T  ; T=0x0001  (2)
+  354:   return (cnt);
+ 00000070  1C20      MOV         R0,R4 ; cnt
+ 00000072            ; SCOPE-END
+  355: }
+ 00000072  BC70      POP         {R4-R6}
+ 00000074  BC08      POP         {R3}
+ 00000076  4718      BX          R3
+ 00000078          ENDP ; 'USB_ReadEP?T'
+
+
+*** CODE SEGMENT '?PR?USB_WriteEP?T?usbhw':
+  368: DWORD USB_WriteEP (BYTE EPNum, BYTE *pData, DWORD cnt) {
+ARM COMPILER V2.53,  usbhw                                                                 28/09/11  15:10:05  PAGE 19  
+
+ 00000000  B570      PUSH        {R4-R6,LR}
+ 00000002  1C14      MOV         R4,R2 ; cnt
+ 00000004  ---- Variable 'cnt' assigned to Register 'R4' ----
+ 00000004  ---- Variable 'pData' assigned to Register 'R1' ----
+ 00000004  1C03      MOV         R3,R0 ; EPNum
+ 00000006  ---- Variable 'EPNum' assigned to Register 'R3' ----
+ 00000006            ; SCOPE-START
+  371:   USB_CTRL = ((EPNum & 0x0F) << 2) | CTRL_WR_EN;
+ 00000006  1C18      MOV         R0,R3 ; EPNum
+ 00000008  0602      LSL         R2,R0,#0x18 ; EPNum
+ 0000000A  0E12      LSR         R2,R2,#0x18
+ 0000000C  200F      MOV         R0,#0xF
+ 0000000E  4002      AND         R2,R0
+ 00000010  0092      LSL         R2,R2,#0x2
+ 00000012  2002      MOV         R0,#0x2
+ 00000014  4302      ORR         R2,R0
+ 00000016  4800      LDR         R0,=0xE0090028
+ 00000018  6002      STR         R2,[R0,#0x0]
+  373:   TX_PLENGTH = cnt;
+ 0000001A  1C22      MOV         R2,R4 ; cnt
+ 0000001C  4800      LDR         R0,=0xE0090024
+ 0000001E  6002      STR         R2,[R0,#0x0]
+  375:   for (n = 0; n < (cnt + 3) / 4; n++) {
+ 00000020  2500      MOV         R5,#0x0
+ 00000022  ---- Variable 'n' assigned to Register 'R5' ----
+ 00000022  E00E      B           L_57  ; T=0x00000042
+ 00000024          L_58:
+  376:     TX_DATA = *((__packed DWORD *)pData);
+ 00000024  1C0E      MOV         R6,R1 ; pData
+ 00000026  7832      LDRB        R2,[R6,#0x0] ; pData
+ 00000028  7870      LDRB        R0,[R6,#0x1] ; pData
+ 0000002A  0200      LSL         R0,R0,#0x8
+ 0000002C  4302      ORR         R2,R0
+ 0000002E  78B0      LDRB        R0,[R6,#0x2] ; pData
+ 00000030  0400      LSL         R0,R0,#0x10
+ 00000032  4302      ORR         R2,R0
+ 00000034  78F0      LDRB        R0,[R6,#0x3] ; pData
+ 00000036  0600      LSL         R0,R0,#0x18
+ 00000038  4302      ORR         R2,R0
+ 0000003A  4800      LDR         R0,=0xE009001C
+ 0000003C  6002      STR         R2,[R0,#0x0]
+  377:     pData += 4;
+ 0000003E  3104      ADD         R1,#0x4
+  378:   }
+ 00000040  3501      ADD         R5,#0x1
+ 00000042          L_57:
+ 00000042  1C22      MOV         R2,R4 ; cnt
+ 00000044  3203      ADD         R2,#0x3
+ 00000046  0892      LSR         R2,R2,#0x2
+ 00000048  1C28      MOV         R0,R5 ; n
+ 0000004A  4290      CMP         R0,R2 ; n
+ 0000004C  D3EA      BCC         L_58  ; T=0x00000024
+  380:   USB_CTRL = 0;
+ 0000004E  2100      MOV         R1,#0x0
+ 00000050  4800      LDR         R0,=0xE0090028
+ 00000052  6001      STR         R1,[R0,#0x0]
+  382:   WrCmd(CMD_SEL_EP(EPAdr(EPNum)));
+ 00000054  1C18      MOV         R0,R3 ; EPNum
+ 00000056  0600      LSL         R0,R0,#0x18 ; EPNum
+ 00000058  0E00      LSR         R0,R0,#0x18
+ 0000005A  F7FF      BL          EPAdr?T  ; T=0x0001  (1)
+ 0000005C  FFD1      BL          EPAdr?T  ; T=0x0001  (2)
+ 0000005E  0400      LSL         R0,R0,#0x10 ; EPAdr?T
+ 00000060  4800      LDR         R1,=0x500
+ 00000062  4308      ORR         R0,R1
+ 00000064  F7FF      BL          WrCmd?T  ; T=0x0001  (1)
+ARM COMPILER V2.53,  usbhw                                                                 28/09/11  15:10:05  PAGE 20  
+
+ 00000066  FFCC      BL          WrCmd?T  ; T=0x0001  (2)
+  383:   WrCmd(CMD_VALID_BUF);
+ 00000068  4800      LDR         R0,=0xFA0500
+ 0000006A  F7FF      BL          WrCmd?T  ; T=0x0001  (1)
+ 0000006C  FFC9      BL          WrCmd?T  ; T=0x0001  (2)
+  385:   return (cnt);
+ 0000006E  1C20      MOV         R0,R4 ; cnt
+ 00000070            ; SCOPE-END
+  386: }
+ 00000070  BC70      POP         {R4-R6}
+ 00000072  BC08      POP         {R3}
+ 00000074  4718      BX          R3
+ 00000076          ENDP ; 'USB_WriteEP?T'
+
+
+*** CODE SEGMENT '?PR?USB_ISR?A?usbhw':
+  393: void USB_ISR (void) __irq {
+ 00000000  E92D5FFF  STMDB       R13!,{R0-R12,LR}
+ 00000004  E24DD004  SUB         R13,R13,#0x0004
+ 00000008  ---- Variable 'val' assigned to Register 'R4' ----
+ 00000008            ; SCOPE-START
+  396:   disr = DEV_INT_STAT;                      /* Device Interrupt Status */
+ 00000008  E5100000  LDR         R0,=0xE0090000
+ 0000000C  E5905000  LDR         R5,[R0,#0x0]
+ 00000010  ---- Variable 'disr' assigned to Register 'R5' ----
+  399:   if (disr & DEV_STAT_INT) {
+ 00000010  E1A00005  MOV         R0,R5 ; disr
+ 00000014  E3100008  TST         R0,#0x0008 ; disr
+ 00000018  0A000017  BEQ         L_61  ; Targ=0x7C
+  400:     WrCmd(CMD_GET_DEV_STAT);
+ 0000001C  E5100000  LDR         R0,=0xFE0500
+ 00000020  EBFFFFF6  BL          WrCmd?A  ; Targ=0x0
+  401:     val = RdCmdDat(DAT_GET_DEV_STAT);       /* Device Status */
+ 00000024  E5100000  LDR         R0,=0xFE0200
+ 00000028  EBFFFFF4  BL          RdCmdDat?A  ; Targ=0x0
+ 0000002C  E1A04000  MOV         R4,R0 ; val
+  402:     if (val & DEV_RST) {                    /* Reset */
+ 00000030  E1A00004  MOV         R0,R4 ; val
+ 00000034  E3100010  TST         R0,#0x0010 ; val
+ 00000038  0A000002  BEQ         L_62  ; Targ=0x48
+  403:       USB_Reset();
+ 0000003C  EBFFFFEF  BL          USB_Reset?A  ; Targ=0x0
+  405:       USB_Reset_Event();
+ 00000040  EBFFFFEE  BL          USB_Reset_Event?A  ; Targ=0x0
+  407:       goto isr_end;
+ 00000044  EAFFFFEC  B           isr_end  ; Targ=0xFFFFFFFC
+  408:     }
+ 00000048          L_62:
+  409:     if (val & DEV_SUS_CH) {                 /* Suspend/Resume */
+ 00000048  E1A00004  MOV         R0,R4 ; val
+ 0000004C  E3100008  TST         R0,#0x0008 ; val
+ 00000050  0A000006  BEQ         L_64  ; Targ=0x70
+  410:       if (val & DEV_SUS) {                  /* Suspend */
+ 00000054  E1A00004  MOV         R0,R4 ; val
+ 00000058  E3100004  TST         R0,#0x0004 ; val
+ 0000005C  0A000001  BEQ         L_65  ; Targ=0x68
+  411:         USB_Suspend();
+ 00000060  EBFFFFE6  BL          USB_Suspend?A  ; Targ=0x0
+  415:       } else {                              /* Resume */
+ 00000064  EAFFFFE4  B           isr_end  ; Targ=0xFFFFFFFC
+ 00000068          L_65:
+  416:         USB_Resume();
+ 00000068  EBFFFFE4  BL          USB_Resume?A  ; Targ=0x0
+  421:       goto isr_end;
+ 0000006C  EAFFFFE2  B           isr_end  ; Targ=0xFFFFFFFC
+  422:     }
+ 00000070          L_64:
+  423:     if (val & DEV_CON_CH) {                 /* Connect change */
+ARM COMPILER V2.53,  usbhw                                                                 28/09/11  15:10:05  PAGE 21  
+
+ 00000070  E1A00004  MOV         R0,R4 ; val
+ 00000074  E3100002  TST         R0,#0x0002 ; val
+ 00000078  1AFFFFDF  BNE         isr_end  ; Targ=0xFFFFFFFC
+  429:   }
+ 0000007C          L_61:
+  468:   if (disr & EP_SLOW_INT) {
+ 0000007C  E1A00005  MOV         R0,R5 ; disr
+ 00000080  E3100004  TST         R0,#0x0004 ; disr
+ 00000084  0AFFFFDC  BEQ         isr_end  ; Targ=0xFFFFFFFC
+  470:     while ( eisr = EP_INT_STAT ) {           /* Endpoint Interrupt Status */
+ 00000088  EA000045  B           L_69  ; Targ=0x1A4
+  472:       for (n = 0; n < USB_EP_NUM; n++) {
+ 0000008C          L_77:
+ 0000008C  E3A06000  MOV         R6,#0x0
+ 00000090  ---- Variable 'n' assigned to Register 'R6' ----
+ 00000090          L_76:
+  473:         if (eisr & (1 << n)) {
+ 00000090  E1A00006  MOV         R0,R6 ; n
+ 00000094  E3A01001  MOV         R1,#0x1
+ 00000098  E1A01011  MOV         R1,R1,LSL R0
+ 0000009C  E59D0000  LDR         R0,[R13,#0x0] ; eisr
+ 000000A0  E0000001  AND         R0,R0,R1
+ 000000A4  E3500000  CMP         R0,#0x0000
+ 000000A8  0A000039  BEQ         L_73  ; Targ=0x194
+  474:           m = n >> 1;
+ 000000AC  E1A07006  MOV         R7,R6 ; n
+ 000000B0  E1A070A7  MOV         R7,R7,LSR #1 ; n
+ 000000B4  ---- Variable 'm' assigned to Register 'R7' ----
+  476:           EP_INT_CLR = 1 << n;
+ 000000B4  E1A00006  MOV         R0,R6 ; n
+ 000000B8  E3A01001  MOV         R1,#0x1
+ 000000BC  E1A01011  MOV         R1,R1,LSL R0
+ 000000C0  E5100000  LDR         R0,=0xE0090038
+ 000000C4  E5801000  STR         R1,[R0,#0x0]
+  477:           while ((DEV_INT_STAT & CDFULL_INT) == 0);
+ 000000C8          L_79:
+ 000000C8  E5100000  LDR         R0,=0xE0090000
+ 000000CC  E5900000  LDR         R0,[R0,#0x0]
+ 000000D0  E3100020  TST         R0,#0x0020
+ 000000D4  0AFFFFFB  BEQ         L_79  ; Targ=0xC8
+  478:           val = CMD_DATA;
+ 000000D8  E5100000  LDR         R0,=0xE0090014
+ 000000DC  E5904000  LDR         R4,[R0,#0x0]
+  479:           DEV_INT_CLR = CDFULL_INT;
+ 000000E0  E3A01020  MOV         R1,#0x20
+ 000000E4  E5100000  LDR         R0,=0xE0090008
+ 000000E8  E5801000  STR         R1,[R0,#0x0]
+  481:           if ((n & 1) == 0) {
+ 000000EC  E1A00006  MOV         R0,R6 ; n
+ 000000F0  E3100001  TST         R0,#0x0001 ; n
+ 000000F4  1A00001B  BNE         L_83  ; Targ=0x168
+  483:             if (n == 0) {                     /* Control OUT Endpoint */
+ 000000F8  E1A00006  MOV         R0,R6 ; n
+ 000000FC  E3500000  CMP         R0,#0x0000 ; n
+ 00000100  1A00000C  BNE         L_84  ; Targ=0x138
+  484:               if (val & EP_SEL_STP) {         /* Setup Packet */
+ 00000104  E1A00004  MOV         R0,R4 ; val
+ 00000108  E3100004  TST         R0,#0x0004 ; val
+ 0000010C  0A000009  BEQ         L_84  ; Targ=0x138
+  485:                 if (USB_P_EP[0]) {
+ 00000110  E5100000  LDR         R0,=USB_P_EP ; USB_P_EP
+ 00000114  E5900000  LDR         R0,[R0,#0x0] ; USB_P_EP
+ 00000118  E3500000  CMP         R0,#0x0000
+ 0000011C  0A000005  BEQ         L_84  ; Targ=0x138
+  486:                   USB_P_EP[0](USB_EVT_SETUP);
+ 00000120  E3A00001  MOV         R0,#0x1
+ARM COMPILER V2.53,  usbhw                                                                 28/09/11  15:10:05  PAGE 22  
+
+ 00000124  E5101000  LDR         R1,=USB_P_EP ; USB_P_EP
+ 00000128  E5911000  LDR         R1,[R1,#0x0] ; USB_P_EP
+ 0000012C  E1A0E00F  MOV         R14,R15
+ 00000130  E12FFF11  BX          R1
+  487:                   continue;
+ 00000134  EA000016  B           L_73  ; Targ=0x194
+  490:             }
+ 00000138          L_84:
+  491:             if (USB_P_EP[m]) {
+ 00000138  E1A02007  MOV         R2,R7 ; m
+ 0000013C  E1A02102  MOV         R2,R2,LSL #2 ; m
+ 00000140  E5100000  LDR         R0,=USB_P_EP ; USB_P_EP
+ 00000144  E7900002  LDR         R0,[R0,+R2]
+ 00000148  E3500000  CMP         R0,#0x0000
+ 0000014C  0A000010  BEQ         L_73  ; Targ=0x194
+  492:               USB_P_EP[m](USB_EVT_OUT);
+ 00000150  E3A00002  MOV         R0,#0x2
+ 00000154  E5101000  LDR         R1,=USB_P_EP ; USB_P_EP
+ 00000158  E7911002  LDR         R1,[R1,+R2]
+ 0000015C  E1A0E00F  MOV         R14,R15
+ 00000160  E12FFF11  BX          R1
+  494:           } else {
+ 00000164  EA00000A  B           L_73  ; Targ=0x194
+ 00000168          L_83:
+  496:             if (USB_P_EP[m]) {
+ 00000168  E1A02007  MOV         R2,R7 ; m
+ 0000016C  E1A02102  MOV         R2,R2,LSL #2 ; m
+ 00000170  E5100000  LDR         R0,=USB_P_EP ; USB_P_EP
+ 00000174  E7900002  LDR         R0,[R0,+R2]
+ 00000178  E3500000  CMP         R0,#0x0000
+ 0000017C  0A000004  BEQ         L_73  ; Targ=0x194
+  497:               USB_P_EP[m](USB_EVT_IN);
+ 00000180  E3A00003  MOV         R0,#0x3
+ 00000184  E5101000  LDR         R1,=USB_P_EP ; USB_P_EP
+ 00000188  E7911002  LDR         R1,[R1,+R2]
+ 0000018C  E1A0E00F  MOV         R14,R15
+ 00000190  E12FFF11  BX          R1
+  501:       }
+ 00000194          L_73:
+ 00000194  E2866001  ADD         R6,R6,#0x0001 ; n
+ 00000198  E1A00006  MOV         R0,R6 ; n
+ 0000019C  E3500020  CMP         R0,#0x0020 ; n
+ 000001A0  3AFFFFBA  BCC         L_76  ; Targ=0x90
+  502:     }
+ 000001A4          L_69:
+ 000001A4  E5100000  LDR         R0,=0xE0090030
+ 000001A8  E5900000  LDR         R0,[R0,#0x0]
+ 000001AC  E58D0000  STR         R0,[R13,#0x0] ; eisr
+ 000001B0  E3500000  CMP         R0,#0x0000
+ 000001B4  1AFFFFB4  BNE         L_77  ; Targ=0x8C
+  505: isr_end:
+ 000001B8          isr_end:
+  506:   DEV_INT_CLR = disr;
+ 000001B8  E1A01005  MOV         R1,R5 ; disr
+ 000001BC  E5100000  LDR         R0,=0xE0090008
+ 000001C0  E5801000  STR         R1,[R0,#0x0]
+  507:   VICVectAddr = 0;                          /* Acknowledge Interrupt */
+ 000001C4  E3A01000  MOV         R1,#0x0
+ 000001C8  E5100000  LDR         R0,=0xFFFFF030
+ 000001CC  E5801000  STR         R1,[R0,#0x0]
+ 000001D0            ; SCOPE-END
+  508: }
+ 000001D0  E28DD004  ADD         R13,R13,#0x0004
+ 000001D4  E8BD5FFF  LDMIA       R13!,{R0-R12,LR}
+ 000001D8  E25EF004  SUBS        R15,R14,#0x0004
+ 000001DC          ENDP ; 'USB_ISR?A'
+
+ARM COMPILER V2.53,  usbhw                                                                 28/09/11  15:10:05  PAGE 23  
+
+
+
+Module Information          Static
+----------------------------------
+  code size            =    ------
+  data size            =    ------
+  const size           =    ------
+End of Module Information.
+
+
+ARM COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

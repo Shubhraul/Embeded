@@ -1,0 +1,10 @@
+".\Obj\Startup.obj",
+".\Obj\usbhw.obj",
+".\Obj\usbcore.obj",
+".\Obj\demo.obj",
+".\Obj\VCOMuser.obj",
+".\Obj\usbdesc.obj" 
+TO ".\Obj\VirtualCOM" 
+PRINT(".\Lst\VirtualCOM.map") CASE 
+CLASSES (DATA (0x40000000-0x40007FFF), 
+CODE (0x0-0x7FFFF), CONST (0x0-0x7FFFF)) 

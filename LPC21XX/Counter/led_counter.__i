@@ -1,0 +1,1 @@
+-c --device DARMP -D__EVAL -g -O0 --apcs=interwork -I "C:\Keil_v5\ARM\INC\Philips" -o "led_counter.o" --omf_browse "led_counter.crf" --depend "led_counter.d" "led_counter.c"

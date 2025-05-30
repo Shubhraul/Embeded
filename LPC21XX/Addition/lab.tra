@@ -1,0 +1,18 @@
+*** Creating Trace Output File 'lab.tra' Ok.
+### Preparing for ADS-LD.
+### Creating ADS-LD Command Line
+### List of Objects: adding '"add.o"'
+### ADS-LD Command completed:
+--device DARMP "add.o" --ro-base 0x00000000 --entry 0x00000000 --rw-base 0x40000000 --strict --autoat --summary_stderr --info summarysizes --map --xref --callgraph --symbols 
+--info sizes --info totals --info unused --info veneers 
+ --list ".\lab.map" -o "lab.axf"### Preparing Environment (PrepEnvAds)
+### ADS-LD Output File: 'lab.axf'
+### ADS-LD Command File: 'lab.lnp'
+### Checking for dirty Components...
+### Creating CmdFile 'lab.lnp', Handle=0x00000EA8
+### Writing '.lnp' file
+### ADS-LD Command file 'lab.lnp' is ready.
+### ADS-LD: About to start ADS-LD Thread.
+### ADS-LD: executed with 0 errors
+### Updating obj list
+### LDADS_file() completed.

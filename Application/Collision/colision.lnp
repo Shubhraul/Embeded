@@ -1,0 +1,4 @@
+--device DARMP "startup.o" "colision.o" --strict --scatter "colision.sct" 
+--autoat --summary_stderr --info summarysizes --map --xref --callgraph --symbols 
+--info sizes --info totals --info unused --info veneers 
+ --list ".\colision.map" -o "colision.axf"

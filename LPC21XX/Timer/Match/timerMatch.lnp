@@ -1,0 +1,4 @@
+--device DARMP "startup.o" "timermatch.o" --strict --scatter "timerMatch.sct" 
+--autoat --summary_stderr --info summarysizes --map --xref --callgraph --symbols 
+--info sizes --info totals --info unused --info veneers 
+ --list ".\timerMatch.map" -o "timerMatch.axf"

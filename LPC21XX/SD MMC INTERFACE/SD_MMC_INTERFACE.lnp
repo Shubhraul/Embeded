@@ -1,0 +1,4 @@
+--cpu ARM7TDMI "startup.o" "mmcmain.o" "spi_mmc.o" --strict --scatter "SD_MMC_INTERFACE.sct" 
+--autoat --summary_stderr --info summarysizes --map --xref --callgraph --symbols 
+--info sizes --info totals --info unused --info veneers 
+ --list ".\SD_MMC_INTERFACE.map" -o "SD_MMC_INTERFACE.axf"

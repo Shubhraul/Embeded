@@ -1,0 +1,460 @@
+ARM COMPILER V2.53,  usbdesc                                                               28/09/11  15:10:05  PAGE 1   
+
+
+ARM COMPILER V2.53, COMPILATION OF MODULE usbdesc
+OBJECT MODULE PLACED IN .\Obj\usbdesc.obj
+COMPILER INVOKED BY: C:\Keil\ARM\BIN\CA.exe usbdesc.c THUMB DEFINE(MCB2140) DEBUG PRINT(.\LST\USBDESC.LST) TABS(4) OBJEC
+                    -T(.\Obj\usbdesc.obj) 
+
+stmt  level    source
+
+    1          /*----------------------------------------------------------------------------
+    2           *      U S B  -  K e r n e l
+    3           *----------------------------------------------------------------------------
+    4           *      Name:    usbdesc.c
+    5           *      Purpose: USB Descriptors file for Philips LPC214x Family 
+    6           *      Microprocessors
+    7           *      Version: V1.04
+    8           *----------------------------------------------------------------------------
+    9           *      This software is supplied "AS IS" without any warranties, express, 
+   10           *      implied or statutory, including but not limited to the implied 
+   11           *      warranties of fitness for purpose, satisfactory quality and 
+   12           *      noninfringement. Keil extends you a royalty-free right to reproduce and
+   13           *      distribute executable files created using this software for use on 
+   14           *      Philips LPC2xxx microcontroller devices only. Nothing else gives you the 
+   15           *      right to use this software. 
+   16           *
+   17           *      Copyright (c) 2005 Keil Software.
+   18           *      Modified by Philips Semiconductor
+   19           *---------------------------------------------------------------------------*/
+   20          #include "type.h"
+   21          #include "usb.h"
+   22          #include "usbcfg.h"
+   23          #include "usbdesc.h"
+   24          
+   25          /* Two interface descriptor for 2 Virtual COM port,, each VCOM uses 3 endpoints */
+   26          /* The total number of endpoints are 6, 2 interrupt IN for modem status reading,
+   27          2 BULK OUT for COM TX, and 2 BULK IN for COM RX */
+   28           
+   29          #define NUM_ENDPOINTS   3 
+   30          
+   31          /* USB Standard Device Descriptor */
+   32          const BYTE USB_DeviceDescriptor[] = {
+   33            USB_DEVICE_DESC_SIZE,              /* bLength */
+   34            USB_DEVICE_DESCRIPTOR_TYPE,        /* bDescriptorType */
+   35            WBVAL(0x0100), /* 1.00 */          /* bcdUSB */
+   36            0x00,                              /* bDeviceClass */
+   37            0x00,                              /* bDeviceSubClass */
+   38            0x00,                              /* bDeviceProtocol */
+   39            USB_MAX_PACKET0,                   /* bMaxPacketSize0 */
+   40            WBVAL(0xC251),                     /* idVendor */
+   41            WBVAL(0x1305),                     /* idProduct */
+   42            WBVAL(0x0110), /* 1.10 */          /* bcdDevice */
+   43            0x04,                              /* iManufacturer */
+   44            0x20,                              /* iProduct */
+   45            0x4A,                              /* iSerialNumber */
+   46            0x01                               /* bNumConfigurations */
+   47          };
+   48          
+   49          /* USB Configuration Descriptor */
+   50          /*   All Descriptors (Configuration, Interface, Endpoint, Class, Vendor */
+   51          const BYTE USB_ConfigDescriptor[] = {
+   52          /* Configuration 1 */
+   53            USB_CONFIGUARTION_DESC_SIZE,       /* bLength */
+   54            USB_CONFIGURATION_DESCRIPTOR_TYPE, /* bDescriptorType */
+   55            WBVAL(                             /* wTotalLength */
+   61              USB_CONFIGUARTION_DESC_SIZE +
+   61              USB_INTERFACE_DESC_SIZE     +
+   61              NUM_ENDPOINTS * USB_ENDPOINT_DESC_SIZE +
+ARM COMPILER V2.53,  usbdesc                                                               28/09/11  15:10:05  PAGE 2   
+
+   61              USB_INTERFACE_DESC_SIZE     +
+   61              NUM_ENDPOINTS * USB_ENDPOINT_DESC_SIZE
+   61            ),
+   62            0x02,                              /* bNumInterfaces */
+   63            0x01,                              /* bConfigurationValue */
+   64            0x00,                              /* iConfiguration */
+   65            USB_CONFIG_BUS_POWERED |           /* bmAttributes */
+   66            USB_CONFIG_REMOTE_WAKEUP,
+   67            USB_CONFIG_POWER_MA(100),          /* bMaxPower */
+   68          /* Interface 0, Alternate Setting 0, Class Code Unknown */
+   69            USB_INTERFACE_DESC_SIZE,           /* bLength */
+   70            USB_INTERFACE_DESCRIPTOR_TYPE,     /* bDescriptorType */
+   71            0x00,                              /* bInterfaceNumber */
+   72            0x00,                              /* bAlternateSetting */
+   73            NUM_ENDPOINTS,                     /* bNumEndpoints */
+   74            USB_DEVICE_CLASS_VENDOR_SPECIFIC,  /* bInterfaceClass, USB_CLASS_VENDOR_SPECIFIC */
+   75            0xFF,                              /* bInterfaceSubClass, USB_SUBCLASS_CODE_UNKNOWN */
+   76            0xFF,                              /* bInterfaceProtocol, USB_PROTOCOL_CODE_UNKNOWN */
+   77            0x00,                              /* iInterface, STR_INDEX_INTERFACE = no_string */
+   78          /* Endpoint, EP1 Interrupt In */
+   79            USB_ENDPOINT_DESC_SIZE,            /* bLength */
+   80            USB_ENDPOINT_DESCRIPTOR_TYPE,      /* bDescriptorType */
+   81            USB_ENDPOINT_IN(1),                /* bEndpointAddress */
+   82            USB_ENDPOINT_TYPE_INTERRUPT,       /* bmAttributes */
+   83            WBVAL(0x0004),                     /* wMaxPacketSize */
+   84            0x20,          /* 32ms */          /* bInterval */
+   85          /* Endpoint, EP2 Bulk Out */
+   86            USB_ENDPOINT_DESC_SIZE,            /* bLength */
+   87            USB_ENDPOINT_DESCRIPTOR_TYPE,      /* bDescriptorType */
+   88            USB_ENDPOINT_OUT(2),               /* bEndpointAddress */
+   89            USB_ENDPOINT_TYPE_BULK,            /* bmAttributes */
+   90            WBVAL(0x0040),                     /* wMaxPacketSize */
+   91            0x20,          /* 32ms */
+   92          /* Endpoint, EP2 Bulk In */
+   93            USB_ENDPOINT_DESC_SIZE,            /* bLength */
+   94            USB_ENDPOINT_DESCRIPTOR_TYPE,      /* bDescriptorType */
+   95            USB_ENDPOINT_IN(2),                /* bEndpointAddress */
+   96            USB_ENDPOINT_TYPE_BULK,            /* bmAttributes */
+   97            WBVAL(0x0040),                     /* wMaxPacketSize */
+   98            0x20,          /* 32ms */
+   99          /* Interface 1, Alternate Setting 0, Class Code Unknown */
+  100            USB_INTERFACE_DESC_SIZE,           /* bLength */
+  101            USB_INTERFACE_DESCRIPTOR_TYPE,     /* bDescriptorType */
+  102            0x01,                              /* bInterfaceNumber */
+  103            0x00,                              /* bAlternateSetting */
+  104            NUM_ENDPOINTS,                     /* bNumEndpoints */
+  105            USB_DEVICE_CLASS_VENDOR_SPECIFIC,  /* bInterfaceClass, USB_CLASS_CODE_UNKNOWN */
+  106            0xFF,                              /* bInterfaceSubClass, USB_SUBCLASS_CODE_UNKNOWN */
+  107            0xFF,                              /* bInterfaceProtocol, USB_PROTOCOL_CODE_UNKNOWN */
+  108            0x00,                              /* iInterface, STR_INDEX_INTERFACE = no_string */
+  109          /* Endpoint, EP4 Interrupt In */
+  110            USB_ENDPOINT_DESC_SIZE,            /* bLength */
+  111            USB_ENDPOINT_DESCRIPTOR_TYPE,      /* bDescriptorType */
+  112            USB_ENDPOINT_IN(4),                /* bEndpointAddress */
+  113            USB_ENDPOINT_TYPE_INTERRUPT,       /* bmAttributes */
+  114            WBVAL(0x0004),                     /* wMaxPacketSize */
+  115            0x20,          /* 32ms */          /* bInterval */
+  116          /* Endpoint, EP5 Bulk Out */
+  117            USB_ENDPOINT_DESC_SIZE,            /* bLength */
+  118            USB_ENDPOINT_DESCRIPTOR_TYPE,      /* bDescriptorType */
+  119            USB_ENDPOINT_OUT(5),               /* bEndpointAddress */
+  120            USB_ENDPOINT_TYPE_BULK,            /* bmAttributes */
+  121            WBVAL(0x0040),                     /* wMaxPacketSize */
+  122            0x20,          /* 32ms */
+  123          /* Endpoint, EP5 Bulk In */
+  124            USB_ENDPOINT_DESC_SIZE,            /* bLength */
+ARM COMPILER V2.53,  usbdesc                                                               28/09/11  15:10:05  PAGE 3   
+
+  125            USB_ENDPOINT_DESCRIPTOR_TYPE,      /* bDescriptorType */
+  126            USB_ENDPOINT_IN(5),                /* bEndpointAddress */
+  127            USB_ENDPOINT_TYPE_BULK,            /* bmAttributes */
+  128            WBVAL(0x0040),                     /* wMaxPacketSize */
+  129            0x20,          /* 32ms */
+  130          /* Terminator */
+  131            0                                  /* bLength */
+  132          };
+  133          
+  134          /* USB String Descriptor (optional) */
+  135          const BYTE USB_StringDescriptor[] = {
+  136          /* Index 0x00: LANGID Codes */
+  137            0x04,                              /* bLength */
+  138            USB_STRING_DESCRIPTOR_TYPE,        /* bDescriptorType */
+  139            WBVAL(0x0409), /* US English */    /* wLANGID */
+  140          /* Index 0x04: Manufacturer */
+  141            0x1C,                              /* bLength */
+  142            USB_STRING_DESCRIPTOR_TYPE,        /* bDescriptorType */
+  143            'N',0,
+  144            'e',0,
+  145            'x',0,
+  146            ' ',0,
+  147            'R',0,
+  148            'o',0,
+  149            'b',0,
+  150            'o',0,
+  151            't',0,
+  152            'i',0,
+  153            'c',0,
+  154            's',0,
+  155            ' ',0,
+  156          /* Index 0x20: Product */
+  157            0x2A,                              /* bLength */
+  158            USB_STRING_DESCRIPTOR_TYPE,        /* bDescriptorType */
+  159            'L',0,
+  160            'P',0,
+  161            'C',0,
+  162            '2',0,
+  163            '1',0,
+  164            '4',0,
+  165            '8',0,
+  166            ' ',0,
+  167            'V',0,
+  168            'i',0,
+  169            'r',0,
+  170            't',0,
+  171            'u',0,
+  172            'a',0,
+  173            'l',0,
+  174            ' ',0,
+  175            'C',0,
+  176            'O',0,
+  177            'M',0,
+  178            ' ',0,
+  179          /* Index 0x4A: Serial Number */
+  180            0x1C,                              /* bLength */
+  181            USB_STRING_DESCRIPTOR_TYPE,        /* bDescriptorType */
+  182            '0',0,
+  183            '0',0,
+  184            '0',0,
+  185            '0',0,
+  186            '0',0,
+  187            '0',0,
+  188            '0',0,
+  189            '0',0,
+  190            '-',0,
+ARM COMPILER V2.53,  usbdesc                                                               28/09/11  15:10:05  PAGE 4   
+
+  191            'D',0,
+  192            'E',0,
+  193            'M',0,
+  194            'O',0,
+  195          /* Index 0x66: Interface 0, Alternate Setting 0 */
+  196            0x0A,                              /* bLength */
+  197            USB_STRING_DESCRIPTOR_TYPE,        /* bDescriptorType */
+  198            'V',0,
+  199            'C',0,
+  200            'O',0,
+  201            'M',0,
+  202          };
+ARM COMPILER V2.53,  usbdesc                                                               28/09/11  15:10:05  PAGE 5   
+
+ASSEMBLY LISTING OF GENERATED OBJECT CODE
+
+
+
+*** PUBLICS:
+ PUBLIC         USB_DeviceDescriptor
+ PUBLIC         USB_ConfigDescriptor
+ PUBLIC         USB_StringDescriptor
+
+
+
+*** DATA SEGMENT '?CON?usbdesc':
+ 00000000          USB_DeviceDescriptor:
+ 00000000           BEGIN_INIT
+ 00000000  12        DB          0x12
+ 00000001  01        DB          0x1
+ 00000002  00        DB          0x0
+ 00000003  01        DB          0x1
+ 00000004  00        DB          0x0
+ 00000005  00        DB          0x0
+ 00000006  00        DB          0x0
+ 00000007  40        DB          0x40
+ 00000008  51        DB          0x51
+ 00000009  C2        DB          0xC2
+ 0000000A  05        DB          0x5
+ 0000000B  13        DB          0x13
+ 0000000C  10        DB          0x10
+ 0000000D  01        DB          0x1
+ 0000000E  04        DB          0x4
+ 0000000F  20        DB          0x20
+ 00000010  4A        DB          0x4A
+ 00000011  01        DB          0x1
+ 00000012           END_INIT
+ 00000012          USB_ConfigDescriptor:
+ 00000012           BEGIN_INIT
+ 00000012  09        DB          0x9
+ 00000013  02        DB          0x2
+ 00000014  45        DB          0x45
+ 00000015  00        DB          0x0
+ 00000016  02        DB          0x2
+ 00000017  01        DB          0x1
+ 00000018  00        DB          0x0
+ 00000019  A0        DB          0xA0
+ 0000001A  32        DB          0x32
+ 0000001B  09        DB          0x9
+ 0000001C  04        DB          0x4
+ 0000001D  00        DB          0x0
+ 0000001E  00        DB          0x0
+ 0000001F  03        DB          0x3
+ 00000020  FF        DB          0xFF
+ 00000021  FF        DB          0xFF
+ 00000022  FF        DB          0xFF
+ 00000023  00        DB          0x0
+ 00000024  07        DB          0x7
+ 00000025  05        DB          0x5
+ 00000026  81        DB          0x81
+ 00000027  03        DB          0x3
+ 00000028  04        DB          0x4
+ 00000029  00        DB          0x0
+ 0000002A  20        DB          0x20
+ 0000002B  07        DB          0x7
+ 0000002C  05        DB          0x5
+ 0000002D  02        DB          0x2
+ 0000002E  02        DB          0x2
+ 0000002F  40        DB          0x40
+ 00000030  00        DB          0x0
+ 00000031  20        DB          0x20
+ 00000032  07        DB          0x7
+ 00000033  05        DB          0x5
+ARM COMPILER V2.53,  usbdesc                                                               28/09/11  15:10:05  PAGE 6   
+
+ 00000034  82        DB          0x82
+ 00000035  02        DB          0x2
+ 00000036  40        DB          0x40
+ 00000037  00        DB          0x0
+ 00000038  20        DB          0x20
+ 00000039  09        DB          0x9
+ 0000003A  04        DB          0x4
+ 0000003B  01        DB          0x1
+ 0000003C  00        DB          0x0
+ 0000003D  03        DB          0x3
+ 0000003E  FF        DB          0xFF
+ 0000003F  FF        DB          0xFF
+ 00000040  FF        DB          0xFF
+ 00000041  00        DB          0x0
+ 00000042  07        DB          0x7
+ 00000043  05        DB          0x5
+ 00000044  84        DB          0x84
+ 00000045  03        DB          0x3
+ 00000046  04        DB          0x4
+ 00000047  00        DB          0x0
+ 00000048  20        DB          0x20
+ 00000049  07        DB          0x7
+ 0000004A  05        DB          0x5
+ 0000004B  05        DB          0x5
+ 0000004C  02        DB          0x2
+ 0000004D  40        DB          0x40
+ 0000004E  00        DB          0x0
+ 0000004F  20        DB          0x20
+ 00000050  07        DB          0x7
+ 00000051  05        DB          0x5
+ 00000052  85        DB          0x85
+ 00000053  02        DB          0x2
+ 00000054  40        DB          0x40
+ 00000055  00        DB          0x0
+ 00000056  20        DB          0x20
+ 00000057  00        DB          0x0
+ 00000058           END_INIT
+ 00000058          USB_StringDescriptor:
+ 00000058           BEGIN_INIT
+ 00000058  04        DB          0x4
+ 00000059  03        DB          0x3
+ 0000005A  09        DB          0x9
+ 0000005B  04        DB          0x4
+ 0000005C  1C        DB          0x1C
+ 0000005D  03        DB          0x3
+ 0000005E  4E        DB          0x4E
+ 0000005F  00        DB          0x0
+ 00000060  65        DB          0x65
+ 00000061  00        DB          0x0
+ 00000062  78        DB          0x78
+ 00000063  00        DB          0x0
+ 00000064  20        DB          0x20
+ 00000065  00        DB          0x0
+ 00000066  52        DB          0x52
+ 00000067  00        DB          0x0
+ 00000068  6F        DB          0x6F
+ 00000069  00        DB          0x0
+ 0000006A  62        DB          0x62
+ 0000006B  00        DB          0x0
+ 0000006C  6F        DB          0x6F
+ 0000006D  00        DB          0x0
+ 0000006E  74        DB          0x74
+ 0000006F  00        DB          0x0
+ 00000070  69        DB          0x69
+ 00000071  00        DB          0x0
+ 00000072  63        DB          0x63
+ARM COMPILER V2.53,  usbdesc                                                               28/09/11  15:10:05  PAGE 7   
+
+ 00000073  00        DB          0x0
+ 00000074  73        DB          0x73
+ 00000075  00        DB          0x0
+ 00000076  20        DB          0x20
+ 00000077  00        DB          0x0
+ 00000078  2A        DB          0x2A
+ 00000079  03        DB          0x3
+ 0000007A  4C        DB          0x4C
+ 0000007B  00        DB          0x0
+ 0000007C  50        DB          0x50
+ 0000007D  00        DB          0x0
+ 0000007E  43        DB          0x43
+ 0000007F  00        DB          0x0
+ 00000080  32        DB          0x32
+ 00000081  00        DB          0x0
+ 00000082  31        DB          0x31
+ 00000083  00        DB          0x0
+ 00000084  34        DB          0x34
+ 00000085  00        DB          0x0
+ 00000086  38        DB          0x38
+ 00000087  00        DB          0x0
+ 00000088  20        DB          0x20
+ 00000089  00        DB          0x0
+ 0000008A  56        DB          0x56
+ 0000008B  00        DB          0x0
+ 0000008C  69        DB          0x69
+ 0000008D  00        DB          0x0
+ 0000008E  72        DB          0x72
+ 0000008F  00        DB          0x0
+ 00000090  74        DB          0x74
+ 00000091  00        DB          0x0
+ 00000092  75        DB          0x75
+ 00000093  00        DB          0x0
+ 00000094  61        DB          0x61
+ 00000095  00        DB          0x0
+ 00000096  6C        DB          0x6C
+ 00000097  00        DB          0x0
+ 00000098  20        DB          0x20
+ 00000099  00        DB          0x0
+ 0000009A  43        DB          0x43
+ 0000009B  00        DB          0x0
+ 0000009C  4F        DB          0x4F
+ 0000009D  00        DB          0x0
+ 0000009E  4D        DB          0x4D
+ 0000009F  00        DB          0x0
+ 000000A0  20        DB          0x20
+ 000000A1  00        DB          0x0
+ 000000A2  1C        DB          0x1C
+ 000000A3  03        DB          0x3
+ 000000A4  30        DB          0x30
+ 000000A5  00        DB          0x0
+ 000000A6  30        DB          0x30
+ 000000A7  00        DB          0x0
+ 000000A8  30        DB          0x30
+ 000000A9  00        DB          0x0
+ 000000AA  30        DB          0x30
+ 000000AB  00        DB          0x0
+ 000000AC  30        DB          0x30
+ 000000AD  00        DB          0x0
+ 000000AE  30        DB          0x30
+ 000000AF  00        DB          0x0
+ 000000B0  30        DB          0x30
+ 000000B1  00        DB          0x0
+ 000000B2  30        DB          0x30
+ 000000B3  00        DB          0x0
+ 000000B4  2D        DB          0x2D
+ARM COMPILER V2.53,  usbdesc                                                               28/09/11  15:10:05  PAGE 8   
+
+ 000000B5  00        DB          0x0
+ 000000B6  44        DB          0x44
+ 000000B7  00        DB          0x0
+ 000000B8  45        DB          0x45
+ 000000B9  00        DB          0x0
+ 000000BA  4D        DB          0x4D
+ 000000BB  00        DB          0x0
+ 000000BC  4F        DB          0x4F
+ 000000BD  00        DB          0x0
+ 000000BE  0A        DB          0xA
+ 000000BF  03        DB          0x3
+ 000000C0  56        DB          0x56
+ 000000C1  00        DB          0x0
+ 000000C2  43        DB          0x43
+ 000000C3  00        DB          0x0
+ 000000C4  4F        DB          0x4F
+ 000000C5  00        DB          0x0
+ 000000C6  4D        DB          0x4D
+ 000000C7  00        DB          0x0
+ 000000C8           END_INIT
+
+
+
+
+Module Information          Static
+----------------------------------
+  code size            =    ------
+  data size            =    ------
+  const size           =       200
+End of Module Information.
+
+
+ARM COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

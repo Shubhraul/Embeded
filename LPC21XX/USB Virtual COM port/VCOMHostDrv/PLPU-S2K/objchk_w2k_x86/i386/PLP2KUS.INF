@@ -1,0 +1,77 @@
+;
+; Ph2kUSB.inf - Philips USB-Serial Driver for Windows 2000
+;
+; Copyright 2004 Philips Semiconductors
+;
+
+[Version]
+Signature="$CHICAGO$"
+Class=Ports
+ClassGUID={4d36e978-e325-11ce-bfc1-08002be10318}
+Provider=%Philips%
+DriverVer=8/3/2004,2.0.0
+
+[Manufacturer]
+%Philips%=MRI
+
+[MRI]
+%PhilipsUSBSerial%=Philips.Install,USB\VID_C251&PID_1305&MI_00
+%PhilipsUSBSerial%=Philips.Install,USB\VID_C251&PID_1305&MI_01
+
+[DestinationDirs]
+Philips.Files.Driver.NT=10,System32\Drivers
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Windows 2000
+
+[Wdm1.Install.NT]
+CopyFiles=Wdm1.Files.Driver.NT
+
+[Philips.Install.NT]
+CopyFiles=Philips.Files.Driver.NT
+Include=MSPORTS.INF
+Needs=SerialEnumerator.NT
+AddReg=Philips.NT.AddReg
+
+[SourceDisksNames.NT]
+1="Philips Installation Disk",,,
+
+[Philips.Files.Driver.NT]
+PLP2KUS.sys
+
+[Philips.Install.NT.Services]
+Include=MSPORTS.INF
+Needs=SerialEnumerator.NT.Services
+AddService = Philips, %SPSVCINST_ASSOCSERVICE%, Philips.Service
+
+[Philips.Install.NT.HW]
+AddReg=Philips.NT.HW.AddReg
+
+[Philips.NT.AddReg]
+HKR,,PortSubClass,1,01
+HKR,,EnumPropPages32,,"MsPorts.dll,SerialPortPropPageProvider"
+
+[Philips.NT.HW.AddReg]
+HKR,,"UpperFilters",0x00010000,"serenum"
+
+[Philips.Service]
+DisplayName    = %Philips.ServiceName%
+ServiceType    = %SERVICE_KERNEL_DRIVER%
+StartType      = %SERVICE_DEMAND_START%
+ErrorControl   = %SERVICE_ERROR_NORMAL%
+ServiceBinary  = %10%\System32\Drivers\PLP2KUS.sys
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Strings
+
+[Strings]
+Std = "(Standard port types)"
+Philips = "Philips Semiconductors"
+PhilipsUSBSerial ="Philips USB to Serial Adaptor"
+Philips.ServiceName="Philips USB to Serial Service"
+SPSVCINST_ASSOCSERVICE=0x00000002; Driver service is associated with device being installed
+COPYFLG_NOSKIP=2	; Do not allow user to skip file
+SERVICE_KERNEL_DRIVER=1
+SERVICE_AUTO_START=2
+SERVICE_DEMAND_START=3
+SERVICE_ERROR_NORMAL=1

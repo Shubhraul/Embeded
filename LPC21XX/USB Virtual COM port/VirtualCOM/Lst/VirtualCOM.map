@@ -1,0 +1,293 @@
+LARM LINKER/LOCATER V2.53                                                               09/28/2011  15:10:05  PAGE 1
+
+
+LARM LINKER/LOCATER V2.53, INVOKED BY:
+C:\KEIL\ARM\BIN\LA.EXE .\Obj\Startup.obj, .\Obj\usbhw.obj, .\Obj\usbcore.obj, .\Obj\demo.obj, .\Obj\VCOMuser.obj, .\Obj\
+>> usbdesc.obj TO .\Obj\VirtualCOM PRINT (.\Lst\VirtualCOM.map) CASE CLASSES (DATA (0X40000000-0X40007FFF), CODE (0X0-0X
+>> 7FFFF), CONST (0X0-0X7FFFF))
+
+
+CPU MODE: LITTLE ENDIAN
+
+
+INPUT MODULES INCLUDED:
+  .\Obj\Startup.obj (STARTUP)
+         COMMENT TYPE 0: AA V2.50
+  .\Obj\usbhw.obj (usbhw)
+         COMMENT TYPE 0: CARM V2.53
+  .\Obj\usbcore.obj (usbcore)
+         COMMENT TYPE 0: CARM V2.53
+  .\Obj\demo.obj (demo)
+         COMMENT TYPE 0: CARM V2.53
+  .\Obj\VCOMuser.obj (VCOMuser)
+         COMMENT TYPE 0: CARM V2.53
+  .\Obj\usbdesc.obj (usbdesc)
+         COMMENT TYPE 0: CARM V2.53
+  C:\KEIL\ARM\LIB\CAL.LIB (FIQ)
+         COMMENT TYPE 0: AA V2.50
+  C:\KEIL\ARM\LIB\CAL.LIB (IRQ)
+         COMMENT TYPE 0: AA V2.50
+  C:\KEIL\ARM\LIB\CAL.LIB (DABT)
+         COMMENT TYPE 0: AA V2.50
+  C:\KEIL\ARM\LIB\CAL.LIB (PABT)
+         COMMENT TYPE 0: AA V2.50
+  C:\KEIL\ARM\LIB\CAL.LIB (SWI)
+         COMMENT TYPE 0: AA V2.50
+  C:\KEIL\ARM\LIB\CAL.LIB (UNDEF)
+         COMMENT TYPE 0: AA V2.50
+  C:\KEIL\ARM\LIB\CAL.LIB (strlen)
+         COMMENT TYPE 0: CARM V2.53
+  C:\KEIL\ARM\LIB\CAL.LIB (memcpy)
+         COMMENT TYPE 0: CARM V2.53
+
+
+ACTIVE MEMORY CLASSES OF MODULE:  .\Obj\VirtualCOM (STARTUP)
+
+BASE       START      END        USED       MEMORY CLASS
+========================================================
+00000000H  40000000H  40007FFFH  0000063AH  DATA
+00000000H  00000000H  0007FFFFH  00001A30H  CODE
+00000000H  00000000H  0007FFFFH  00000176H  CONST
+
+
+INTERRUPT FUNCTIONS
+
+TYPE  STACK SIZE    FUNCTION NAME
+=================================
+irq                 USB_ISR?A
+
+
+
+
+MEMORY MAP OF MODULE:  .\Obj\VirtualCOM (STARTUP)
+
+START      STOP       LENGTH    ALIGN  RELOC  MEMORY CLASS   SEGMENT NAME
+=========================================================================
+00000000H  0000011FH  00000120H     4  AT..   CODE           STARTUPCODE
+00000120H  0000015DH  0000003EH     4  UNIT   CONST          ?CON?VCOMuser
+0000015EH  0000015FH  00000002H   ---  ---    **GAP**
+00000160H  00000227H  000000C8H     4  UNIT   CONST          ?CON?usbdesc
+LARM LINKER/LOCATER V2.53                                                             09/28/2011  15:10:05  PAGE 2
+
+
+00000228H  00000247H  00000020H     4  UNIT   CONST          ?C_CLRSEG
+00000248H  00000297H  00000050H     4  UNIT   CONST          ?C_INITSEG
+00000298H  0000034FH  000000B8H     4  UNIT   CODE           ?PR?USB_Init?T?usbhw
+00000350H  00000377H  00000028H     4  UNIT   CODE           ?PR?USB_Connect?T?usbhw
+00000378H  000003DFH  00000068H     4  UNIT   CODE           ?PR?USB_Reset?T?usbhw
+000003E0H  000003EFH  00000010H     4  UNIT   CODE           ?PR?USB_Suspend?T?usbhw
+000003F0H  000003FFH  00000010H     4  UNIT   CODE           ?PR?USB_Resume?T?usbhw
+00000400H  00000403H  00000004H     4  UNIT   CODE           ?PR?USB_WakeUpCfg?T?usbhw
+00000404H  0000043FH  0000003CH     4  UNIT   CODE           ?PR?USB_SetAddress?T?usbhw
+00000440H  00000487H  00000048H     4  UNIT   CODE           ?PR?USB_Configure?T?usbhw
+00000488H  000004E3H  0000005CH     4  UNIT   CODE           ?PR?USB_ConfigEP?T?usbhw
+000004E4H  000004E7H  00000004H     4  UNIT   CODE           ?PR?USB_DirCtrlEP?T?usbhw
+000004E8H  0000050BH  00000024H     4  UNIT   CODE           ?PR?USB_EnableEP?T?usbhw
+0000050CH  0000052FH  00000024H     4  UNIT   CODE           ?PR?USB_DisableEP?T?usbhw
+00000530H  00000553H  00000024H     4  UNIT   CODE           ?PR?USB_ResetEP?T?usbhw
+00000554H  00000577H  00000024H     4  UNIT   CODE           ?PR?USB_SetStallEP?T?usbhw
+00000578H  0000059BH  00000024H     4  UNIT   CODE           ?PR?USB_ClrStallEP?T?usbhw
+0000059CH  0000062BH  00000090H     4  UNIT   CODE           ?PR?USB_ReadEP?T?usbhw
+0000062CH  000006B3H  00000088H     4  UNIT   CODE           ?PR?USB_WriteEP?T?usbhw
+000006B4H  000008B3H  00000200H     4  UNIT   CODE           ?PR?USB_ISR?A?usbhw
+000008B4H  000008CBH  00000018H     4  UNIT   CODE           ?PR?EPAdr?T?usbhw
+000008CCH  000008FBH  00000030H     4  UNIT   CODE           ?PR?WrCmd?T?usbhw
+000008FCH  00000933H  00000038H     4  UNIT   CODE           ?PR?WrCmdDat?T?usbhw
+00000934H  0000097FH  0000004CH     4  UNIT   CODE           ?PR?RdCmdDat?T?usbhw
+00000980H  0000099FH  00000020H     4  UNIT   CODE           ?PR?USB_ResetCore?T?usbcore
+000009A0H  000012BFH  00000920H     4  UNIT   CODE           ?PR?USB_EndPoint0?T?usbcore
+000012C0H  000012CFH  00000010H     4  UNIT   CODE           ?PR?USB_SetupStage?T?usbcore
+000012D0H  00001313H  00000044H     4  UNIT   CODE           ?PR?USB_DataInStage?T?usbcore
+00001314H  0000133FH  0000002CH     4  UNIT   CODE           ?PR?USB_DataOutStage?T?usbcore
+00001340H  0000134FH  00000010H     4  UNIT   CODE           ?PR?USB_StatusInStage?T?usbcore
+00001350H  0000135FH  00000010H     4  UNIT   CODE           ?PR?USB_StatusOutStage?T?usbcore
+00001360H  000013E3H  00000084H     4  UNIT   CODE           ?PR?main?demo
+000013E4H  000013FBH  00000018H     4  UNIT   CODE           ?PR?USB_Reset_Event?T?VCOMuser
+000013FCH  000014BFH  000000C4H     4  UNIT   CODE           ?PR?DeviceData2UART?T?VCOMuser
+000014C0H  0000164BH  0000018CH     4  UNIT   CODE           ?PR?DeviceData2Host?T?VCOMuser
+0000164CH  0000164FH  00000004H     4  UNIT   CODE           ?PR?USB_EndPoint1?T?VCOMuser
+00001650H  00001673H  00000024H     4  UNIT   CODE           ?PR?USB_EndPoint2?T?VCOMuser
+00001674H  00001677H  00000004H     4  UNIT   CODE           ?PR?USB_EndPoint3?T?VCOMuser
+00001678H  0000167BH  00000004H     4  UNIT   CODE           ?PR?USB_EndPoint4?T?VCOMuser
+0000167CH  0000169FH  00000024H     4  UNIT   CODE           ?PR?USB_EndPoint5?T?VCOMuser
+000016A0H  000016A3H  00000004H     4  UNIT   CODE           ?PR?USB_EndPoint6?T?VCOMuser
+000016A4H  000016A7H  00000004H     4  UNIT   CODE           ?PR?USB_EndPoint7?T?VCOMuser
+000016A8H  000016ABH  00000004H     4  UNIT   CODE           ?PR?USB_EndPoint8?T?VCOMuser
+000016ACH  000016AFH  00000004H     4  UNIT   CODE           ?PR?USB_EndPoint9?T?VCOMuser
+000016B0H  000016B3H  00000004H     4  UNIT   CODE           ?PR?USB_EndPoint10?T?VCOMuser
+000016B4H  000016B7H  00000004H     4  UNIT   CODE           ?PR?USB_EndPoint11?T?VCOMuser
+000016B8H  000016BBH  00000004H     4  UNIT   CODE           ?PR?USB_EndPoint12?T?VCOMuser
+000016BCH  000016BFH  00000004H     4  UNIT   CODE           ?PR?USB_EndPoint13?T?VCOMuser
+000016C0H  000016C3H  00000004H     4  UNIT   CODE           ?PR?USB_EndPoint14?T?VCOMuser
+000016C4H  000016C7H  00000004H     4  UNIT   CODE           ?PR?USB_EndPoint15?T?VCOMuser
+000016C8H  000016E7H  00000020H     4  UNIT   CODE           ?PR?USB_Configure_Event?T?VCOMuser
+000016E8H  0000173BH  00000054H     4  UNIT   CODE           ?PR?init_serial?T?VCOMuser
+0000173CH  0000180FH  000000D4H     4  UNIT   CODE           ?PR?VCOM_SetSIOSetup?T?VCOMuser
+00001810H  0000196FH  00000160H     4  UNIT   CODE           ?PR?SetSIOBaudrate?T?VCOMuser
+00001970H  000019E3H  00000074H     4  UNIT   CODE           ?PR?SetSIOStopBit?T?VCOMuser
+000019E4H  00001A53H  00000070H     4  UNIT   CODE           ?PR?SetSIODataBit?T?VCOMuser
+00001A54H  00001AC7H  00000074H     4  UNIT   CODE           ?PR?SetSIOParity?T?VCOMuser
+00001AC8H  00001ACBH  00000004H     4  UNIT   CODE           ?PR?SetSIOFlowControl?T?VCOMuser
+00001ACCH  00001B03H  00000038H     4  UNIT   CODE           ?PR?SetSIODTR?T?VCOMuser
+00001B04H  00001B3BH  00000038H     4  UNIT   CODE           ?PR?SetSIORTS?T?VCOMuser
+00001B3CH  00001B3FH  00000004H     4  UNIT   CODE           ?PR?GetSIOModemStatus?T?VCOMuser
+00001B40H  00001B43H  00000004H     4  UNIT   CODE           ?C?FIQ
+00001B44H  00001B47H  00000004H     4  UNIT   CODE           ?C?IRQ
+00001B48H  00001B4BH  00000004H     4  UNIT   CODE           ?C?DABT
+00001B4CH  00001B4FH  00000004H     4  UNIT   CODE           ?C?PABT
+LARM LINKER/LOCATER V2.53                                                             09/28/2011  15:10:05  PAGE 3
+
+
+00001B50H  00001B57H  00000008H     4  UNIT   CODE           ?C?UNDEF
+00001B58H  00001B77H  00000020H     4  UNIT   CODE           ?PR?strlen?T?strlen
+00001B78H  00001BA7H  00000030H     4  UNIT   CODE           ?PR?memcpy?T?memcpy
+00001BA8H  3FFFFFFFH  3FFFE458H   ---  ---    **GAP**
+40000000H  4000048FH  00000490H     4  UNIT   DATA           STACK
+40000490H  400004F0H  00000061H     4  UNIT   DATA           ?DT0?usbcore
+400004F1H  400004F3H  00000003H   ---  ---    **GAP**
+400004F4H  400004F5H  00000002H     4  UNIT   DATA           ?DT0?demo
+400004F6H  400004F7H  00000002H   ---  ---    **GAP**
+400004F8H  4000063EH  00000147H     4  UNIT   DATA           ?DT0?VCOMuser
+
+
+
+REMOVED FUNCTIONS OF MODULE:  .\Obj\VirtualCOM (STARTUP)
+
+      ATTRIBUTE  FUNCTION NAME
+      ========================
+       unused    USB_WakeUp?T
+       inlined   USB_GetStatus?T
+       inlined   USB_SetClrFeature?T
+       inlined   USB_GetDescriptor?T
+       inlined   USB_SetConfiguration?T
+       inlined   USB_SetInterface?T
+       unused    putchar?T
+       unused    getchar?T
+       unused    VCOM_GetSIOSetup?T
+
+
+
+PUBLIC SYMBOLS OF MODULE:  .\Obj\VirtualCOM (STARTUP)
+
+      VALUE      CLASS    TYPE      PUBLIC SYMBOL NAME
+      ================================================
+      00000228H  ---      ---       ?C?CLRTAB
+      00001360H  ---      ---       ?C?INIT
+      00000248H  ---      ---       ?C?INITTAB
+      00001B48H  CODE     ---       DAbt_Handler?A
+      4000053BH  DATA     BYTE      Data2Host0
+      4000053CH  DATA     BYTE      Data2Host1
+      000014C0H  CODE     ---       DeviceData2Host?T
+      000013FCH  CODE     ---       DeviceData2UART?T
+      400004B0H  DATA     ---       EP0Buf
+      40000498H  DATA     ---       EP0Data
+      000008B4H  CODE     ---       EPAdr?T
+      00001B40H  CODE     ---       FIQ_Handler?A
+      00001B3CH  CODE     ---       GetSIOModemStatus?T
+      00001B44H  CODE     ---       IRQ_Handler?A
+      400004F4H  DATA     BYTE      Modem0Status
+      400004F5H  DATA     BYTE      Modem1Status
+      00001B4CH  CODE     ---       PAbt_Handler?A
+      00000934H  CODE     ---       RdCmdDat?A
+      00000940H  CODE     ---       RdCmdDat?T
+      40000539H  DATA     BYTE      ReportStatus0
+      4000053AH  DATA     BYTE      ReportStatus1
+      4000053DH  DATA     BYTE      RxLength0
+      4000053EH  DATA     BYTE      RxLength1
+      00001B50H  CODE     ---       SWI_Handler?A
+      00001810H  CODE     ---       SetSIOBaudrate?T
+      00001ACCH  CODE     ---       SetSIODTR?T
+      000019E4H  CODE     ---       SetSIODataBit?T
+      00001AC8H  CODE     ---       SetSIOFlowControl?T
+      00001A54H  CODE     ---       SetSIOParity?T
+      00001B04H  CODE     ---       SetSIORTS?T
+      00001970H  CODE     ---       SetSIOStopBit?T
+      400004A2H  DATA     ---       SetupPacket
+LARM LINKER/LOCATER V2.53                                                             09/28/2011  15:10:05  PAGE 4
+
+
+      400005BFH  DATA     ---       UART2USBBuf0
+      400005FFH  DATA     ---       UART2USBBuf1
+      4000053FH  DATA     ---       USB2UARTBuf0
+      4000057FH  DATA     ---       USB2UARTBuf1
+      400004ACH  DATA     ---       USB_AltSetting
+      00000578H  CODE     ---       USB_ClrStallEP?T
+      00000172H  CONST    ---       USB_ConfigDescriptor
+      00000488H  CODE     ---       USB_ConfigEP?T
+      400004ABH  DATA     BYTE      USB_Configuration
+      00000440H  CODE     ---       USB_Configure?T
+      000016C8H  CODE     ---       USB_Configure_Event?T
+      00000350H  CODE     ---       USB_Connect?T
+      000012D0H  CODE     ---       USB_DataInStage?T
+      00001314H  CODE     ---       USB_DataOutStage?T
+      400004AAH  DATA     BYTE      USB_DeviceAddress
+      00000160H  CONST    ---       USB_DeviceDescriptor
+      400004A0H  DATA     WORD      USB_DeviceStatus
+      000004E4H  CODE     ---       USB_DirCtrlEP?T
+      0000050CH  CODE     ---       USB_DisableEP?T
+      000004E8H  CODE     ---       USB_EnableEP?T
+      000009A0H  CODE     ---       USB_EndPoint0?T
+      000016B0H  CODE     ---       USB_EndPoint10?T
+      000016B4H  CODE     ---       USB_EndPoint11?T
+      000016B8H  CODE     ---       USB_EndPoint12?T
+      000016BCH  CODE     ---       USB_EndPoint13?T
+      000016C0H  CODE     ---       USB_EndPoint14?T
+      000016C4H  CODE     ---       USB_EndPoint15?T
+      0000164CH  CODE     ---       USB_EndPoint1?T
+      00001650H  CODE     ---       USB_EndPoint2?T
+      00001674H  CODE     ---       USB_EndPoint3?T
+      00001678H  CODE     ---       USB_EndPoint4?T
+      0000167CH  CODE     ---       USB_EndPoint5?T
+      000016A0H  CODE     ---       USB_EndPoint6?T
+      000016A4H  CODE     ---       USB_EndPoint7?T
+      000016A8H  CODE     ---       USB_EndPoint8?T
+      000016ACH  CODE     ---       USB_EndPoint9?T
+      40000494H  DATA     DWORD     USB_EndPointHalt
+      40000490H  DATA     DWORD     USB_EndPointMask
+      000006B4H  CODE     ---       USB_ISR?A
+      00000298H  CODE     ---       USB_Init?T
+      400004F0H  DATA     BYTE      USB_NumInterfaces
+      400004F8H  DATA     ---       USB_P_EP
+      0000059CH  CODE     ---       USB_ReadEP?T
+      00000378H  CODE     ---       USB_Reset?A
+      00000384H  CODE     ---       USB_Reset?T
+      00000980H  CODE     ---       USB_ResetCore?T
+      00000530H  CODE     ---       USB_ResetEP?T
+      000013E4H  CODE     ---       USB_Reset_Event?A
+      000013F0H  CODE     ---       USB_Reset_Event?T
+      000003F0H  CODE     ---       USB_Resume?A
+      000003FCH  CODE     ---       USB_Resume?T
+      00000404H  CODE     ---       USB_SetAddress?T
+      00000554H  CODE     ---       USB_SetStallEP?T
+      000012C0H  CODE     ---       USB_SetupStage?T
+      00001340H  CODE     ---       USB_StatusInStage?T
+      00001350H  CODE     ---       USB_StatusOutStage?T
+      000001B8H  CONST    ---       USB_StringDescriptor
+      000003E0H  CODE     ---       USB_Suspend?A
+      000003ECH  CODE     ---       USB_Suspend?T
+      00000000H  CODE     ---       USB_WakeUp?T
+      00000400H  CODE     ---       USB_WakeUpCfg?T
+      0000062CH  CODE     ---       USB_WriteEP?T
+      00001B54H  CODE     ---       Undef_Handler?A
+      00000000H  CODE     ---       VCOM_GetSIOSetup?T
+      0000173CH  CODE     ---       VCOM_SetSIOSetup?T
+LARM LINKER/LOCATER V2.53                                                             09/28/2011  15:10:05  PAGE 5
+
+
+      000008CCH  CODE     ---       WrCmd?A
+      000008D8H  CODE     ---       WrCmd?T
+      000008FCH  CODE     ---       WrCmdDat?T
+      00000000H  CODE     ---       __startup
+      000000FCH  CODE     ---       exit?A
+      00000100H  CODE     ---       exit?T
+      00000000H  CODE     ---       getchar?T
+      000016E8H  CODE     ---       init_serial?T
+      00001394H  CODE     ---       main
+      00001B78H  CODE     ---       memcpy?A
+      00001B84H  CODE     ---       memcpy?T
+      00000000H  CODE     ---       putchar?T
+      00001B58H  CODE     ---       strlen?A
+      00001B64H  CODE     ---       strlen?T
+
+Program Size: data=1594 const=374 code=6704
+LARM RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

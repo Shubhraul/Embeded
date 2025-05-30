@@ -1,0 +1,21 @@
+*** Creating Trace Output File 'SD_MMC_INTERFACE.tra' Ok.
+### Preparing for ADS-LD.
+### Creating ADS-LD Command Line
+### List of Objects: adding '"startup.o"'
+### List of Objects: adding '"mmcmain.o"'
+### List of Objects: adding '"spi_mmc.o"'
+### ADS-LD Command completed:
+--cpu ARM7TDMI "startup.o" "mmcmain.o" "spi_mmc.o" --strict --scatter "SD_MMC_INTERFACE.sct" 
+--autoat --summary_stderr --info summarysizes --map --xref --callgraph --symbols 
+--info sizes --info totals --info unused --info veneers 
+ --list ".\SD_MMC_INTERFACE.map" -o "SD_MMC_INTERFACE.axf"### Preparing Environment (PrepEnvAds)
+### ADS-LD Output File: 'SD_MMC_INTERFACE.axf'
+### ADS-LD Command File: 'SD_MMC_INTERFACE.lnp'
+### Checking for dirty Components...
+### Creating CmdFile 'SD_MMC_INTERFACE.lnp', Handle=0x00000680
+### Writing '.lnp' file
+### ADS-LD Command file 'SD_MMC_INTERFACE.lnp' is ready.
+### ADS-LD: About to start ADS-LD Thread.
+### ADS-LD: executed with 0 errors
+### Updating obj list
+### LDADS_file() completed.

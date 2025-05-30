@@ -1,0 +1,31 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Project:</h2>
+C:\Documents and Settings\abc\Desktop\Dev Board Codes on 192.168.1.108\SD MMC INTERFACE\SD_MMC_INTERFACE.uvproj
+Project File Date:  08/25/2010
+
+<h2>Output:</h2>
+Build target 'Target 1'
+assembling Startup.s...
+compiling mmcmain.c...
+mmcmain.c(128): warning:  #177-D: variable "i" was declared but never referenced
+mmcmain.c:    DWORD i, BlockNum = 0;
+mmcmain.c:          ^
+mmcmain.c(128): warning:  #177-D: variable "BlockNum" was declared but never referenced
+mmcmain.c:    DWORD i, BlockNum = 0;
+mmcmain.c:             ^
+mmcmain.c: mmcmain.c: 2 warnings, 0 errors
+compiling spi_mmc.c...
+spi_mmc.c(22): warning:  #550-D: variable "Dummy" was set but never used
+spi_mmc.c:    BYTE i, Dummy;
+spi_mmc.c:            ^
+spi_mmc.c(45): warning:  #550-D: variable "Dummy" was set but never used
+spi_mmc.c:    BYTE Dummy;
+spi_mmc.c:         ^
+spi_mmc.c: spi_mmc.c: 2 warnings, 0 errors
+linking...
+Program Size: Code=2884 RO-data=32 RW-data=520 ZI-data=1768  
+FromELF: creating hex file...
+"SD_MMC_INTERFACE.axf" - 0 Error(s), 4 Warning(s).

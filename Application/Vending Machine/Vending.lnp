@@ -1,0 +1,4 @@
+--device DARMP "startup.o" "vending.o" --strict --scatter "Vending.sct" 
+--autoat --summary_stderr --info summarysizes --map --xref --callgraph --symbols 
+--info sizes --info totals --info unused --info veneers 
+ --list ".\Vending.map" -o "Vending.axf"

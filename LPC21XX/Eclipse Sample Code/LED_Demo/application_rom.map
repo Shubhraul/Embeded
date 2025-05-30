@@ -1,0 +1,309 @@
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+ROM              0x00000000         0x00080000         xr
+RAM              0x40000000         0x00010000         xrw
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+LOAD ./src/startup.o
+LOAD ./src/low_level_init.o
+LOAD ./src/main.o
+START GROUP
+LOAD c:/program files/yagarto/bin/../lib/gcc/arm-none-eabi/4.5.0\libgcc.a
+LOAD c:/program files/yagarto/bin/../lib/gcc/arm-none-eabi/4.5.0/../../../../arm-none-eabi/lib\libc.a
+END GROUP
+                0x00000200                C_STACK_SIZE = 0x200
+                0x00000000                IRQ_STACK_SIZE = 0x0
+                0x00000000                FIQ_STACK_SIZE = 0x0
+                0x00000000                SVC_STACK_SIZE = 0x0
+                0x00000000                ABT_STACK_SIZE = 0x0
+                0x00000000                UND_STACK_SIZE = 0x0
+
+.reset          0x00000000      0x190
+ *startup.o(.text)
+ .text          0x00000000      0x190 ./src/startup.o
+                0x00000000                _start
+                0x00000118                ExitFunction
+                0x00000128                UndefHandler
+                0x0000012c                SWIHandler
+                0x00000130                PAbortHandler
+                0x00000134                DAbortHandler
+                0x00000138                IRQHandler
+                0x0000013c                FIQHandler
+                0x00000190                . = ALIGN (0x4)
+
+.ramvect        0x40000000       0x40
+                0x40000000                __ram_start = .
+                0x40000040                . = 0x40
+ *fill*         0x40000000       0x40 00
+
+.fastcode       0x40000040        0x0 load address 0x00000190
+                0x00000190                __fastcode_load = LOADADDR (.fastcode)
+                0x40000040                __fastcode_start = .
+ *(.glue_7t)
+ .glue_7t       0x00000000        0x0 linker stubs
+ *(.glue_7)
+ .glue_7        0x00000000        0x0 linker stubs
+ *isr.o(.text.*)
+ *(.text.fastcode)
+ *(.text.Blinky_dispatch)
+                0x40000040                . = ALIGN (0x4)
+                0x40000040                __fastcode_end = .
+
+.text           0x00000190      0x2a8
+ CREATE_OBJECT_SYMBOLS
+ *(.text .text.* .gnu.linkonce.t.*)
+ .text          0x00000190      0x180 ./src/low_level_init.o
+                0x00000190                low_level_init
+ .text          0x00000310      0x128 ./src/main.o
+                0x00000310                main
+ *(.plt)
+ *(.gnu.warning)
+ *(.glue_7t)
+ *(.glue_7)
+                0x00000438                . = ALIGN (0x4)
+ *crtbegin.o(.ctors)
+ *(EXCLUDE_FILE(*crtend.o) .ctors)
+ *(SORT(.ctors.*))
+ *crtend.o(.ctors)
+ *crtbegin.o(.dtors)
+ *(EXCLUDE_FILE(*crtend.o) .dtors)
+ *(SORT(.dtors.*))
+ *crtend.o(.dtors)
+ *(.rodata .rodata.* .gnu.linkonce.r.*)
+ *(.ARM.extab* .gnu.linkonce.armextab.*)
+ *(.gcc_except_table)
+ *(.eh_frame_hdr)
+ *(.eh_frame)
+ *(.init)
+ *(.fini)
+                0x00000438                PROVIDE (__preinit_array_start, .)
+ *(.preinit_array)
+                0x00000438                PROVIDE (__preinit_array_end, .)
+                0x00000438                PROVIDE (__init_array_start, .)
+ *(SORT(.init_array.*))
+ *(.init_array)
+                0x00000438                PROVIDE (__init_array_end, .)
+                0x00000438                PROVIDE (__fini_array_start, .)
+ *(.fini_array)
+ *(SORT(.fini_array.*))
+                0x00000438                PROVIDE (__fini_array_end, .)
+
+.vfp11_veneer   0x00000438        0x0
+ .vfp11_veneer  0x00000000        0x0 linker stubs
+
+.v4_bx          0x00000438        0x0
+ .v4_bx         0x00000000        0x0 linker stubs
+
+.ARM.exidx      0x00000438        0x0
+                0x00000438                __exidx_start = .
+ *(.ARM.exidx* .gnu.linkonce.armexidx.*)
+                0x00000438                __exidx_end = .
+                0x00000438                _etext = .
+
+.data           0x40000040        0x0 load address 0x00000438
+                0x00000438                __data_load = LOADADDR (.data)
+                0x40000040                __data_start = .
+ *(.jcr)
+ *(.got.plt)
+ *(.got)
+ *(.shdata)
+ *(.data .data.* .gnu.linkonce.d.*)
+ .data          0x40000040        0x0 ./src/startup.o
+ .data          0x40000040        0x0 ./src/low_level_init.o
+ .data          0x40000040        0x0 ./src/main.o
+                0x40000040                . = ALIGN (0x4)
+                0x40000040                _edata = .
+
+.bss            0x40000040        0x0 load address 0x00000438
+                0x40000040                __bss_start__ = .
+ *(.shbss)
+ *(.bss .bss.* .gnu.linkonce.b.*)
+ .bss           0x40000040        0x0 ./src/startup.o
+ .bss           0x40000040        0x0 ./src/low_level_init.o
+ .bss           0x40000040        0x0 ./src/main.o
+ *(COMMON)
+                0x40000040                . = ALIGN (0x8)
+                0x40000040                __bss_end__ = .
+
+.stack          0x40000040      0x200 load address 0x00000438
+                0x40000040                __stack_start__ = .
+                0x40000040                . = (. + IRQ_STACK_SIZE)
+                0x40000040                . = ALIGN (0x4)
+                0x40000040                __irq_stack_top__ = .
+                0x40000040                . = (. + FIQ_STACK_SIZE)
+                0x40000040                . = ALIGN (0x4)
+                0x40000040                __fiq_stack_top__ = .
+                0x40000040                . = (. + SVC_STACK_SIZE)
+                0x40000040                . = ALIGN (0x4)
+                0x40000040                __svc_stack_top__ = .
+                0x40000040                . = (. + ABT_STACK_SIZE)
+                0x40000040                . = ALIGN (0x4)
+                0x40000040                __abt_stack_top__ = .
+                0x40000040                . = (. + UND_STACK_SIZE)
+                0x40000040                . = ALIGN (0x4)
+                0x40000040                __und_stack_top__ = .
+                0x40000240                . = (. + C_STACK_SIZE)
+ *fill*         0x40000040      0x200 00
+                0x40000240                . = ALIGN (0x4)
+                0x40000240                __c_stack_top__ = .
+                0x40000240                __stack_end__ = .
+                0x40000240                _end = .
+                0x40000240                __end = .
+                0x40000240                PROVIDE (end, .)
+
+.stab
+ *(.stab)
+
+.stabstr
+ *(.stabstr)
+
+.debug
+ *(.debug)
+
+.line
+ *(.line)
+
+.debug_srcinfo
+ *(.debug_srcinfo)
+
+.debug_sfnames
+ *(.debug_sfnames)
+
+.comment        0x00000000       0x11
+ .comment       0x00000000       0x11 ./src/low_level_init.o
+                                 0x12 (size before relaxing)
+ .comment       0x00000000       0x12 ./src/main.o
+
+.debug_aranges  0x00000000       0x60
+ *(.debug_aranges)
+ .debug_aranges
+                0x00000000       0x20 ./src/startup.o
+ .debug_aranges
+                0x00000020       0x20 ./src/low_level_init.o
+ .debug_aranges
+                0x00000040       0x20 ./src/main.o
+
+.debug_pubnames
+                0x00000000       0x40
+ *(.debug_pubnames)
+ .debug_pubnames
+                0x00000000       0x25 ./src/low_level_init.o
+ .debug_pubnames
+                0x00000025       0x1b ./src/main.o
+
+.debug_info     0x00000000      0x1e2
+ *(.debug_info .gnu.linkonce.wi.*)
+ .debug_info    0x00000000       0x66 ./src/startup.o
+ .debug_info    0x00000066       0xd4 ./src/low_level_init.o
+ .debug_info    0x0000013a       0xa8 ./src/main.o
+
+.debug_abbrev   0x00000000       0xe2
+ *(.debug_abbrev)
+ .debug_abbrev  0x00000000       0x14 ./src/startup.o
+ .debug_abbrev  0x00000014       0x75 ./src/low_level_init.o
+ .debug_abbrev  0x00000089       0x59 ./src/main.o
+
+.debug_line     0x00000000      0x1a8
+ *(.debug_line)
+ .debug_line    0x00000000       0x90 ./src/startup.o
+ .debug_line    0x00000090       0xa9 ./src/low_level_init.o
+ .debug_line    0x00000139       0x6f ./src/main.o
+
+.debug_frame    0x00000000       0x48
+ *(.debug_frame)
+ .debug_frame   0x00000000       0x24 ./src/low_level_init.o
+ .debug_frame   0x00000024       0x24 ./src/main.o
+
+.debug_str      0x00000000       0xf4
+ *(.debug_str)
+ .debug_str     0x00000000       0xe4 ./src/low_level_init.o
+                                0x118 (size before relaxing)
+ .debug_str     0x000000e4       0x10 ./src/main.o
+                                 0xd5 (size before relaxing)
+
+.debug_loc      0x00000000       0x40
+ *(.debug_loc)
+ .debug_loc     0x00000000       0x20 ./src/low_level_init.o
+ .debug_loc     0x00000020       0x20 ./src/main.o
+
+.debug_macinfo
+ *(.debug_macinfo)
+
+.debug_weaknames
+ *(.debug_weaknames)
+
+.debug_funcnames
+ *(.debug_funcnames)
+
+.debug_typenames
+ *(.debug_typenames)
+
+.debug_varnames
+ *(.debug_varnames)
+
+.note.gnu.arm.ident
+ *(.note.gnu.arm.ident)
+
+.ARM.attributes
+                0x00000000       0x2c
+ *(.ARM.attributes)
+ .ARM.attributes
+                0x00000000       0x20 ./src/startup.o
+ .ARM.attributes
+                0x00000020       0x30 ./src/low_level_init.o
+ .ARM.attributes
+                0x00000050       0x30 ./src/main.o
+
+/DISCARD/
+ *(.note.GNU-stack)
+OUTPUT(application_rom.elf elf32-littlearm)
+
+.debug_pubtypes
+                0x00000000       0x3d
+ .debug_pubtypes
+                0x00000000       0x2b ./src/low_level_init.o
+ .debug_pubtypes
+                0x0000002b       0x12 ./src/main.o
+
+Cross Reference Table
+
+Symbol                                            File
+DAbortHandler                                     ./src/startup.o
+                                                  ./src/low_level_init.o
+ExitFunction                                      ./src/startup.o
+FIQHandler                                        ./src/startup.o
+                                                  ./src/low_level_init.o
+IRQHandler                                        ./src/startup.o
+                                                  ./src/low_level_init.o
+PAbortHandler                                     ./src/startup.o
+                                                  ./src/low_level_init.o
+SWIHandler                                        ./src/startup.o
+                                                  ./src/low_level_init.o
+UndefHandler                                      ./src/startup.o
+                                                  ./src/low_level_init.o
+__abt_stack_top__                                 ./src/startup.o
+__bss_end__                                       ./src/startup.o
+__bss_start__                                     ./src/startup.o
+__c_stack_top__                                   ./src/startup.o
+__data_load                                       ./src/startup.o
+__data_start                                      ./src/startup.o
+__fastcode_end                                    ./src/startup.o
+__fastcode_load                                   ./src/startup.o
+__fastcode_start                                  ./src/startup.o
+__fiq_stack_top__                                 ./src/startup.o
+__irq_stack_top__                                 ./src/startup.o
+__ram_start                                       ./src/low_level_init.o
+__stack_end__                                     ./src/startup.o
+__stack_start__                                   ./src/startup.o
+__svc_stack_top__                                 ./src/startup.o
+__und_stack_top__                                 ./src/startup.o
+_edata                                            ./src/startup.o
+_start                                            ./src/startup.o
+low_level_init                                    ./src/low_level_init.o
+                                                  ./src/startup.o
+main                                              ./src/main.o
+                                                  ./src/startup.o

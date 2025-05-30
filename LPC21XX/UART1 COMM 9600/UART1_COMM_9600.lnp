@@ -1,0 +1,4 @@
+--cpu ARM7TDMI "startup.o" "main.o" --strict --scatter "UART1_COMM_9600.sct" 
+--autoat --summary_stderr --info summarysizes --map --xref --callgraph --symbols 
+--info sizes --info totals --info unused --info veneers 
+ --list ".\UART1_COMM_9600.map" -o "UART1_COMM_9600.axf"

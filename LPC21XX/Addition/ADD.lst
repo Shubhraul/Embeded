@@ -1,0 +1,40 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000                 AREA             ADDITION,CODE,READONLY
+    2 00000000                 ENTRY
+    3 00000000 E3E0100E        MOV              R1,#0xFFFFFFF1
+    4 00000004 E3A02001        MOV              R2,#0x00000001
+    5 00000008 E0810002        ADD              R0,R1,R2
+    6 0000000C EAFFFFFE 
+                       STOP    B                STOP
+    7 00000010                 END
+Command Line: --debug --xref --device=DARMP --apcs=interwork -oADD.o -IC:\Keil_
+v5\ARM\INC\Philips --predefine="__EVAL SETA 1" --list=ADD.lst ADD.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+ADDITION 00000000
+
+Symbol: ADDITION
+   Definitions
+      At line 1 in file ADD.s
+   Uses
+      None
+Comment: ADDITION unused
+STOP 0000000C
+
+Symbol: STOP
+   Definitions
+      At line 6 in file ADD.s
+   Uses
+      At line 6 in file ADD.s
+Comment: STOP used once
+2 symbols
+322 symbols in table

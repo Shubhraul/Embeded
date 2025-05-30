@@ -1,0 +1,20 @@
+*** Creating Trace Output File 'switch.tra' Ok.
+### Preparing for ADS-LD.
+### Creating ADS-LD Command Line
+### List of Objects: adding '"startup.o"'
+### List of Objects: adding '"ledswitch.o"'
+### ADS-LD Command completed:
+--device DARMP "startup.o" "ledswitch.o" --strict --scatter "switch.sct" 
+--autoat --summary_stderr --info summarysizes --map --xref --callgraph --symbols 
+--info sizes --info totals --info unused --info veneers 
+ --list ".\switch.map" -o "switch.axf"### Preparing Environment (PrepEnvAds)
+### ADS-LD Output File: 'switch.axf'
+### ADS-LD Command File: 'switch.lnp'
+### Checking for dirty Components...
+### Creating CmdFile 'switch.lnp', Handle=0x00000888
+### Writing '.lnp' file
+### ADS-LD Command file 'switch.lnp' is ready.
+### ADS-LD: About to start ADS-LD Thread.
+### ADS-LD: executed with 0 errors
+### Updating obj list
+### LDADS_file() completed.
