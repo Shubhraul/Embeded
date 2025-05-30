@@ -1,0 +1,744 @@
+!SESSION 2024-05-01 09:39:07.615 -----------------------------------------------
+eclipse.buildId=Version 1.15.0
+java.version=17.0.8.1
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_IN
+Command-line arguments:  -os win32 -ws win32 -arch x86_64
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2024-05-01 09:40:22.678
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2024-05-01 09:40:22.708
+!MESSAGE Log4j2 initialized with config file H:\My Drive\My-Mtech\sem2\RTOS\Term Work\CubeID\.metadata\.log4j2.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2024-05-01 09:40:28.415
+!MESSAGE Started RMI Server, listening on port 41337
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:42:21.885
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:45:19.773
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:45:21.840
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:45:22.779
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:45:23.566
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:45:24.836
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:45:34.591
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:45:36.192
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:45:36.921
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:45:38.171
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:45:39.533
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:46:15.194
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:47:09.462
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.common.services.project.ProjectSetupService.doProjectSetup(ProjectSetupService.java:56)
+	at com.st.stm32cube.ide.common.services.project.HierarchicalProjectTreeSetupService.HierarchicalProjectTreeSetup(HierarchicalProjectTreeSetupService.java:159)
+	at com.st.stm32cube.ide.common.services.project.HierarchicalProjectTreeSetupService.doProjectTreeSetup(HierarchicalProjectTreeSetupService.java:246)
+	at com.st.stm32cube.ide.common.services.adapted.core.project.ProjectSetupRcpServiceProcess.doProjectSetup(ProjectSetupRcpServiceProcess.java:273)
+	at com.st.stm32cube.ide.common.services.adapted.core.project.ProjectSetupRcpServiceProcess.doProjectSetup(ProjectSetupRcpServiceProcess.java:267)
+	at com.st.stm32cube.ide.common.services.adapted.core.project.ProjectSetupRcpServiceProcess.run(ProjectSetupRcpServiceProcess.java:122)
+	at com.st.stm32cube.ide.common.services.mx.core.project.ProjectSetupRcpService.doProjectSetup(ProjectSetupRcpService.java:237)
+	at com.st.stm32cube.ide.common.services.mx.core.project.ProjectSetupRcpService.run(ProjectSetupRcpService.java:231)
+	at com.st.stm32cube.ide.common.services.mx.generate.MxGenerateProjectRcpService.run(MxGenerateProjectRcpService.java:118)
+	at com.st.stm32cube.ide.mcu.ide.process.MxIdePlugInProjectGeneratorAbstract.doExecute(MxIdePlugInProjectGeneratorAbstract.java:364)
+	at com.st.stm32cube.ide.mcu.ide.process.MxIdePlugInProjectGeneratorAbstract.doGenerate(MxIdePlugInProjectGeneratorAbstract.java:248)
+	at com.st.stm32cube.ide.mcu.ide.process.MxIdePlugInProjectGeneratorAbstract.generate(MxIdePlugInProjectGeneratorAbstract.java:90)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at com.st.microxplorer.plugins.projectmanager.model.ToolchainGenerator.CallMethod(ToolchainGenerator.java:373)
+	at com.st.microxplorer.plugins.projectmanager.model.ToolchainGenerator.generate(ToolchainGenerator.java:491)
+	at com.st.microxplorer.plugins.projectmanager.engine.ProjectBuilder.createToolChainFolders(ProjectBuilder.java:4922)
+	at com.st.microxplorer.plugins.projectmanager.engine.ProjectBuilder.createProject(ProjectBuilder.java:960)
+	at com.st.microxplorer.plugins.projectmanager.engine.ProjectBuilder.createProject(ProjectBuilder.java:586)
+	at com.st.microxplorer.plugins.projectmanager.engine.MainProjectManager.startGenerateCode(MainProjectManager.java:1433)
+	at com.st.stm32cube.common.mx.editor.CubeMxEditor.doGenerate(CubeMxEditor.java:2577)
+	at com.st.stm32cube.common.mx.editor.CubeMxEditor$22.run(CubeMxEditor.java:2282)
+	at com.st.stm32cube.common.mx.oss.core.awtswtbridge.AwtEnvironment$2.run(AwtEnvironment.java:166)
+	at java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:318)
+	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:773)
+	at java.desktop/java.awt.EventQueue$4.run(EventQueue.java:720)
+	at java.desktop/java.awt.EventQueue$4.run(EventQueue.java:714)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:399)
+	at java.base/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:86)
+	at java.desktop/java.awt.EventQueue.dispatchEvent(EventQueue.java:742)
+	at java.desktop/java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:203)
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:124)
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:113)
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:109)
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:101)
+	at java.desktop/java.awt.EventDispatchThread.run(EventDispatchThread.java:90)
+
+!ENTRY com.st.stm32cube.ide.common.services 4 0 2024-05-01 09:47:09.469
+!MESSAGE Project is required
+
+!ENTRY com.st.stm32cube.ide.common.services 4 0 2024-05-01 09:47:09.485
+!MESSAGE Project is required
+
+!ENTRY com.st.stm32cube.common.mx 4 0 2024-05-01 09:47:09.609
+!MESSAGE Cannot invoke "org.eclipse.core.runtime.IPath.toOSString()" because the return value of "org.eclipse.core.resources.IProject.getLocation()" is null
+!STACK 0
+java.lang.NullPointerException: Cannot invoke "org.eclipse.core.runtime.IPath.toOSString()" because the return value of "org.eclipse.core.resources.IProject.getLocation()" is null
+	at com.st.stm32cube.ide.mcu.ide.process.MCUIdeHelper.getRootProject(MCUIdeHelper.java:79)
+	at com.st.stm32cube.common.mx.iocgenerator.IocGeneratorAdapter.getParameter(IocGeneratorAdapter.java:1119)
+	at com.st.stm32cube.common.mx.iocgenerator.IocGeneratorAdapter.isUnderRootProjectMode(IocGeneratorAdapter.java:1057)
+	at com.st.stm32cube.ide.mcu.ide.process.MxIdePlugInProjectGeneratorDescriptor.getIdeProjectGenerator(MxIdePlugInProjectGeneratorDescriptor.java:43)
+	at com.st.stm32cube.common.mx.editor.CubeMxEditor.doCallBackCheckEndCG(CubeMxEditor.java:2912)
+	at com.st.microxplorer.plugins.projectmanager.engine.MainProjectManager.startGenerateCode(MainProjectManager.java:1457)
+	at com.st.stm32cube.common.mx.editor.CubeMxEditor.doGenerate(CubeMxEditor.java:2577)
+	at com.st.stm32cube.common.mx.editor.CubeMxEditor$22.run(CubeMxEditor.java:2282)
+	at com.st.stm32cube.common.mx.oss.core.awtswtbridge.AwtEnvironment$2.run(AwtEnvironment.java:166)
+	at java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:318)
+	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:773)
+	at java.desktop/java.awt.EventQueue$4.run(EventQueue.java:720)
+	at java.desktop/java.awt.EventQueue$4.run(EventQueue.java:714)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:399)
+	at java.base/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:86)
+	at java.desktop/java.awt.EventQueue.dispatchEvent(EventQueue.java:742)
+	at java.desktop/java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:203)
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:124)
+	at java.desktop/java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:113)
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:109)
+	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:101)
+	at java.desktop/java.awt.EventDispatchThread.run(EventDispatchThread.java:90)
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 4 0 2024-05-01 09:47:09.786
+!MESSAGE STM32CubeMx project generation failure
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:47:15.051
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:47:16.212
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:47:17.114
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:47:18.366
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:47:19.142
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:47:19.981
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:47:20.798
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:47:21.543
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:47:22.460
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:47:31.245
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:47:32.464
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:47:34.490
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:47:53.244
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:50:08.076
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:50:09.197
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:51:39.352
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:52:41.467
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:52:43.449
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:52:44.584
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:52:46.012
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:52:46.839
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:52:47.778
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:52:49.035
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:52:51.563
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:52:52.435
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:52:53.164
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:52:53.913
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:52:54.468
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:52:55.037
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:52:55.611
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:52:56.108
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:52:56.663
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:52:57.282
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+
+!ENTRY org.eclipse.core.resources 4 274 2024-05-01 09:52:57.814
+!MESSAGE Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+!STACK 0
+java.lang.Exception: Could not set the project description for 'BMS' because the project description file (.project) is out of sync with the file system.
+	at org.eclipse.core.internal.resources.ResourceException.provideStackTrace(ResourceException.java:42)
+	at org.eclipse.core.internal.resources.ResourceException.<init>(ResourceException.java:38)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1335)
+	at org.eclipse.core.internal.resources.Project.setDescription(Project.java:1369)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:270)
+	at com.st.stm32cube.common.projectcreation.core.ProjectUtilities.setProjectNature(ProjectUtilities.java:141)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUCubeMxProjectProcessOperation.run(MCUCubeMxProjectProcessOperation.java:84)
+	at com.st.stm32cube.ide.mcu.ide.process.MCUProjectCreationProcessOperationProvider$1.run(MCUProjectCreationProcessOperationProvider.java:201)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
